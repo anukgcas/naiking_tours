@@ -3,7 +3,6 @@ import { Loader } from './components/Loader';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { SignatureDestinations } from './components/SignatureDestinations';
-import { MoodCompass } from './components/MoodCompass';
 import { PopularPackages } from './components/PopularPackages';
 import { StandardVsNaiking } from './components/StandardVsNaiking';
 import { TourDetailPage } from './components/TourDetailPage';
@@ -194,12 +193,6 @@ export default function App() {
               destinations={SIGNATURE_DESTINATIONS}
               onSelectDestination={handleSelectDestination}
               onViewAllPackages={handleViewAllPackages}
-            />
-
-            {/* Interactive Travel Cadence & Mood Compass Matcher */}
-            <MoodCompass
-              packages={TOUR_PACKAGES}
-              onSelectPackage={handleOpenPackageDetail}
             />
 
             {/* Popular Tour Packages */}
