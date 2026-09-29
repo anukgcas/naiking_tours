@@ -233,7 +233,7 @@ export const Hero: React.FC<HeroProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Compact destination banner — kept short so the Trip Finder is visible on first load */}
         <motion.div
-          className="relative rounded-3xl overflow-hidden h-[380px] lg:h-[420px] bg-[#1E2022] shadow-xl"
+          className="relative rounded-3xl overflow-hidden h-[400px] lg:h-[440px] bg-[#1E2022] shadow-xl"
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
@@ -253,7 +253,7 @@ export const Hero: React.FC<HeroProps> = ({
           </AnimatePresence>
           <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-black/10 pointer-events-none" />
 
-          <div className="relative h-full p-5 sm:p-8 lg:p-10 pb-24 lg:pb-28 flex flex-col">
+          <div className="relative h-full p-5 sm:p-8 lg:p-10 pb-28 lg:pb-32 flex flex-col">
             {/* Top row: tags + destination switcher */}
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="flex flex-wrap items-center gap-2">
@@ -330,7 +330,7 @@ export const Hero: React.FC<HeroProps> = ({
             </div>
 
             {/* Current destination caption */}
-            <div className="hidden lg:block absolute right-10 bottom-28 text-right text-white">
+            <div className="hidden lg:block absolute right-10 bottom-32 text-right text-white">
               <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/70 block">
                 {currentReel.country}
               </span>
@@ -355,59 +355,24 @@ export const Hero: React.FC<HeroProps> = ({
         {/* TRIP FINDER — overlaps the banner so it is part of the first screen */}
         <motion.div
           id="hero-search"
-          className="relative z-30 -mt-20 lg:-mt-24 mx-2 sm:mx-4 lg:mx-8"
+          className="relative z-30 -mt-24 lg:-mt-28 mx-2 sm:mx-4 lg:mx-8"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
         >
           <div>
-            <div className="relative rounded-3xl bg-white border border-[#1E2022]/12 shadow-2xl p-4 sm:p-5">
-              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 pb-3 mb-3 border-b border-[#1E2022]/8">
-                <div className="flex items-center gap-2 text-sm font-bold text-[#1E2022]">
-                  <Compass className="w-4 h-4 text-[#C2571A]" />
-                  Find your perfect trip
-                  <span className="hidden sm:inline font-normal text-[#6B7280]">
-                    · {packagesCount} private itineraries
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 overflow-x-auto scrollbar-none max-w-full">
-                        <button
-              type="button"
-              onClick={() => applyQuickPreset('weekend')}
-              className="text-xs px-3 py-1 rounded-full bg-white hover:bg-[#FAF8F5] border border-[#1E2022]/15 text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
-            >
-              ⚡ 3-Day Long Weekend
-            </button>
-            <button
-              type="button"
-              onClick={() => applyQuickPreset('beach')}
-              className="text-xs px-3 py-1 rounded-full bg-white hover:bg-[#FAF8F5] border border-[#1E2022]/15 text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
-            >
-              🏝️ Lagoon Overwater
-            </button>
-            <button
-              type="button"
-              onClick={() => applyQuickPreset('alpine')}
-              className="text-xs px-3 py-1 rounded-full bg-white hover:bg-[#FAF8F5] border border-[#1E2022]/15 text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
-            >
-              🏔️ Alpine Chalet
-            </button>
-            <button
-              type="button"
-              onClick={() => applyQuickPreset('honeymoon')}
-              className="text-xs px-3 py-1 rounded-full bg-white hover:bg-[#FAF8F5] border border-[#1E2022]/15 text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
-            >
-              🥂 Romantic Sanctuary
-            </button>
-          </div>
+            <div className="relative rounded-3xl bg-white border border-[#1E2022]/12 shadow-2xl p-6 sm:p-8">
+              <div className="mb-6">
+                <h2 className="text-lg font-bold text-[#1E2022]">Find your perfect trip</h2>
+                <p className="mt-0.5 text-sm text-[#6B7280]">Tell us where and when — we will shape the rest.</p>
               </div>
-          <form
+              <form
             onSubmit={handleSearchSubmit}
             className=""
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1.2fr_auto] gap-3 items-stretch">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1.2fr_auto] gap-4 items-stretch">
               {/* Field 1: Destination */}
-              <div className="relative p-3 rounded-xl bg-white border border-[#1E2022]/20 hover:border-[#1E2022]/45 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
+              <div className="relative px-4 py-3.5 rounded-xl bg-white border border-[#1E2022]/12 hover:border-[#1E2022]/35 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
                 <div
                   onClick={() => setIsDestOpen(!isDestOpen)}
                   className="cursor-pointer"
@@ -452,7 +417,7 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
 
               {/* Field 2: Check-in */}
-              <div className="p-3 rounded-xl bg-white border border-[#1E2022]/20 hover:border-[#1E2022]/45 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
+              <div className="px-4 py-3.5 rounded-xl bg-white border border-[#1E2022]/12 hover:border-[#1E2022]/35 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
                 <label
                   htmlFor="checkin-hero"
                   className="flex items-center gap-1.5 text-xs font-semibold text-[#1E2022]"
@@ -470,7 +435,7 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
 
               {/* Field 3: Check-out with Nights Pill */}
-              <div className="p-3 rounded-xl bg-white border border-[#1E2022]/20 hover:border-[#1E2022]/45 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
+              <div className="px-4 py-3.5 rounded-xl bg-white border border-[#1E2022]/12 hover:border-[#1E2022]/35 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
                 <div className="flex items-center justify-between">
                   <label
                     htmlFor="checkout-hero"
@@ -495,7 +460,7 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
 
               {/* Field 4: Travellers */}
-              <div className="relative p-3 rounded-xl bg-white border border-[#1E2022]/20 hover:border-[#1E2022]/45 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
+              <div className="relative px-4 py-3.5 rounded-xl bg-white border border-[#1E2022]/12 hover:border-[#1E2022]/35 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
                 <div
                   onClick={() => setIsTravellersOpen(!isTravellersOpen)}
                   className="cursor-pointer"
@@ -591,7 +556,7 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
 
               {/* Field 5: Budget */}
-              <div className="relative p-3 rounded-xl bg-white border border-[#1E2022]/20 hover:border-[#1E2022]/45 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
+              <div className="relative px-4 py-3.5 rounded-xl bg-white border border-[#1E2022]/12 hover:border-[#1E2022]/35 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
                 <div
                   onClick={() => setIsBudgetOpen(!isBudgetOpen)}
                   className="cursor-pointer"
@@ -637,7 +602,7 @@ export const Hero: React.FC<HeroProps> = ({
               <div className="sm:col-span-2 lg:col-span-1 flex">
                 <button
                   type="submit"
-                  className="group w-full min-h-[3.5rem] lg:px-8 px-5 rounded-xl bg-[#1E2022] hover:bg-black text-white font-semibold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="group w-full min-h-[4rem] lg:px-9 px-6 rounded-xl bg-[#1E2022] hover:bg-black text-white font-semibold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <span className="whitespace-nowrap">Search Trips</span>
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -645,18 +610,42 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
             </div>
           </form>
+              <div className="flex flex-wrap items-center gap-3 mt-6">
+                        <button
+              type="button"
+              onClick={() => applyQuickPreset('weekend')}
+              className="text-xs px-3.5 py-1.5 rounded-full bg-[#FAF8F5] hover:bg-[#1E2022]/8 border border-transparent text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
+            >
+              ⚡ 3-Day Long Weekend
+            </button>
+            <button
+              type="button"
+              onClick={() => applyQuickPreset('beach')}
+              className="text-xs px-3.5 py-1.5 rounded-full bg-[#FAF8F5] hover:bg-[#1E2022]/8 border border-transparent text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
+            >
+              🏝️ Lagoon Overwater
+            </button>
+            <button
+              type="button"
+              onClick={() => applyQuickPreset('alpine')}
+              className="text-xs px-3.5 py-1.5 rounded-full bg-[#FAF8F5] hover:bg-[#1E2022]/8 border border-transparent text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
+            >
+              🏔️ Alpine Chalet
+            </button>
+            <button
+              type="button"
+              onClick={() => applyQuickPreset('honeymoon')}
+              className="text-xs px-3.5 py-1.5 rounded-full bg-[#FAF8F5] hover:bg-[#1E2022]/8 border border-transparent text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
+            >
+              🥂 Romantic Sanctuary
+            </button>
+          </div>
             </div>
           </div>
         </motion.div>
-
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-xs font-semibold text-[#555A60]">
-          <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-[#C2571A]" />100% private chauffeured transit</span>
-          <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-[#C2571A]" />Handpicked boutique stays</span>
-          <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-[#C2571A]" />Zero hidden markups</span>
-        </div>
       </div>
 
-      <div className="mt-10">
+      <div className="mt-14">
         <Marquee items={MARQUEE_ITEMS} />
       </div>
     </section>
