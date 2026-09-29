@@ -131,14 +131,15 @@ export const Hero: React.FC<HeroProps> = ({
   packagesCount = 6,
 }) => {
   const [activeReelIndex, setActiveReelIndex] = useState(0);
-  const [destination, setDestination] = useState('Bali, Indonesia');
+  const [destination, setDestination] = useState('');
   const [isDestOpen, setIsDestOpen] = useState(false);
-  const [checkIn, setCheckIn] = useState('2026-10-18');
-  const [checkOut, setCheckOut] = useState('2026-10-22');
+  const [checkIn, setCheckIn] = useState('');
+  const [checkOut, setCheckOut] = useState('');
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
+  const [guestsChosen, setGuestsChosen] = useState(false);
   const [isTravellersOpen, setIsTravellersOpen] = useState(false);
-  const [budgetRange, setBudgetRange] = useState('30k-60k');
+  const [budgetRange, setBudgetRange] = useState('');
   const [isBudgetOpen, setIsBudgetOpen] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
@@ -149,7 +150,6 @@ export const Hero: React.FC<HeroProps> = ({
     const id = setTimeout(() => {
       const next = (activeReelIndex + 1) % DESTINATION_REELS.length;
       setActiveReelIndex(next);
-      setDestination(`${DESTINATION_REELS[next].name}, ${DESTINATION_REELS[next].country}`);
     }, REEL_INTERVAL_MS);
     return () => clearTimeout(id);
   }, [activeReelIndex]);
@@ -171,16 +171,16 @@ export const Hero: React.FC<HeroProps> = ({
 
   // Calculate nights
   const calculateNights = () => {
+    if (!checkIn || !checkOut) return 0;
     const d1 = new Date(checkIn);
     const d2 = new Date(checkOut);
     const diff = Math.ceil(Math.abs(d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
-    return isNaN(diff) || diff === 0 ? 3 : diff;
+    return isNaN(diff) ? 0 : diff;
   };
 
   const handleSelectReel = (index: number) => {
     setActiveReelIndex(index);
     const target = DESTINATION_REELS[index];
-    setDestination(`${target.name}, ${target.country}`);
     if (isAudioPlaying) {
       sanctuaryAudio.play(target.audioMode);
     }
@@ -206,6 +206,7 @@ export const Hero: React.FC<HeroProps> = ({
       setDestination('Bali, Indonesia');
       setAdults(2);
       setChildren(0);
+      setGuestsChosen(true);
       setActiveReelIndex(0);
     }
   };
@@ -213,17 +214,17 @@ export const Hero: React.FC<HeroProps> = ({
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch({
-      destination: destination.split(',')[0].trim(),
+      destination: destination.split(',')[0].trim() || 'all',
       checkIn,
       checkOut,
       adults,
       children,
-      budgetRange,
+      budgetRange: budgetRange || 'any',
     });
   };
 
   const selectedBudgetLabel =
-    BUDGET_OPTIONS.find((b) => b.value === budgetRange)?.label || 'Select Budget';
+    BUDGET_OPTIONS.find((b) => b.value === budgetRange)?.label || '';
 
   const headlineWords = ['Where', 'quiet', 'luxury', 'meets'];
 
@@ -411,13 +412,13 @@ export const Hero: React.FC<HeroProps> = ({
                   onClick={() => setIsDestOpen(!isDestOpen)}
                   className="cursor-pointer"
                 >
-                  <div className="flex items-center gap-1.5 text-xs font-medium text-[#6B7280]">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-[#1E2022]">
                     <MapPin className="w-3.5 h-3.5 text-[#C2571A]" />
                     <span>Where do you want to go?</span>
                   </div>
                   <div className="mt-1 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-[#1E2022] truncate">
-                      {destination}
+                    <span className={`text-sm truncate ${destination ? 'font-semibold text-[#1E2022]' : 'font-normal text-[#9CA3AF]'}`}>
+                      {destination || 'Search destination'}
                     </span>
                     <ChevronDown className="w-4 h-4 text-[#9CA3AF]" />
                   </div>
@@ -454,7 +455,7 @@ export const Hero: React.FC<HeroProps> = ({
               <div className="p-3 rounded-xl bg-white border border-[#1E2022]/20 hover:border-[#1E2022]/45 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
                 <label
                   htmlFor="checkin-hero"
-                  className="flex items-center gap-1.5 text-xs font-medium text-[#6B7280]"
+                  className="flex items-center gap-1.5 text-xs font-semibold text-[#1E2022]"
                 >
                   <Calendar className="w-3.5 h-3.5 text-[#C2571A]" />
                   <span>Check-in</span>
@@ -464,7 +465,7 @@ export const Hero: React.FC<HeroProps> = ({
                   type="date"
                   value={checkIn}
                   onChange={(e) => setCheckIn(e.target.value)}
-                  className="mt-1 w-full text-sm font-semibold text-[#1E2022] bg-transparent focus:outline-none cursor-pointer"
+                  className={`mt-1 w-full text-sm bg-transparent focus:outline-none cursor-pointer ${checkIn ? 'font-semibold text-[#1E2022]' : 'font-normal text-[#9CA3AF]'}`}
                 />
               </div>
 
@@ -473,21 +474,23 @@ export const Hero: React.FC<HeroProps> = ({
                 <div className="flex items-center justify-between">
                   <label
                     htmlFor="checkout-hero"
-                    className="flex items-center gap-1.5 text-xs font-medium text-[#6B7280]"
+                    className="flex items-center gap-1.5 text-xs font-semibold text-[#1E2022]"
                   >
                     <Calendar className="w-3.5 h-3.5 text-[#C2571A]" />
                     <span>Check-out</span>
                   </label>
-                  <span className="text-[10px] font-bold text-[#C2571A] bg-[#C2571A]/10 px-1.5 py-0.5 rounded">
-                    {calculateNights()}N
-                  </span>
+                  {calculateNights() > 0 && (
+                    <span className="text-[10px] font-bold text-[#C2571A] bg-[#C2571A]/10 px-1.5 py-0.5 rounded">
+                      {calculateNights()}N
+                    </span>
+                  )}
                 </div>
                 <input
                   id="checkout-hero"
                   type="date"
                   value={checkOut}
                   onChange={(e) => setCheckOut(e.target.value)}
-                  className="mt-1 w-full text-sm font-semibold text-[#1E2022] bg-transparent focus:outline-none cursor-pointer"
+                  className={`mt-1 w-full text-sm bg-transparent focus:outline-none cursor-pointer ${checkOut ? 'font-semibold text-[#1E2022]' : 'font-normal text-[#9CA3AF]'}`}
                 />
               </div>
 
@@ -497,17 +500,23 @@ export const Hero: React.FC<HeroProps> = ({
                   onClick={() => setIsTravellersOpen(!isTravellersOpen)}
                   className="cursor-pointer"
                 >
-                  <div className="flex items-center gap-1.5 text-xs font-medium text-[#6B7280]">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-[#1E2022]">
                     <Users className="w-3.5 h-3.5 text-[#C2571A]" />
                     <span>Travellers</span>
                   </div>
                   <div className="mt-1 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-[#1E2022]">
-                      {adults + children} Guest{adults + children > 1 ? 's' : ''}
-                    </span>
-                    <span className="text-xs text-[#9CA3AF]">
-                      {adults}A {children > 0 ? `· ${children}C` : ''}
-                    </span>
+                    {guestsChosen ? (
+                      <>
+                        <span className="text-sm font-semibold text-[#1E2022]">
+                          {adults + children} Guest{adults + children > 1 ? 's' : ''}
+                        </span>
+                        <span className="text-xs text-[#9CA3AF]">
+                          {adults}A {children > 0 ? `· ${children}C` : ''}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-sm font-normal text-[#9CA3AF]">Add guests</span>
+                    )}
                   </div>
                 </div>
 
@@ -569,7 +578,10 @@ export const Hero: React.FC<HeroProps> = ({
 
                     <button
                       type="button"
-                      onClick={() => setIsTravellersOpen(false)}
+                      onClick={() => {
+                        setGuestsChosen(true);
+                        setIsTravellersOpen(false);
+                      }}
                       className="w-full py-1.5 text-xs font-semibold rounded-lg bg-[#FAF8F5] hover:bg-gray-100 text-[#1E2022]"
                     >
                       Done
@@ -584,13 +596,13 @@ export const Hero: React.FC<HeroProps> = ({
                   onClick={() => setIsBudgetOpen(!isBudgetOpen)}
                   className="cursor-pointer"
                 >
-                  <div className="flex items-center gap-1.5 text-xs font-medium text-[#6B7280]">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-[#1E2022]">
                     <Wallet className="w-3.5 h-3.5 text-[#C2571A]" />
                     <span>Budget</span>
                   </div>
                   <div className="mt-1 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-[#1E2022] truncate">
-                      {selectedBudgetLabel}
+                    <span className={`text-sm truncate ${selectedBudgetLabel ? 'font-semibold text-[#1E2022]' : 'font-normal text-[#9CA3AF]'}`}>
+                      {selectedBudgetLabel || 'Select budget'}
                     </span>
                     <ChevronDown className="w-4 h-4 text-[#9CA3AF]" />
                   </div>
