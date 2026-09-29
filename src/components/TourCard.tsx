@@ -15,14 +15,16 @@ export const TourCard: React.FC<TourCardProps> = ({
   isFavorite,
   onToggleFavorite,
   onSelect,
+  layout = 'horizontal',
 }) => {
+  const grid = layout === 'grid';
   return (
     <div
       onClick={() => onSelect(pkg)}
-      className="group bg-white rounded-3xl overflow-hidden border border-[#1E2022]/8 shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col md:flex-row cursor-pointer"
+      className={`group bg-white rounded-3xl overflow-hidden border border-[#1E2022]/8 shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col ${grid ? '' : 'md:flex-row'} cursor-pointer`}
     >
       {/* Destination Image Area */}
-      <div className="relative md:w-5/12 aspect-[4/3] md:aspect-auto overflow-hidden bg-[#E5E1D8]">
+      <div className={`relative overflow-hidden bg-[#E5E1D8] ${grid ? 'aspect-[16/10]' : 'md:w-5/12 aspect-[4/3] md:aspect-auto'}`}>
         <img
           src={pkg.featuredImage}
           alt={pkg.name}
@@ -31,7 +33,7 @@ export const TourCard: React.FC<TourCardProps> = ({
         />
 
         {/* Gradient Scrim */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent md:hidden" />
+        <div className={`absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent ${grid ? '' : 'md:hidden'}`} />
 
         {/* Badge: Popular / Best Seller / Signature / Limited */}
         {pkg.badge && (
@@ -68,7 +70,7 @@ export const TourCard: React.FC<TourCardProps> = ({
         </button>
 
         {/* Location chip on image for mobile */}
-        <div className="absolute bottom-3 left-4 flex items-center gap-1.5 text-xs text-white/95 font-medium md:hidden">
+        <div className={`absolute bottom-3 left-4 flex items-center gap-1.5 text-xs text-white/95 font-medium ${grid ? 'hidden' : 'md:hidden'}`}>
           <MapPin className="w-3.5 h-3.5 text-[#C2571A]" />
           <span>
             {pkg.destination}, {pkg.country}
@@ -77,11 +79,11 @@ export const TourCard: React.FC<TourCardProps> = ({
       </div>
 
       {/* Details Content Area */}
-      <div className="p-5 sm:p-6 md:w-7/12 flex flex-col justify-between">
+      <div className={`p-5 sm:p-6 flex flex-col justify-between flex-1 ${grid ? '' : 'md:w-7/12'}`}>
         <div>
           {/* Top row: Destination + Duration + Rating */}
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[#6B7280] mb-2.5">
-            <div className="hidden md:flex items-center gap-1 font-medium text-[#1E2022]">
+            <div className={`items-center gap-1 font-medium text-[#1E2022] ${grid ? 'flex' : 'hidden md:flex'}`}>
               <MapPin className="w-3.5 h-3.5 text-[#C2571A]" />
               <span>
                 {pkg.destination}, {pkg.country}
@@ -134,8 +136,14 @@ export const TourCard: React.FC<TourCardProps> = ({
             </div>
           </div>
 
-          <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#1E2022] group-hover:text-[#C2571A] transition-colors">
-            <span>View Details</span>
+          <div
+            className={`inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap ${
+              grid
+                ? 'px-4 py-2.5 rounded-xl bg-[#1E2022] text-white group-hover:bg-[#C2571A]'
+                : 'text-[#1E2022] group-hover:text-[#C2571A]'
+            }`}
+          >
+            <span>{grid ? 'View Trip' : 'View Details'}</span>
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </div>
         </div>
