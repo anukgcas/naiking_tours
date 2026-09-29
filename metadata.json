@@ -1,0 +1,6 @@
+{
+  "name": "Naiking Tours",
+  "description": "Quiet luxury travel booking, curated vacation packages, and bespoke itineraries.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
