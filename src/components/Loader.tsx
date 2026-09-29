@@ -16,7 +16,7 @@ export const Loader: React.FC<LoaderProps> = ({ onComplete }) => {
   const [logoSize, setLogoSize] = useState(72);
 
   useEffect(() => {
-    const fit = () => setLogoSize(Math.min(96, Math.max(40, Math.floor(window.innerWidth / 9))));
+    const fit = () => setLogoSize(Math.min(64, Math.max(30, Math.floor(window.innerWidth / 13))));
     fit();
     window.addEventListener('resize', fit);
     return () => window.removeEventListener('resize', fit);
