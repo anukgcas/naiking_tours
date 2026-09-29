@@ -163,7 +163,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
               <span>/</span>
               <span className="text-[#1E2022] font-semibold">{pkg.destination}</span>
               <span>/</span>
-              <span className="text-[#E05A47] font-medium truncate max-w-xs">{pkg.name}</span>
+              <span className="text-[#C2571A] font-medium truncate max-w-xs">{pkg.name}</span>
             </div>
           </div>
 
@@ -197,14 +197,14 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
             >
               <Heart
                 className={`w-4 h-4 ${
-                  isFavorite ? 'fill-[#E05A47] text-[#E05A47]' : 'text-[#1E2022]'
+                  isFavorite ? 'fill-[#C2571A] text-[#C2571A]' : 'text-[#1E2022]'
                 }`}
               />
             </button>
 
             <a
               href="#booking-card"
-              className="px-4 py-2 rounded-full bg-[#1E2022] hover:bg-[#E05A47] text-white text-xs font-semibold transition-all shadow-xs"
+              className="px-4 py-2 rounded-full bg-[#1E2022] hover:bg-[#C2571A] text-white text-xs font-semibold transition-all shadow-xs"
             >
               Reserve Departure
             </a>
@@ -218,7 +218,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
           {/* Badge & Title */}
           <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#E05A47] bg-[#E05A47]/10 px-3 py-1 rounded-full border border-[#E05A47]/20">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#C2571A] bg-[#C2571A]/10 px-3 py-1 rounded-full border border-[#C2571A]/20">
                 {pkg.destination}, {pkg.country}
               </span>
               {pkg.badge && (
@@ -264,7 +264,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
                   <span>Optimal Dry Season: Oct – Apr</span>
                 </div>
                 <div className="hidden sm:flex items-center gap-1.5 text-xs sm:text-sm bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/15">
-                  <Compass className="w-3.5 h-3.5 text-[#E05A47]" />
+                  <Compass className="w-3.5 h-3.5 text-[#C2571A]" />
                   <span>Private Chauffeur Included</span>
                 </div>
               </div>
@@ -287,7 +287,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
                 onClick={() => setActiveImage(img)}
                 className={`relative flex-none w-24 h-16 sm:w-28 sm:h-20 rounded-2xl overflow-hidden border-2 transition-all cursor-pointer ${
                   activeImage === img
-                    ? 'border-[#E05A47] scale-102 shadow-md'
+                    ? 'border-[#C2571A] scale-102 shadow-md'
                     : 'border-transparent opacity-60 hover:opacity-100'
                 }`}
               >
@@ -309,7 +309,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
             {/* Highlights Grid */}
             <div className="p-6 sm:p-8 rounded-3xl bg-white border border-[#1E2022]/8 shadow-xs space-y-6">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-[#E05A47]">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#C2571A]">
                   The Signature Essence
                 </span>
                 <h3 className="text-xl sm:text-2xl font-bold text-[#1E2022] mt-1">
@@ -319,7 +319,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-2xl bg-[#FAF8F5] border border-black/5 flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-[#E05A47]/10 text-[#E05A47] flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-8 h-8 rounded-xl bg-[#C2571A]/10 text-[#C2571A] flex items-center justify-center shrink-0 mt-0.5">
                     <Sparkles className="w-4 h-4" />
                   </div>
                   <div>
@@ -332,7 +332,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[#FAF8F5] border border-black/5 flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-[#E05A47]/10 text-[#E05A47] flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-8 h-8 rounded-xl bg-[#C2571A]/10 text-[#C2571A] flex items-center justify-center shrink-0 mt-0.5">
                     <Coffee className="w-4 h-4" />
                   </div>
                   <div>
@@ -345,7 +345,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[#FAF8F5] border border-black/5 flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-[#E05A47]/10 text-[#E05A47] flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-8 h-8 rounded-xl bg-[#C2571A]/10 text-[#C2571A] flex items-center justify-center shrink-0 mt-0.5">
                     <Camera className="w-4 h-4" />
                   </div>
                   <div>
@@ -358,7 +358,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[#FAF8F5] border border-black/5 flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-[#E05A47]/10 text-[#E05A47] flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-8 h-8 rounded-xl bg-[#C2571A]/10 text-[#C2571A] flex items-center justify-center shrink-0 mt-0.5">
                     <ShieldCheck className="w-4 h-4" />
                   </div>
                   <div>
@@ -375,7 +375,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
             {/* THE INNOVATIVE SAMSUNG LOCK-SCREEN STACKED ITINERARY DECK */}
             <div className="p-6 sm:p-8 rounded-3xl bg-white border border-[#1E2022]/8 shadow-xs">
               <div className="mb-6">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#E05A47]">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#C2571A]">
                   Tactile Deck Architecture
                 </span>
                 <h3 className="text-2xl font-bold text-[#1E2022] mt-1">
@@ -396,12 +396,12 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
               <div className="p-6 rounded-3xl bg-white border border-[#1E2022]/8 shadow-xs flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-2xl bg-[#FAF8F5] border border-black/5 flex items-center justify-center text-[#E05A47]">
+                    <div className="w-10 h-10 rounded-2xl bg-[#FAF8F5] border border-black/5 flex items-center justify-center text-[#C2571A]">
                       <Building className="w-5 h-5" />
                     </div>
                     <div>
                       <h4 className="text-base font-bold text-[#1E2022]">{pkg.hotel.name}</h4>
-                      <span className="text-xs font-semibold text-[#E05A47]">
+                      <span className="text-xs font-semibold text-[#C2571A]">
                         {pkg.hotel.tier}
                       </span>
                     </div>
@@ -432,7 +432,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
               <div className="p-6 rounded-3xl bg-white border border-[#1E2022]/8 shadow-xs flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-2xl bg-[#FAF8F5] border border-black/5 flex items-center justify-center text-[#E05A47]">
+                    <div className="w-10 h-10 rounded-2xl bg-[#FAF8F5] border border-black/5 flex items-center justify-center text-[#C2571A]">
                       <Car className="w-5 h-5" />
                     </div>
                     <div>
@@ -556,7 +556,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
                     Select Departure Date
                   </label>
                   <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-[#E05A47]" />
+                    <Calendar className="w-4 h-4 text-[#C2571A]" />
                     <input
                       id="departure-date"
                       type="date"
@@ -635,7 +635,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
                       key={addon.id}
                       className={`p-3 rounded-xl border flex items-start gap-2.5 cursor-pointer transition-all ${
                         isChecked
-                          ? 'bg-[#E05A47]/5 border-[#E05A47]'
+                          ? 'bg-[#C2571A]/5 border-[#C2571A]'
                           : 'bg-[#FAF8F5] border-black/5 hover:bg-white'
                       }`}
                     >
@@ -643,14 +643,14 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => toggleAddon(addon.id)}
-                        className="mt-1 accent-[#E05A47] cursor-pointer"
+                        className="mt-1 accent-[#C2571A] cursor-pointer"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-[#1E2022] truncate">
                             {addon.name}
                           </span>
-                          <span className="text-xs font-semibold text-[#E05A47]">
+                          <span className="text-xs font-semibold text-[#C2571A]">
                             +₹{addon.pricePerPerson.toLocaleString('en-IN')}
                           </span>
                         </div>
@@ -672,14 +672,14 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
                   <span>₹{basePrice.toLocaleString('en-IN')}</span>
                 </div>
                 {addonsTotal > 0 && (
-                  <div className="flex justify-between text-[#E05A47]">
+                  <div className="flex justify-between text-[#C2571A]">
                     <span>Concierge Enhancements</span>
                     <span>+₹{addonsTotal.toLocaleString('en-IN')}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-bold text-base text-[#1E2022] pt-2 border-t border-black/5">
                   <span>Total Estimated Investment:</span>
-                  <span className="text-[#E05A47]">
+                  <span className="text-[#C2571A]">
                     ₹{grandTotalPrice.toLocaleString('en-IN')}
                   </span>
                 </div>
@@ -690,7 +690,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
                 <button
                   type="button"
                   onClick={handleConfirmReservation}
-                  className="w-full py-3.5 rounded-full bg-[#1E2022] hover:bg-[#E05A47] text-white font-semibold text-sm transition-all duration-300 shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-3.5 rounded-full bg-[#1E2022] hover:bg-[#C2571A] text-white font-semibold text-sm transition-all duration-300 shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2"
                 >
                   {isReserved ? (
                     <span className="flex items-center gap-1.5">
@@ -714,7 +714,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
 
               {/* Concierge Direct Reassurance */}
               <div className="pt-4 border-t border-[#1E2022]/8 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-[#FAF8F5] border border-black/5 flex items-center justify-center text-[#E05A47] shrink-0">
+                <div className="w-9 h-9 rounded-full bg-[#FAF8F5] border border-black/5 flex items-center justify-center text-[#C2571A] shrink-0">
                   <MessageCircle className="w-4 h-4" />
                 </div>
                 <div className="text-xs">
@@ -723,7 +723,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
                   </span>
                   <a
                     href="mailto:concierge@naikingtours.com"
-                    className="text-[#E05A47] font-semibold hover:underline"
+                    className="text-[#C2571A] font-semibold hover:underline"
                   >
                     Chat with Destination Concierge
                   </a>
@@ -738,7 +738,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
           <div className="pt-12 border-t border-[#1E2022]/8">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-[#E05A47]">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#C2571A]">
                   Curated Pairings
                 </span>
                 <h3 className="text-xl font-bold text-[#1E2022] mt-0.5">
@@ -747,7 +747,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
               </div>
               <button
                 onClick={onBack}
-                className="text-xs font-semibold text-[#1E2022] hover:text-[#E05A47] transition-colors"
+                className="text-xs font-semibold text-[#1E2022] hover:text-[#C2571A] transition-colors"
               >
                 View All Escapes →
               </button>
@@ -770,10 +770,10 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
                   </div>
                   <div className="flex-1 min-w-0 flex flex-col justify-between">
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#E05A47] block">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#C2571A] block">
                         {otherPkg.destination} · {otherPkg.duration}
                       </span>
-                      <h4 className="text-sm font-bold text-[#1E2022] group-hover:text-[#E05A47] transition-colors truncate mt-0.5">
+                      <h4 className="text-sm font-bold text-[#1E2022] group-hover:text-[#C2571A] transition-colors truncate mt-0.5">
                         {otherPkg.name}
                       </h4>
                       <p className="text-xs text-[#6B7280] line-clamp-1 mt-1">
@@ -782,7 +782,7 @@ export const TourDetailPage: React.FC<TourDetailPageProps> = ({
                     </div>
                     <div className="flex items-center justify-between text-xs font-bold text-[#1E2022] mt-2">
                       <span>From ₹{otherPkg.startingPrice.toLocaleString('en-IN')}</span>
-                      <span className="text-[#E05A47] group-hover:translate-x-1 transition-transform">
+                      <span className="text-[#C2571A] group-hover:translate-x-1 transition-transform">
                         Explore →
                       </span>
                     </div>

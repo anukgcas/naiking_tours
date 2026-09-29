@@ -31,7 +31,7 @@ export const FavoritesDrawer: React.FC<FavoritesDrawerProps> = ({
         {/* Header */}
         <div className="px-6 py-5 border-b border-[#1E2022]/8 flex items-center justify-between bg-white">
           <div className="flex items-center gap-2">
-            <Heart className="w-5 h-5 fill-[#E05A47] text-[#E05A47]" />
+            <Heart className="w-5 h-5 fill-[#C2571A] text-[#C2571A]" />
             <div>
               <h3 className="text-lg font-bold text-[#1E2022]">Saved Wishlist</h3>
               <p className="text-xs text-[#6B7280]">
@@ -66,7 +66,7 @@ export const FavoritesDrawer: React.FC<FavoritesDrawerProps> = ({
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className="text-[10px] font-bold text-[#E05A47] uppercase tracking-wider block">
+                    <span className="text-[10px] font-bold text-[#C2571A] uppercase tracking-wider block">
                       {pkg.destination}
                     </span>
                     <h4 className="text-sm font-bold text-[#1E2022] truncate">
@@ -101,7 +101,7 @@ export const FavoritesDrawer: React.FC<FavoritesDrawerProps> = ({
                       onSelectPackage(pkg);
                       onClose();
                     }}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#1E2022] hover:text-[#E05A47] transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#1E2022] hover:text-[#C2571A] transition-colors cursor-pointer"
                   >
                     <span>View Details</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -122,7 +122,7 @@ export const FavoritesDrawer: React.FC<FavoritesDrawerProps> = ({
                   onClose();
                   onExplorePackages();
                 }}
-                className="px-4 py-2 rounded-full bg-[#1E2022] text-white text-xs font-semibold hover:bg-[#E05A47] transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-full bg-[#1E2022] text-white text-xs font-semibold hover:bg-[#C2571A] transition-colors cursor-pointer"
               >
                 Discover Tour Packages
               </button>

@@ -130,7 +130,7 @@ export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
                       {trip.packageName}
                     </h4>
 
-                    <p className="text-xs text-[#E05A47] font-semibold mt-0.5">
+                    <p className="text-xs text-[#C2571A] font-semibold mt-0.5">
                       {trip.destination}
                     </p>
                   </div>
@@ -160,7 +160,7 @@ export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
                   <button
                     type="button"
                     onClick={() => handleViewItinerary(trip)}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#1E2022] hover:text-[#E05A47] transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#1E2022] hover:text-[#C2571A] transition-colors cursor-pointer"
                   >
                     <span>View Itinerary</span>
                     <ChevronRight className="w-3.5 h-3.5" />
@@ -183,7 +183,7 @@ export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
                   onClose();
                   onExplorePackages();
                 }}
-                className="px-4 py-2 rounded-full bg-[#1E2022] text-white text-xs font-semibold hover:bg-[#E05A47] transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-full bg-[#1E2022] text-white text-xs font-semibold hover:bg-[#C2571A] transition-colors cursor-pointer"
               >
                 Browse Tour Packages
               </button>
@@ -196,7 +196,7 @@ export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
           <span>Need custom itinerary revisions?</span>{' '}
           <a
             href="mailto:concierge@naikingtours.com"
-            className="text-[#E05A47] font-semibold hover:underline"
+            className="text-[#C2571A] font-semibold hover:underline"
           >
             Contact Private Concierge
           </a>

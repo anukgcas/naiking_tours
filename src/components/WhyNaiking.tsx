@@ -4,22 +4,22 @@ import { ShieldCheck, Compass, Sparkles, Clock, Check } from 'lucide-react';
 export const WhyNaiking: React.FC = () => {
   const pillars = [
     {
-      icon: <Sparkles className="w-5 h-5 text-[#E05A47]" />,
+      icon: <Sparkles className="w-5 h-5 text-[#C2571A]" />,
       title: 'Boutique Sanctuaries Only',
       desc: 'We decline 92% of standard hotels. Every stay is an architectural sanctuary with private terraces, high-thread linens, and attentive hospitality.',
     },
     {
-      icon: <Clock className="w-5 h-5 text-[#E05A47]" />,
+      icon: <Clock className="w-5 h-5 text-[#C2571A]" />,
       title: 'Unhurried Pacing',
       desc: 'Travel should restore rather than fatigue. Our itineraries leave generous room for lingering over morning espresso, sunset swims, and artisan conversations.',
     },
     {
-      icon: <Compass className="w-5 h-5 text-[#E05A47]" />,
+      icon: <Compass className="w-5 h-5 text-[#C2571A]" />,
       title: 'Private Chauffeurs & Guides',
       desc: 'No shared crowded coaches. Move between sacred temples and desert dunes in private executive SUVs with licensed local culture historians.',
     },
     {
-      icon: <ShieldCheck className="w-5 h-5 text-[#E05A47]" />,
+      icon: <ShieldCheck className="w-5 h-5 text-[#C2571A]" />,
       title: 'Absolute Price Transparency',
       desc: 'What you see is what you pay. Airport VIP passes, private transit, daily breakfasts, and verified entry fees are fully upfront with zero surprise markups.',
     },
@@ -30,7 +30,7 @@ export const WhyNaiking: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="max-w-2xl mb-12 lg:mb-16">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#E05A47]">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#C2571A]">
             The Naiking Distinction
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#1E2022] mt-2 text-balance">
@@ -60,7 +60,7 @@ export const WhyNaiking: React.FC = () => {
                   {pillar.desc}
                 </p>
               </div>
-              <div className="mt-4 pt-3 border-t border-[#1E2022]/6 flex items-center gap-1.5 text-xs text-[#E05A47] font-semibold">
+              <div className="mt-4 pt-3 border-t border-[#1E2022]/6 flex items-center gap-1.5 text-xs text-[#C2571A] font-semibold">
                 <Check className="w-3.5 h-3.5" />
                 <span>Naiking Standard</span>
               </div>
@@ -85,7 +85,7 @@ export const WhyNaiking: React.FC = () => {
 
           <div className="shrink-0 flex flex-col sm:flex-row items-center gap-4 text-xs font-semibold text-[#1E2022]">
             <div className="text-center px-4 py-2 rounded-xl bg-white border border-black/5">
-              <span className="block text-xl font-bold text-[#E05A47]">4.9 / 5</span>
+              <span className="block text-xl font-bold text-[#C2571A]">4.9 / 5</span>
               <span className="text-[11px] text-[#6B7280]">Guest Rating</span>
             </div>
             <div className="text-center px-4 py-2 rounded-xl bg-white border border-black/5">

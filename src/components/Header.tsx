@@ -23,6 +23,15 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isNarrow, setIsNarrow] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    const update = () => setIsNarrow(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -45,14 +54,9 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Left: [N logo] Naiking Tours */}
           <button
             onClick={() => onNavigate('home')}
-            className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E05A47] rounded-lg transition-transform active:scale-98"
+            className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] rounded-lg transition-transform active:scale-98"
           >
-            <NLogo size="md" />
-            <div className="text-left">
-              <span className="text-lg font-semibold tracking-tight text-[#1E2022] group-hover:text-[#E05A47] transition-colors whitespace-nowrap">
-                Naiking Tours
-              </span>
-            </div>
+            <NLogo fontSize={isNarrow ? 19 : isScrolled ? 24 : 28} className="transition-all duration-300 group-hover:scale-[1.03]" />
           </button>
 
           {/* Center: Clean typography navigation links */}
@@ -67,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({
             >
               Home
               {activeTab === 'home' && (
-                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#E05A47] rounded-full" />
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#C2571A] rounded-full" />
               )}
             </button>
 
@@ -81,7 +85,7 @@ export const Header: React.FC<HeaderProps> = ({
             >
               Tours & Packages
               {activeTab === 'packages' && (
-                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#E05A47] rounded-full" />
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#C2571A] rounded-full" />
               )}
             </button>
 
@@ -107,7 +111,7 @@ export const Header: React.FC<HeaderProps> = ({
             >
               Why Naiking
               {activeTab === 'why' && (
-                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#E05A47] rounded-full" />
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#C2571A] rounded-full" />
               )}
             </button>
           </nav>
@@ -117,18 +121,18 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Favorite Icon */}
             <button
               onClick={onOpenFavorites}
-              className="relative p-2.5 rounded-full text-[#1E2022] hover:bg-[#1E2022]/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E05A47]"
+              className="relative p-2.5 rounded-full text-[#1E2022] hover:bg-[#1E2022]/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A]"
               aria-label={`View favorites (${favoritesCount})`}
             >
               <Heart
                 className={`w-5 h-5 transition-transform duration-200 active:scale-90 ${
                   favoritesCount > 0
-                    ? 'fill-[#E05A47] text-[#E05A47]'
+                    ? 'fill-[#C2571A] text-[#C2571A]'
                     : 'text-[#1E2022]'
                 }`}
               />
               {favoritesCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 text-[10px] font-semibold bg-[#E05A47] text-white rounded-full flex items-center justify-center">
+                <span className="absolute top-1 right-1 w-4 h-4 text-[10px] font-semibold bg-[#C2571A] text-white rounded-full flex items-center justify-center">
                   {favoritesCount}
                 </span>
               )}
@@ -137,7 +141,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Plan a Trip Primary CTA */}
             <button
               onClick={onOpenPlanner}
-              className="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold text-white bg-[#1E2022] hover:bg-[#E05A47] transition-all duration-300 shadow-xs active:scale-98 cursor-pointer"
+              className="inline-flex items-center gap-2 whitespace-nowrap px-4 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold text-white bg-[#1E2022] hover:bg-[#C2571A] transition-all duration-300 shadow-xs active:scale-98 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#FAF8F5]/80" />
               <span>Plan a Trip</span>

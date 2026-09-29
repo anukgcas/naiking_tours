@@ -102,7 +102,7 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
         {/* Header */}
         <div className="px-6 py-4 bg-white border-b border-[#1E2022]/8 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#E05A47]/10 flex items-center justify-center text-[#E05A47]">
+            <div className="w-8 h-8 rounded-xl bg-[#C2571A]/10 flex items-center justify-center text-[#C2571A]">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
@@ -132,12 +132,12 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
               Destination
             </label>
             <div className="relative">
-              <Compass className="w-4 h-4 text-[#E05A47] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Compass className="w-4 h-4 text-[#C2571A] absolute left-3.5 top-1/2 -translate-y-1/2" />
               <select
                 id="planner-destination"
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 text-sm font-semibold rounded-xl bg-white border border-[#1E2022]/10 focus:outline-none focus:ring-2 focus:ring-[#E05A47]/30 text-[#1E2022]"
+                className="w-full pl-10 pr-4 py-2.5 text-sm font-semibold rounded-xl bg-white border border-[#1E2022]/10 focus:outline-none focus:ring-2 focus:ring-[#C2571A]/30 text-[#1E2022]"
               >
                 <option value="Bali, Indonesia">Bali, Indonesia</option>
                 <option value="Dubai, UAE">Dubai, UAE</option>
@@ -229,7 +229,7 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
               <span className="text-xs font-bold text-[#1E2022] uppercase tracking-wider">
                 Select Trip Style
               </span>
-              <span className="text-xs text-[#E05A47] font-semibold">{tripStyle}</span>
+              <span className="text-xs text-[#C2571A] font-semibold">{tripStyle}</span>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {TRIP_STYLES.map((style) => (
@@ -239,7 +239,7 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
                   onClick={() => setTripStyle(style.id)}
                   className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                     tripStyle === style.id
-                      ? 'bg-white border-[#E05A47] shadow-sm ring-1 ring-[#E05A47]'
+                      ? 'bg-white border-[#C2571A] shadow-sm ring-1 ring-[#C2571A]'
                       : 'bg-white/60 border-black/5 hover:bg-white hover:border-[#1E2022]/15'
                   }`}
                 >
@@ -247,14 +247,14 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
                     <div
                       className={`w-7 h-7 rounded-lg flex items-center justify-center ${
                         tripStyle === style.id
-                          ? 'bg-[#E05A47] text-white'
+                          ? 'bg-[#C2571A] text-white'
                           : 'bg-[#1E2022]/5 text-[#1E2022]'
                       }`}
                     >
                       {style.icon}
                     </div>
                     {tripStyle === style.id && (
-                      <Check className="w-3.5 h-3.5 text-[#E05A47]" />
+                      <Check className="w-3.5 h-3.5 text-[#C2571A]" />
                     )}
                   </div>
                   <div>
@@ -283,7 +283,7 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
               step="5000"
               value={budgetPerPerson}
               onChange={(e) => setBudgetPerPerson(Number(e.target.value))}
-              className="w-full accent-[#E05A47] cursor-pointer"
+              className="w-full accent-[#C2571A] cursor-pointer"
             />
             <div className="flex justify-between text-[11px] text-[#9CA3AF] mt-1">
               <span>₹15,000 (Comfort)</span>
@@ -314,7 +314,7 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
               </div>
               <div>
                 <span className="text-[#6B7280] block">Estimated Total</span>
-                <span className="font-bold text-[#E05A47]">
+                <span className="font-bold text-[#C2571A]">
                   ₹{totalEstimatedBudget.toLocaleString('en-IN')}
                 </span>
               </div>
@@ -324,7 +324,7 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
           {/* Primary CTA */}
           <button
             type="submit"
-            className="w-full py-3.5 rounded-full bg-[#1E2022] hover:bg-[#E05A47] text-white font-semibold text-sm transition-all duration-300 shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-3.5 rounded-full bg-[#1E2022] hover:bg-[#C2571A] text-white font-semibold text-sm transition-all duration-300 shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2"
           >
             {isSuccess ? (
               <span>✓ Itinerary Created! Adding to My Trips...</span>

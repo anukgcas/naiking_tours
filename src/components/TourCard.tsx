@@ -39,7 +39,7 @@ export const TourCard: React.FC<TourCardProps> = ({
             <span
               className={`text-[11px] font-bold tracking-wider uppercase px-3 py-1 rounded-full shadow-xs ${
                 pkg.badge === 'Best Seller'
-                  ? 'bg-[#E05A47] text-white'
+                  ? 'bg-[#C2571A] text-white'
                   : pkg.badge === 'Popular'
                   ? 'bg-[#1E2022] text-white'
                   : 'bg-white/90 backdrop-blur-md text-[#1E2022]'
@@ -62,14 +62,14 @@ export const TourCard: React.FC<TourCardProps> = ({
         >
           <Heart
             className={`w-4 h-4 transition-colors ${
-              isFavorite ? 'fill-[#E05A47] text-[#E05A47]' : 'text-[#1E2022] hover:text-[#E05A47]'
+              isFavorite ? 'fill-[#C2571A] text-[#C2571A]' : 'text-[#1E2022] hover:text-[#C2571A]'
             }`}
           />
         </button>
 
         {/* Location chip on image for mobile */}
         <div className="absolute bottom-3 left-4 flex items-center gap-1.5 text-xs text-white/95 font-medium md:hidden">
-          <MapPin className="w-3.5 h-3.5 text-[#E05A47]" />
+          <MapPin className="w-3.5 h-3.5 text-[#C2571A]" />
           <span>
             {pkg.destination}, {pkg.country}
           </span>
@@ -82,7 +82,7 @@ export const TourCard: React.FC<TourCardProps> = ({
           {/* Top row: Destination + Duration + Rating */}
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[#6B7280] mb-2.5">
             <div className="hidden md:flex items-center gap-1 font-medium text-[#1E2022]">
-              <MapPin className="w-3.5 h-3.5 text-[#E05A47]" />
+              <MapPin className="w-3.5 h-3.5 text-[#C2571A]" />
               <span>
                 {pkg.destination}, {pkg.country}
               </span>
@@ -105,7 +105,7 @@ export const TourCard: React.FC<TourCardProps> = ({
           </div>
 
           {/* Package Name */}
-          <h3 className="text-lg sm:text-xl font-bold text-[#1E2022] group-hover:text-[#E05A47] transition-colors leading-snug">
+          <h3 className="text-lg sm:text-xl font-bold text-[#1E2022] group-hover:text-[#C2571A] transition-colors leading-snug">
             {pkg.name}
           </h3>
 
@@ -134,7 +134,7 @@ export const TourCard: React.FC<TourCardProps> = ({
             </div>
           </div>
 
-          <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#1E2022] group-hover:text-[#E05A47] transition-colors">
+          <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#1E2022] group-hover:text-[#C2571A] transition-colors">
             <span>View Details</span>
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </div>

@@ -1,90 +1,89 @@
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { NLogo } from './NLogo';
 
 interface LoaderProps {
   onComplete: () => void;
 }
 
+const EASE = [0.76, 0, 0.24, 1] as const;
+const SHOW_MS = 3300; // logo build + progress
+const EXIT_MS = 900; // curtain lift
+
 export const Loader: React.FC<LoaderProps> = ({ onComplete }) => {
-  const [stage, setStage] = useState<'logo' | 'text' | 'exit'>('logo');
+  const [leaving, setLeaving] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [logoSize, setLogoSize] = useState(72);
 
   useEffect(() => {
-    // Stage 1: Logo enters & scales gently
-    const timer1 = setTimeout(() => {
-      setStage('text');
-    }, 600);
+    const fit = () => setLogoSize(Math.min(96, Math.max(40, Math.floor(window.innerWidth / 9))));
+    fit();
+    window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
+  }, []);
 
-    // Stage 2: Reveal wordmark
-    const timer2 = setTimeout(() => {
-      setStage('exit');
-    }, 1500);
+  useEffect(() => {
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / SHOW_MS);
+      setProgress(Math.round((1 - Math.pow(1 - t, 3)) * 100));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
 
-    // Stage 3: Smooth complete transition
-    const timer3 = setTimeout(() => {
-      onComplete();
-    }, 2000);
-
+    const leave = setTimeout(() => setLeaving(true), SHOW_MS);
+    const done = setTimeout(onComplete, SHOW_MS + EXIT_MS);
     return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
+      cancelAnimationFrame(raf);
+      clearTimeout(leave);
+      clearTimeout(done);
     };
   }, [onComplete]);
 
   return (
-    <AnimatePresence>
+    <div
+      className="fixed inset-0 z-[100] select-none overflow-hidden"
+      style={{ pointerEvents: leaving ? 'none' : 'auto' }}
+      role="status"
+      aria-label="Loading Naikings Tours & Travels"
+    >
+      {/* Two curtain halves that part to reveal the site */}
       <motion.div
-        key="global-loader"
-        initial={{ opacity: 1 }}
-        exit={{ opacity: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }}
-        className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#FAF8F5] select-none pointer-events-none"
+        className="absolute inset-x-0 top-0 h-1/2 bg-[#FAF8F5]"
+        animate={{ y: leaving ? '-100%' : '0%' }}
+        transition={{ duration: EXIT_MS / 1000, ease: EASE }}
+      />
+      <motion.div
+        className="absolute inset-x-0 bottom-0 h-1/2 bg-[#FAF8F5]"
+        animate={{ y: leaving ? '100%' : '0%' }}
+        transition={{ duration: EXIT_MS / 1000, ease: EASE }}
+      />
+
+      {/* Logo + progress */}
+      <motion.div
+        className="relative z-10 h-full flex flex-col items-center justify-center px-6"
+        animate={{ opacity: leaving ? 0 : 1, y: leaving ? -24 : 0 }}
+        transition={{ duration: 0.45, ease: 'easeIn' }}
       >
-        <div className="flex flex-col items-center text-center">
-          {/* Centered N Logo with subtle scale and soft shadow */}
-          <motion.div
-            initial={{ scale: 0.85, opacity: 0, y: 10 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-4"
-          >
-            <NLogo size="xl" />
-          </motion.div>
+        <NLogo fontSize={logoSize} animated delay={0.25} />
 
-          {/* Wordmark with smooth fade and quiet letter-spacing */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{
-              opacity: stage === 'text' || stage === 'exit' ? 1 : 0,
-              y: stage === 'text' || stage === 'exit' ? 0 : 8,
-            }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col items-center"
-          >
-            <h1 className="text-xl md:text-2xl font-semibold tracking-[0.2em] text-[#1E2022] uppercase">
-              Naiking Tours
-            </h1>
-            <p className="mt-1 text-xs tracking-[0.3em] uppercase text-[#6B7280]">
-              Quiet Luxury Journeys
-            </p>
-          </motion.div>
-
-          {/* Subtle thin progress line */}
-          <motion.div
-            className="w-16 h-[2px] bg-[#E05A47]/30 mt-6 rounded-full overflow-hidden"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-          >
-            <motion.div
-              className="h-full bg-[#E05A47]"
-              initial={{ x: '-100%' }}
-              animate={{ x: '100%' }}
-              transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
+        <div className="mt-12 w-56 sm:w-64">
+          <div className="h-[3px] rounded-full bg-[#1E2022]/8 overflow-hidden">
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: `${progress}%`,
+                background: '#1E2022',
+              }}
             />
-          </motion.div>
+          </div>
+          <div className="mt-3 flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.28em] text-[#6B7280]">
+            <span>Preparing your journey</span>
+            <span className="tabular-nums text-[#1E2022]">{progress}%</span>
+          </div>
         </div>
       </motion.div>
-    </AnimatePresence>
+    </div>
   );
 };

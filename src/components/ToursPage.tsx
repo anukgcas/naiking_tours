@@ -128,7 +128,7 @@ export const ToursPage: React.FC<ToursPageProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Header */}
         <div className="mb-8">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#E05A47]">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#C2571A]">
             Curated Escapes
           </span>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#1E2022] mt-1">
@@ -150,13 +150,13 @@ export const ToursPage: React.FC<ToursPageProps> = ({
                 placeholder="Search by destination or keyword..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-sm rounded-xl bg-[#FAF8F5] border border-black/5 focus:outline-none focus:ring-2 focus:ring-[#E05A47]/30 text-[#1E2022]"
+                className="w-full pl-10 pr-4 py-2 text-sm rounded-xl bg-[#FAF8F5] border border-black/5 focus:outline-none focus:ring-2 focus:ring-[#C2571A]/30 text-[#1E2022]"
               />
             </div>
 
             <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
               <div className="flex items-center gap-2 text-xs text-[#6B7280]">
-                <SlidersHorizontal className="w-3.5 h-3.5 text-[#E05A47]" />
+                <SlidersHorizontal className="w-3.5 h-3.5 text-[#C2571A]" />
                 <span className="font-medium">Sort by:</span>
               </div>
               <select
@@ -269,7 +269,7 @@ export const ToursPage: React.FC<ToursPageProps> = ({
             </span>
             <button
               onClick={resetFilters}
-              className="inline-flex items-center gap-1 text-[#E05A47] hover:underline cursor-pointer font-medium"
+              className="inline-flex items-center gap-1 text-[#C2571A] hover:underline cursor-pointer font-medium"
             >
               <RotateCcw className="w-3 h-3" />
               <span>Reset Filters</span>
@@ -298,7 +298,7 @@ export const ToursPage: React.FC<ToursPageProps> = ({
             </p>
             <button
               onClick={resetFilters}
-              className="px-5 py-2.5 rounded-full bg-[#1E2022] text-white text-xs font-semibold hover:bg-[#E05A47] transition-colors"
+              className="px-5 py-2.5 rounded-full bg-[#1E2022] text-white text-xs font-semibold hover:bg-[#C2571A] transition-colors"
             >
               Reset All Filters
             </button>

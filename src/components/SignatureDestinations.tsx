@@ -57,7 +57,7 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
 
             <button
               onClick={onViewAllPackages}
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1E2022] hover:text-[#E05A47] transition-colors group cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1E2022] hover:text-[#C2571A] transition-colors group cursor-pointer"
             >
               <span>View All Packages</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -105,7 +105,7 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
 
               {/* Bottom Content with gentle movement */}
               <div className="absolute bottom-5 left-5 right-5 z-10 transition-transform duration-300">
-                <p className="text-xs font-medium uppercase tracking-widest text-[#E05A47] mb-1">
+                <p className="text-xs font-medium uppercase tracking-widest text-[#C2571A] mb-1">
                   {dest.country}
                 </p>
                 <div className="flex items-center justify-between">

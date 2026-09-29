@@ -31,12 +31,7 @@ export const Footer: React.FC<FooterProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-12 pb-12 border-b border-white/10">
           {/* Brand Col */}
           <div className="md:col-span-4 space-y-4">
-            <div className="flex items-center gap-3">
-              <NLogo size="md" variant="light" />
-              <span className="text-xl font-bold tracking-tight text-white">
-                Naiking Tours
-              </span>
-            </div>
+            <NLogo size="lg" variant="light" animated />
             <p className="text-xs sm:text-sm text-gray-400 max-w-sm leading-relaxed">
               Quiet luxury travel agency specializing in private boutique retreats, bespoke
               itineraries, and chauffeured expeditions across the globe.
@@ -87,7 +82,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={onOpenPlanner}
-                  className="hover:text-[#E05A47] transition-colors cursor-pointer"
+                  className="hover:text-[#C2571A] transition-colors cursor-pointer"
                 >
                   Plan a Trip
                 </button>
@@ -138,11 +133,11 @@ export const Footer: React.FC<FooterProps> = ({
                 placeholder="Enter your private email..."
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2.5 pr-12 text-xs rounded-xl bg-white/10 border border-white/15 text-white placeholder-gray-500 focus:outline-none focus:border-[#E05A47]"
+                className="w-full px-4 py-2.5 pr-12 text-xs rounded-xl bg-white/10 border border-white/15 text-white placeholder-gray-500 focus:outline-none focus:border-[#C2571A]"
               />
               <button
                 type="submit"
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-[#E05A47] hover:bg-[#c94937] text-white flex items-center justify-center transition-colors cursor-pointer"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-[#C2571A] hover:bg-[#c94937] text-white flex items-center justify-center transition-colors cursor-pointer"
                 aria-label="Subscribe to newsletter"
               >
                 {subscribed ? <Check className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}

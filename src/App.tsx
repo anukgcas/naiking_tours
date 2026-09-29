@@ -285,7 +285,7 @@ export default function App() {
       {/* Quiet Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-20 md:bottom-8 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-[#1E2022] text-[#FAF8F5] text-xs sm:text-sm font-medium shadow-2xl flex items-center gap-2 border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-200">
-          <div className="w-4 h-4 rounded-full bg-[#E05A47] flex items-center justify-center text-white shrink-0">
+          <div className="w-4 h-4 rounded-full bg-[#C2571A] flex items-center justify-center text-white shrink-0">
             <Check className="w-2.5 h-2.5" />
           </div>
           <span>{toastMessage}</span>

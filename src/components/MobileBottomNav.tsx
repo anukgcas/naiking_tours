@@ -27,7 +27,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <button
           onClick={() => onNavigate('home')}
           className={`flex flex-col items-center gap-1 text-[11px] font-medium py-1 px-2 transition-colors cursor-pointer ${
-            currentTab === 'home' ? 'text-[#E05A47]' : 'text-[#6B7280]'
+            currentTab === 'home' ? 'text-[#C2571A]' : 'text-[#6B7280]'
           }`}
         >
           <Home className="w-4 h-4" />
@@ -38,7 +38,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <button
           onClick={() => onNavigate('packages')}
           className={`flex flex-col items-center gap-1 text-[11px] font-medium py-1 px-2 transition-colors cursor-pointer ${
-            currentTab === 'packages' ? 'text-[#E05A47]' : 'text-[#6B7280]'
+            currentTab === 'packages' ? 'text-[#C2571A]' : 'text-[#6B7280]'
           }`}
         >
           <Compass className="w-4 h-4" />
@@ -53,11 +53,11 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           <div className="relative">
             <Heart
               className={`w-4 h-4 ${
-                favoritesCount > 0 ? 'fill-[#E05A47] text-[#E05A47]' : 'text-[#6B7280]'
+                favoritesCount > 0 ? 'fill-[#C2571A] text-[#C2571A]' : 'text-[#6B7280]'
               }`}
             />
             {favoritesCount > 0 && (
-              <span className="absolute -top-1 -right-2 w-3.5 h-3.5 bg-[#E05A47] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+              <span className="absolute -top-1 -right-2 w-3.5 h-3.5 bg-[#C2571A] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                 {favoritesCount}
               </span>
             )}

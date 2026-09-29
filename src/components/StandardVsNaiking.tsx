@@ -40,7 +40,7 @@ export const StandardVsNaiking: React.FC = () => {
     <section className="py-16 sm:py-24 bg-white border-y border-[#1E2022]/8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E05A47]/10 text-xs font-bold text-[#E05A47] mb-2 uppercase tracking-wider">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C2571A]/10 text-xs font-bold text-[#C2571A] mb-2 uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5" />
             <span>The Naiking Standard</span>
           </div>
@@ -93,17 +93,17 @@ export const StandardVsNaiking: React.FC = () => {
 
           {/* Right Column: Naiking Private Sanctuary */}
           <div className="p-6 sm:p-8 rounded-3xl bg-[#1E2022] text-white border border-[#1E2022] shadow-2xl flex flex-col justify-between relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-[#E05A47]/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute top-0 right-0 w-48 h-48 bg-[#C2571A]/10 rounded-full blur-3xl pointer-events-none" />
 
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-[#E05A47] text-white flex items-center justify-center font-bold text-xs shadow-md">
+                  <div className="w-8 h-8 rounded-full bg-[#C2571A] text-white flex items-center justify-center font-bold text-xs shadow-md">
                     ✓
                   </div>
                   <div>
                     <h3 className="text-base font-bold text-white">Naiking Tours</h3>
-                    <span className="text-xs text-[#E05A47] font-semibold">Quiet Luxury Standard</span>
+                    <span className="text-xs text-[#C2571A] font-semibold">Quiet Luxury Standard</span>
                   </div>
                 </div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded-full border border-emerald-500/20">
@@ -114,7 +114,7 @@ export const StandardVsNaiking: React.FC = () => {
               <div className="space-y-5">
                 {comparisons.map((item, idx) => (
                   <div key={idx} className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-[#E05A47] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                    <div className="w-5 h-5 rounded-full bg-[#C2571A] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                       <Check className="w-3 h-3" />
                     </div>
                     <div>

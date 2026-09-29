@@ -79,7 +79,7 @@ export const PopularPackages: React.FC<PopularPackagesProps> = ({
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-[#1E2022] bg-white border border-[#1E2022]/10 hover:border-[#1E2022]/30 hover:bg-[#FAF8F5] transition-all duration-300 shadow-xs active:scale-98 cursor-pointer"
           >
             <span>Browse All {packages.length}+ Packages</span>
-            <ArrowRight className="w-4 h-4 text-[#E05A47]" />
+            <ArrowRight className="w-4 h-4 text-[#C2571A]" />
           </button>
         </div>
       </div>

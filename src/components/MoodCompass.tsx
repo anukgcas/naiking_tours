@@ -82,7 +82,7 @@ export const MoodCompass: React.FC<MoodCompassProps> = ({
         {/* Header */}
         <div className="max-w-2xl mb-8 sm:mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1E2022]/5 text-xs font-semibold text-[#1E2022] mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-[#E05A47]" />
+            <Sparkles className="w-3.5 h-3.5 text-[#C2571A]" />
             <span>Interactive Travel Cadence</span>
           </div>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#1E2022]">
@@ -104,7 +104,7 @@ export const MoodCompass: React.FC<MoodCompassProps> = ({
                 onClick={() => setActiveCadenceId(cadence.id)}
                 className={`p-3.5 sm:p-4 rounded-2xl border text-left transition-all duration-300 cursor-pointer flex flex-col justify-between ${
                   isSelected
-                    ? 'bg-white border-[#E05A47] shadow-lg scale-102 ring-1 ring-[#E05A47]'
+                    ? 'bg-white border-[#C2571A] shadow-lg scale-102 ring-1 ring-[#C2571A]'
                     : 'bg-white/60 border-black/5 hover:bg-white hover:border-[#1E2022]/15'
                 }`}
               >
@@ -112,14 +112,14 @@ export const MoodCompass: React.FC<MoodCompassProps> = ({
                   <div
                     className={`w-7 h-7 rounded-xl flex items-center justify-center transition-colors ${
                       isSelected
-                        ? 'bg-[#E05A47] text-white'
+                        ? 'bg-[#C2571A] text-white'
                         : 'bg-[#1E2022]/5 text-[#1E2022]'
                     }`}
                   >
                     {cadence.icon}
                   </div>
                   {isSelected && (
-                    <span className="w-2 h-2 rounded-full bg-[#E05A47] animate-pulse" />
+                    <span className="w-2 h-2 rounded-full bg-[#C2571A] animate-pulse" />
                   )}
                 </div>
                 <div>
@@ -165,7 +165,7 @@ export const MoodCompass: React.FC<MoodCompassProps> = ({
             {/* Content Side */}
             <div className="lg:col-span-5 p-6 sm:p-8 lg:p-10 flex flex-col justify-between space-y-6">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-[#E05A47]">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#C2571A]">
                   Curated Match
                 </span>
                 <h3 className="text-2xl sm:text-3xl font-bold text-[#1E2022] mt-1 leading-snug">
@@ -178,13 +178,13 @@ export const MoodCompass: React.FC<MoodCompassProps> = ({
                 {/* Highlight Pills */}
                 <div className="mt-4 pt-4 border-t border-[#1E2022]/6 space-y-2 text-xs text-[#1E2022]">
                   <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#E05A47]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#C2571A]" />
                     <span>
                       <strong>Stay:</strong> {matchedPackage.hotel.name}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#E05A47]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#C2571A]" />
                     <span>
                       <strong>Pacing:</strong> {matchedPackage.duration}
                     </span>
@@ -207,7 +207,7 @@ export const MoodCompass: React.FC<MoodCompassProps> = ({
                 <button
                   type="button"
                   onClick={() => onSelectPackage(matchedPackage)}
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[#1E2022] hover:bg-[#E05A47] text-white text-xs sm:text-sm font-semibold transition-all duration-300 shadow-md active:scale-98 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[#1E2022] hover:bg-[#C2571A] text-white text-xs sm:text-sm font-semibold transition-all duration-300 shadow-md active:scale-98 cursor-pointer"
                 >
                   <span>View Full Journey Page</span>
                   <ArrowRight className="w-4 h-4" />

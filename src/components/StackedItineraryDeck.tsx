@@ -16,7 +16,7 @@ export const StackedItineraryDeck: React.FC<StackedItineraryDeckProps> = ({ days
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#E05A47]" />
+            <span className="w-2 h-2 rounded-full bg-[#C2571A]" />
             <h4 className="text-base sm:text-lg font-bold text-[#1E2022] tracking-tight">
               Tactile Daily Itinerary
             </h4>
@@ -97,7 +97,7 @@ export const StackedItineraryDeck: React.FC<StackedItineraryDeckProps> = ({ days
               className={`absolute left-0 right-0 rounded-3xl transition-all cursor-pointer ${
                 isActive
                   ? 'bg-white border-2 border-[#1E2022]/15 shadow-2xl p-5 sm:p-7 ring-1 ring-black/5'
-                  : 'bg-[#FCFBF8] border border-[#1E2022]/12 shadow-lg p-4 sm:p-5 hover:border-[#E05A47]/40 hover:bg-white'
+                  : 'bg-[#FCFBF8] border border-[#1E2022]/12 shadow-lg p-4 sm:p-5 hover:border-[#C2571A]/40 hover:bg-white'
               }`}
               style={{
                 top: 0,
@@ -110,7 +110,7 @@ export const StackedItineraryDeck: React.FC<StackedItineraryDeckProps> = ({ days
                   <span
                     className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold tracking-wider ${
                       isActive
-                        ? 'bg-[#E05A47] text-white shadow-2xs'
+                        ? 'bg-[#C2571A] text-white shadow-2xs'
                         : 'bg-[#1E2022]/10 text-[#1E2022]'
                     }`}
                   >
@@ -123,7 +123,7 @@ export const StackedItineraryDeck: React.FC<StackedItineraryDeckProps> = ({ days
 
                 <div className="flex items-center gap-2">
                   {!isActive && (
-                    <span className="text-xs font-semibold text-[#E05A47] flex items-center gap-0.5">
+                    <span className="text-xs font-semibold text-[#C2571A] flex items-center gap-0.5">
                       <span>Bring to front</span>
                       <ArrowUpRight className="w-3.5 h-3.5" />
                     </span>
@@ -204,13 +204,13 @@ export const StackedItineraryDeck: React.FC<StackedItineraryDeckProps> = ({ days
                     {/* Day Footer Meta: Meals & Stay & Curated Highlight */}
                     <div className="pt-2.5 border-t border-[#1E2022]/6 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                       <div className="flex items-center gap-2 text-[#555A60]">
-                        <Utensils className="w-3.5 h-3.5 text-[#E05A47]" />
+                        <Utensils className="w-3.5 h-3.5 text-[#C2571A]" />
                         <span>
                           <strong>Meals:</strong> {day.mealsIncluded.join(', ')}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-[#555A60]">
-                        <Bed className="w-3.5 h-3.5 text-[#E05A47]" />
+                        <Bed className="w-3.5 h-3.5 text-[#C2571A]" />
                         <span className="truncate">
                           <strong>Stay:</strong> {day.stay}
                         </span>
@@ -218,7 +218,7 @@ export const StackedItineraryDeck: React.FC<StackedItineraryDeckProps> = ({ days
                     </div>
 
                     {/* Highlight Ribbon */}
-                    <div className="p-2.5 rounded-xl bg-[#E05A47]/8 border border-[#E05A47]/15 flex items-center gap-2 text-xs text-[#E05A47] font-medium">
+                    <div className="p-2.5 rounded-xl bg-[#C2571A]/8 border border-[#C2571A]/15 flex items-center gap-2 text-xs text-[#C2571A] font-medium">
                       <Sparkles className="w-3.5 h-3.5 shrink-0" />
                       <span>
                         <strong>Key Moment:</strong> {day.highlight}

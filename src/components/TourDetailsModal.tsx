@@ -81,7 +81,7 @@ export const TourDetailsModal: React.FC<TourDetailsModalProps> = ({
         {/* Top Sticky Bar: Close & Wishlist */}
         <div className="sticky top-0 z-40 bg-[#FAF8F5]/90 backdrop-blur-md px-6 py-4 border-b border-[#1E2022]/8 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#E05A47]">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#C2571A]">
               {pkg.destination}
             </span>
             <span className="text-xs text-[#9CA3AF]">·</span>
@@ -96,7 +96,7 @@ export const TourDetailsModal: React.FC<TourDetailsModalProps> = ({
             >
               <Heart
                 className={`w-5 h-5 ${
-                  isFavorite ? 'fill-[#E05A47] text-[#E05A47]' : 'text-[#1E2022]'
+                  isFavorite ? 'fill-[#C2571A] text-[#C2571A]' : 'text-[#1E2022]'
                 }`}
               />
             </button>
@@ -138,7 +138,7 @@ export const TourDetailsModal: React.FC<TourDetailsModalProps> = ({
                   type="button"
                   onClick={() => setActiveImage(img)}
                   className={`relative flex-none w-20 h-14 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
-                    activeImage === img ? 'border-[#E05A47] scale-102' : 'border-transparent opacity-70 hover:opacity-100'
+                    activeImage === img ? 'border-[#C2571A] scale-102' : 'border-transparent opacity-70 hover:opacity-100'
                   }`}
                 >
                   <img
@@ -167,7 +167,7 @@ export const TourDetailsModal: React.FC<TourDetailsModalProps> = ({
 
             <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-[#6B7280]">
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4 text-[#E05A47]" />
+                <MapPin className="w-4 h-4 text-[#C2571A]" />
                 {pkg.destination}, {pkg.country}
               </span>
               <span>·</span>
@@ -190,7 +190,7 @@ export const TourDetailsModal: React.FC<TourDetailsModalProps> = ({
             <div className="p-5 rounded-2xl bg-white border border-[#1E2022]/8 shadow-xs">
               <div className="flex items-center gap-2.5 mb-2">
                 <div className="w-8 h-8 rounded-xl bg-[#FAF8F5] border border-black/5 flex items-center justify-center text-[#1E2022]">
-                  <Building className="w-4 h-4 text-[#E05A47]" />
+                  <Building className="w-4 h-4 text-[#C2571A]" />
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-[#1E2022]">{pkg.hotel.name}</h4>
@@ -216,7 +216,7 @@ export const TourDetailsModal: React.FC<TourDetailsModalProps> = ({
             <div className="p-5 rounded-2xl bg-white border border-[#1E2022]/8 shadow-xs">
               <div className="flex items-center gap-2.5 mb-2">
                 <div className="w-8 h-8 rounded-xl bg-[#FAF8F5] border border-black/5 flex items-center justify-center text-[#1E2022]">
-                  <Car className="w-4 h-4 text-[#E05A47]" />
+                  <Car className="w-4 h-4 text-[#C2571A]" />
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-[#1E2022]">{pkg.transport.type}</h4>
@@ -273,7 +273,7 @@ export const TourDetailsModal: React.FC<TourDetailsModalProps> = ({
 
           {/* Booking Confirmation Dialog (Inside Modal when Book This Trip is clicked) */}
           {isBookingStep && (
-            <div className="p-6 rounded-2xl bg-white border-2 border-[#E05A47]/30 shadow-xl space-y-4">
+            <div className="p-6 rounded-2xl bg-white border-2 border-[#C2571A]/30 shadow-xl space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="text-base font-bold text-[#1E2022]">
@@ -301,7 +301,7 @@ export const TourDetailsModal: React.FC<TourDetailsModalProps> = ({
                     Departure Date
                   </label>
                   <div className="flex items-center gap-2">
-                    <Calendar className="w-3.5 h-3.5 text-[#E05A47]" />
+                    <Calendar className="w-3.5 h-3.5 text-[#C2571A]" />
                     <input
                       id="booking-start-date"
                       type="date"
@@ -319,7 +319,7 @@ export const TourDetailsModal: React.FC<TourDetailsModalProps> = ({
                   </span>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5 text-[#E05A47]" />
+                      <Users className="w-3.5 h-3.5 text-[#C2571A]" />
                       <span className="font-semibold text-[#1E2022]">{bookingAdults}</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -388,7 +388,7 @@ export const TourDetailsModal: React.FC<TourDetailsModalProps> = ({
                 <button
                   type="button"
                   onClick={handleConfirmBooking}
-                  className="px-6 py-3 rounded-xl bg-[#E05A47] hover:bg-[#c94937] text-white font-semibold text-xs sm:text-sm tracking-wide shadow-md active:scale-98 transition-all cursor-pointer"
+                  className="px-6 py-3 rounded-xl bg-[#C2571A] hover:bg-[#c94937] text-white font-semibold text-xs sm:text-sm tracking-wide shadow-md active:scale-98 transition-all cursor-pointer"
                 >
                   {bookingSuccess ? '✓ Trip Reserved to My Trips!' : 'Confirm Reservation →'}
                 </button>
@@ -416,7 +416,7 @@ export const TourDetailsModal: React.FC<TourDetailsModalProps> = ({
               <button
                 type="button"
                 onClick={() => setIsBookingStep(true)}
-                className="px-6 py-3 rounded-full bg-[#1E2022] hover:bg-[#E05A47] text-white font-semibold text-xs sm:text-sm transition-all duration-300 shadow-sm active:scale-98 cursor-pointer"
+                className="px-6 py-3 rounded-full bg-[#1E2022] hover:bg-[#C2571A] text-white font-semibold text-xs sm:text-sm transition-all duration-300 shadow-sm active:scale-98 cursor-pointer"
               >
                 Book This Trip →
               </button>
