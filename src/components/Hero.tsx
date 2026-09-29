@@ -191,26 +191,6 @@ export const Hero: React.FC<HeroProps> = ({
     setIsAudioPlaying(nextState);
   };
 
-  const applyQuickPreset = (preset: 'weekend' | 'beach' | 'alpine' | 'honeymoon') => {
-    if (preset === 'weekend') {
-      setCheckIn('2026-10-23');
-      setCheckOut('2026-10-26');
-      setDestination('Goa, India');
-    } else if (preset === 'beach') {
-      setDestination('Maldives, Indian Ocean');
-      setActiveReelIndex(1);
-    } else if (preset === 'alpine') {
-      setDestination('Manali, Himachal, India');
-      setActiveReelIndex(3);
-    } else if (preset === 'honeymoon') {
-      setDestination('Bali, Indonesia');
-      setAdults(2);
-      setChildren(0);
-      setGuestsChosen(true);
-      setActiveReelIndex(0);
-    }
-  };
-
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch({
@@ -610,36 +590,6 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
             </div>
           </form>
-              <div className="flex flex-wrap items-center gap-3 mt-6">
-                        <button
-              type="button"
-              onClick={() => applyQuickPreset('weekend')}
-              className="text-xs px-3.5 py-1.5 rounded-full bg-[#FAF8F5] hover:bg-[#1E2022]/8 border border-transparent text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
-            >
-              ⚡ 3-Day Long Weekend
-            </button>
-            <button
-              type="button"
-              onClick={() => applyQuickPreset('beach')}
-              className="text-xs px-3.5 py-1.5 rounded-full bg-[#FAF8F5] hover:bg-[#1E2022]/8 border border-transparent text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
-            >
-              🏝️ Lagoon Overwater
-            </button>
-            <button
-              type="button"
-              onClick={() => applyQuickPreset('alpine')}
-              className="text-xs px-3.5 py-1.5 rounded-full bg-[#FAF8F5] hover:bg-[#1E2022]/8 border border-transparent text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
-            >
-              🏔️ Alpine Chalet
-            </button>
-            <button
-              type="button"
-              onClick={() => applyQuickPreset('honeymoon')}
-              className="text-xs px-3.5 py-1.5 rounded-full bg-[#FAF8F5] hover:bg-[#1E2022]/8 border border-transparent text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
-            >
-              🥂 Romantic Sanctuary
-            </button>
-          </div>
             </div>
           </div>
         </motion.div>
