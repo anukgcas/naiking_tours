@@ -228,236 +228,73 @@ export const Hero: React.FC<HeroProps> = ({
   const headlineWords = ['Where', 'quiet', 'luxury', 'meets'];
 
   return (
-    <section className="relative pt-28 pb-0 lg:pt-36 overflow-hidden">
+    <section className="relative pt-[88px] lg:pt-[96px] pb-0 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center mb-14 lg:mb-16">
-          {/* LEFT — brand statement */}
-          <div className="lg:col-span-6 space-y-7">
-            <motion.div
-              className="flex flex-wrap items-center gap-3"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#C2571A]/25 text-xs font-bold text-[#1E2022] shadow-xs">
-                <span className="relative flex w-2 h-2">
-                                    <span className="relative w-2 h-2 rounded-full bg-[#C2571A]" />
+        {/* Compact destination banner — kept short so the Trip Finder is visible on first load */}
+        <motion.div
+          className="relative rounded-3xl overflow-hidden h-[360px] lg:h-[400px] bg-[#1E2022] shadow-xl"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <AnimatePresence initial={false}>
+            <motion.img
+              key={currentReel.id}
+              src={currentReel.image}
+              alt={`${currentReel.name}, ${currentReel.country}`}
+              referrerPolicy="no-referrer"
+              className="absolute inset-0 w-full h-full object-cover animate-kenburns"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.1, ease: 'easeInOut' }}
+            />
+          </AnimatePresence>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-black/10 pointer-events-none" />
+
+          <div className="relative h-full p-5 sm:p-8 lg:p-10 pb-24 lg:pb-28 flex flex-col">
+            {/* Top row: tags + destination switcher */}
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-xs font-semibold text-white">
+                  <Compass className="w-3.5 h-3.5" />
+                  Private Tailored Sanctuaries
                 </span>
-                <span>Private Tailored Sanctuaries</span>
+                <button
+                  type="button"
+                  onClick={toggleSound}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/20 text-xs font-semibold text-white transition-colors cursor-pointer"
+                  title="Toggle gentle ambient nature audio"
+                >
+                  {isAudioPlaying ? (
+                    <>
+                      <Volume2 className="w-3.5 h-3.5" />
+                      <span>Audio on</span>
+                    </>
+                  ) : (
+                    <>
+                      <VolumeX className="w-3.5 h-3.5" />
+                      <span>Ambience</span>
+                    </>
+                  )}
+                </button>
               </div>
 
-              {/* Web Audio Sanctuary Sound Toggle */}
-              <button
-                type="button"
-                onClick={toggleSound}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  isAudioPlaying
-                    ? 'bg-[#C2571A] text-white shadow-xs'
-                    : 'bg-white border border-[#1E2022]/10 text-[#6B7280] hover:text-[#1E2022]'
-                }`}
-                title="Toggle gentle ambient nature audio"
-              >
-                {isAudioPlaying ? (
-                  <>
-                    <Volume2 className="w-3.5 h-3.5 animate-pulse" />
-                    <span>Sanctuary Audio: On</span>
-                  </>
-                ) : (
-                  <>
-                    <VolumeX className="w-3.5 h-3.5" />
-                    <span>Ambience Audio</span>
-                  </>
-                )}
-              </button>
-            </motion.div>
-
-            <h1 className="text-[2.6rem] sm:text-6xl lg:text-[4.25rem] font-extrabold tracking-tight text-[#1E2022] leading-[1.05]">
-              {headlineWords.map((w, i) => (
-                <span key={w} className="inline-block overflow-hidden align-bottom mr-[0.25em] pb-1">
-                  <motion.span
-                    className="inline-block"
-                    initial={{ y: '110%', rotate: 4 }}
-                    animate={{ y: '0%', rotate: 0 }}
-                    transition={{ duration: 0.9, delay: 0.25 + i * 0.09, ease: [0.16, 1, 0.3, 1] }}
-                  >
-                    {w}
-                  </motion.span>
-                </span>
-              ))}
-              <br />
-              <motion.span
-                className="inline-block"
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.9, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <RotatingWord words={['adventure.', 'heritage.', 'serenity.', 'romance.']} />
-              </motion.span>
-            </h1>
-
-            <motion.p
-              className="text-base sm:text-lg text-[#555A60] max-w-xl leading-relaxed"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.85 }}
-            >
-              Curated boutique sanctuaries, dedicated local chauffeurs, and unhurried itineraries
-              designed for the discerning traveler.
-            </motion.p>
-
-            <motion.div
-              className="flex flex-wrap items-center gap-3"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 1 }}
-            >
-              <button
-                type="button"
-                onClick={() => onExploreDestination(currentReel.name)}
-                className="group relative overflow-hidden inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-[#1E2022] hover:bg-black text-white text-sm font-bold shadow-md cursor-pointer transition-colors"
-              >
-                <span className="relative">Explore {currentReel.name}</span>
-                <ArrowRight className="relative w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  document.getElementById('hero-search')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                }
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-white border border-[#1E2022]/12 text-sm font-bold text-[#1E2022] hover:border-[#C2571A] hover:text-[#C2571A] transition-colors cursor-pointer"
-              >
-                <Sparkles className="w-4 h-4 text-[#C2571A]" />
-                Plan my trip
-              </button>
-            </motion.div>
-
-            {/* Animated proof stats */}
-            <motion.div
-              className="grid grid-cols-3 gap-3 pt-2 max-w-lg"
-              initial="hidden"
-              animate="show"
-              variants={{ show: { transition: { staggerChildren: 0.12, delayChildren: 1.15 } } }}
-            >
-              {[
-                { node: <CountUp to={100} suffix="%" delay={1.2} />, label: 'Private chauffeured transit' },
-                { node: <CountUp to={4.9} decimals={1} delay={1.3} />, label: 'Guest satisfaction' },
-                { node: <span>Zero</span>, label: 'Hidden markups, direct pricing' },
-              ].map((s, i) => (
-                <motion.div
-                  key={i}
-                  variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
-                  className="p-3.5 rounded-2xl bg-white/80 backdrop-blur border border-[#1E2022]/6 shadow-2xs"
-                >
-                  <span className="block text-xl sm:text-2xl font-extrabold text-[#1E2022] leading-none">
-                    {s.node}
-                  </span>
-                  <span className="mt-1.5 block text-[11px] leading-snug text-[#6B7280]">{s.label}</span>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-
-          {/* RIGHT — arched destination stage with 3D tilt + floating cards */}
-          <div className="lg:col-span-6">
-            <motion.div
-              className="relative mx-auto max-w-[520px] lg:max-w-none"
-              style={{ perspective: 1200 }}
-              initial={{ opacity: 0, y: 40, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 1.1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              onMouseMove={handleStageMove}
-              onMouseLeave={handleStageLeave}
-            >
-              <motion.div className="relative" style={{ rotateX: rotX, rotateY: rotY, transformStyle: 'preserve-3d' }}>
-                {/* offset outline arch */}
-                <div className="absolute inset-0 translate-x-4 translate-y-4 rounded-t-[999px] rounded-b-[2.5rem] border-2 border-[#C2571A]/40" />
-
-                <div className="relative aspect-[4/4.6] lg:aspect-[5/4.5] rounded-t-[999px] rounded-b-[2.5rem] overflow-hidden shadow-2xl bg-[#ECE8E1]">
-                  <AnimatePresence initial={false}>
-                    <motion.img
-                      key={currentReel.id}
-                      src={currentReel.image}
-                      alt={`${currentReel.name}, ${currentReel.country}`}
-                      referrerPolicy="no-referrer"
-                      className="absolute inset-0 w-full h-full object-cover animate-kenburns"
-                      initial={{ opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
-                      animate={{ opacity: 1, clipPath: 'inset(0 0 0% 0)' }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
-                    />
-                  </AnimatePresence>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none" />
-
-                  {/* Bottom caption */}
-                  <div className="absolute bottom-6 left-6 right-6 text-white">
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key={currentReel.id}
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.5, delay: 0.15 }}
-                      >
-                        <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/75 block mb-1">
-                          {currentReel.country}
-                        </span>
-                        <h3 className="text-3xl font-extrabold leading-tight">{currentReel.name}</h3>
-                        <p className="text-xs text-white/85 mt-1 line-clamp-1">{currentReel.highlight}</p>
-                      </motion.div>
-                    </AnimatePresence>
-                  </div>
-                </div>
-
-                {/* Floating glass cards */}
-                <div className="absolute -left-1 sm:-left-8 top-[18%]" style={{ transform: 'translateZ(60px)' }}>
-                  <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-white/85 backdrop-blur-md shadow-xl border border-white">
-                    <Sun className="w-4 h-4 text-amber-500" />
-                    <span className="text-xs font-bold text-[#1E2022]">{currentReel.climate}</span>
-                  </div>
-                </div>
-                <div className="absolute hidden sm:block -right-6 top-[42%]" style={{ transform: 'translateZ(80px)' }}>
-                  <div
-                    className="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-white/85 backdrop-blur-md shadow-xl border border-white"
-                    style={{ animationDelay: '1.6s' }}
-                  >
-                    <Clock className="w-4 h-4 text-[#C2571A]" />
-                    <span className="text-xs font-bold text-[#1E2022]">{currentReel.timezone}</span>
-                  </div>
-                </div>
-                <div className="absolute hidden sm:block -right-6 bottom-[12%]" style={{ transform: 'translateZ(70px)' }}>
-                  <div
-                    className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl bg-[#1E2022] shadow-xl"
-                    style={{ animationDelay: '3s' }}
-                  >
-                    <span className="w-8 h-8 rounded-full bg-[#C2571A] flex items-center justify-center">
-                      <Compass className="w-4 h-4 text-white" />
-                    </span>
-                    <span className="leading-tight">
-                      <span className="block text-[11px] font-bold text-white">Chauffeur assigned</span>
-                      <span className="block text-[10px] text-white/60">Arrives 15 min early</span>
-                    </span>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Destination switcher with autoplay progress */}
-              <div className="mt-8 flex items-center justify-between gap-1 p-1 bg-white rounded-2xl border border-[#1E2022]/8 shadow-xs overflow-x-auto scrollbar-none">
+              <div className="hidden md:flex items-center gap-1 p-1 rounded-full bg-black/30 backdrop-blur-sm border border-white/15">
                 {DESTINATION_REELS.map((reel, idx) => (
                   <button
                     key={reel.id}
                     type="button"
                     onClick={() => handleSelectReel(idx)}
-                    className={`relative flex-1 overflow-hidden py-2 px-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                      activeReelIndex === idx
-                        ? 'bg-[#1E2022] text-white'
-                        : 'text-[#6B7280] hover:text-[#1E2022] hover:bg-[#FAF8F5]'
+                    className={`relative overflow-hidden px-3 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
+                      activeReelIndex === idx ? 'bg-white text-[#1E2022]' : 'text-white/80 hover:text-white'
                     }`}
                   >
                     {reel.name}
                     {activeReelIndex === idx && (
                       <motion.span
                         key={`bar-${activeReelIndex}`}
-                        className="absolute left-0 bottom-0 h-[3px] bg-white/70"
+                        className="absolute left-0 bottom-0 h-[2px] bg-[#C2571A]"
                         initial={{ width: '0%' }}
                         animate={{ width: '100%' }}
                         transition={{ duration: REEL_INTERVAL_MS / 1000, ease: 'linear' }}
@@ -466,49 +303,113 @@ export const Hero: React.FC<HeroProps> = ({
                   </button>
                 ))}
               </div>
-            </motion.div>
-          </div>
-        </div>
+            </div>
 
-        {/* FEATURED TRIP FINDER — the main call-to-action of the home page */}
+            {/* Headline */}
+            <div className="mt-auto max-w-2xl">
+              <h1 className="text-[2.1rem] sm:text-5xl lg:text-[3.4rem] font-extrabold tracking-tight text-white leading-[1.08]">
+                {headlineWords.map((w, i) => (
+                  <span key={w} className="inline-block overflow-hidden align-bottom mr-[0.25em] pb-1">
+                    <motion.span
+                      className="inline-block"
+                      initial={{ y: '110%' }}
+                      animate={{ y: '0%' }}
+                      transition={{ duration: 0.8, delay: 0.25 + i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      {w}
+                    </motion.span>
+                  </span>
+                ))}
+                <br />
+                <RotatingWord
+                  words={['adventure.', 'heritage.', 'serenity.', 'romance.']}
+                  className="text-[#F0AE45]"
+                />
+              </h1>
+              <p className="hidden sm:block mt-3 text-sm sm:text-base text-white/80 max-w-lg">
+                Curated boutique sanctuaries, dedicated local chauffeurs and unhurried itineraries.
+              </p>
+            </div>
+
+            {/* Current destination caption */}
+            <div className="hidden lg:block absolute right-10 bottom-28 text-right text-white">
+              <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/70 block">
+                {currentReel.country}
+              </span>
+              <span className="text-2xl font-extrabold block">{currentReel.name}</span>
+              <span className="text-xs text-white/80 flex items-center justify-end gap-3 mt-1">
+                <span className="inline-flex items-center gap-1">
+                  <Sun className="w-3.5 h-3.5" />
+                  {currentReel.climate.split(' · ')[0]}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onExploreDestination(currentReel.name)}
+                  className="underline underline-offset-4 hover:text-white cursor-pointer"
+                >
+                  Explore →
+                </button>
+              </span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* TRIP FINDER — overlaps the banner so it is part of the first screen */}
         <motion.div
           id="hero-search"
-          className="relative z-30 scroll-mt-28"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          className="relative z-30 -mt-20 lg:-mt-24 mx-2 sm:mx-4 lg:mx-8"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
         >
-          {/* Section intro */}
-          <div className="flex flex-col items-center text-center mb-6">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-[#1E2022]/12 text-[11px] font-bold uppercase tracking-[0.2em] text-[#C2571A]">
-              Start here
-            </span>
-            <h2 className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight text-[#1E2022]">
-              Find your perfect trip
-            </h2>
-            <p className="mt-1 text-sm text-[#6B7280]">
-              Choose a destination, dates and budget — we match you with {packagesCount} private itineraries.
-            </p>
-          </div>
-
-          <div className="relative">
-            <div>
-            <div className="relative rounded-3xl bg-white border border-[#1E2022]/12 shadow-lg p-4 sm:p-6">
-              <div className="flex items-center justify-between gap-3 pb-4 mb-4 border-b border-[#1E2022]/8">
+          <div>
+            <div className="relative rounded-3xl bg-white border border-[#1E2022]/12 shadow-2xl p-4 sm:p-5">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 pb-3 mb-3 border-b border-[#1E2022]/8">
                 <div className="flex items-center gap-2 text-sm font-bold text-[#1E2022]">
                   <Compass className="w-4 h-4 text-[#C2571A]" />
-                  Trip Finder
+                  Find your perfect trip
+                  <span className="hidden sm:inline font-normal text-[#6B7280]">
+                    · {packagesCount} private itineraries
+                  </span>
                 </div>
-                <span className="hidden sm:inline text-xs text-[#6B7280]">Free · No sign-up · Instant matches</span>
+                <div className="flex items-center gap-2 overflow-x-auto scrollbar-none max-w-full">
+                        <button
+              type="button"
+              onClick={() => applyQuickPreset('weekend')}
+              className="text-xs px-3 py-1 rounded-full bg-white hover:bg-[#FAF8F5] border border-[#1E2022]/15 text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
+            >
+              ⚡ 3-Day Long Weekend
+            </button>
+            <button
+              type="button"
+              onClick={() => applyQuickPreset('beach')}
+              className="text-xs px-3 py-1 rounded-full bg-white hover:bg-[#FAF8F5] border border-[#1E2022]/15 text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
+            >
+              🏝️ Lagoon Overwater
+            </button>
+            <button
+              type="button"
+              onClick={() => applyQuickPreset('alpine')}
+              className="text-xs px-3 py-1 rounded-full bg-white hover:bg-[#FAF8F5] border border-[#1E2022]/15 text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
+            >
+              🏔️ Alpine Chalet
+            </button>
+            <button
+              type="button"
+              onClick={() => applyQuickPreset('honeymoon')}
+              className="text-xs px-3 py-1 rounded-full bg-white hover:bg-[#FAF8F5] border border-[#1E2022]/15 text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
+            >
+              🥂 Romantic Sanctuary
+            </button>
+          </div>
               </div>
           <form
             onSubmit={handleSearchSubmit}
             className=""
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-stretch">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1.2fr_auto] gap-3 items-stretch">
               {/* Field 1: Destination */}
-              <div className="lg:col-span-3 relative p-3 rounded-xl bg-white border border-[#1E2022]/20 hover:border-[#1E2022]/45 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
+              <div className="relative p-3 rounded-xl bg-white border border-[#1E2022]/20 hover:border-[#1E2022]/45 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
                 <div
                   onClick={() => setIsDestOpen(!isDestOpen)}
                   className="cursor-pointer"
@@ -553,7 +454,7 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
 
               {/* Field 2: Check-in */}
-              <div className="lg:col-span-2 p-3 rounded-xl bg-white border border-[#1E2022]/20 hover:border-[#1E2022]/45 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
+              <div className="p-3 rounded-xl bg-white border border-[#1E2022]/20 hover:border-[#1E2022]/45 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
                 <label
                   htmlFor="checkin-hero"
                   className="flex items-center gap-1.5 text-xs font-medium text-[#6B7280]"
@@ -571,7 +472,7 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
 
               {/* Field 3: Check-out with Nights Pill */}
-              <div className="lg:col-span-2 p-3 rounded-xl bg-white border border-[#1E2022]/20 hover:border-[#1E2022]/45 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
+              <div className="p-3 rounded-xl bg-white border border-[#1E2022]/20 hover:border-[#1E2022]/45 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
                 <div className="flex items-center justify-between">
                   <label
                     htmlFor="checkout-hero"
@@ -594,7 +495,7 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
 
               {/* Field 4: Travellers */}
-              <div className="lg:col-span-2 relative p-3 rounded-xl bg-white border border-[#1E2022]/20 hover:border-[#1E2022]/45 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
+              <div className="relative p-3 rounded-xl bg-white border border-[#1E2022]/20 hover:border-[#1E2022]/45 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
                 <div
                   onClick={() => setIsTravellersOpen(!isTravellersOpen)}
                   className="cursor-pointer"
@@ -681,7 +582,7 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
 
               {/* Field 5: Budget */}
-              <div className="lg:col-span-3 relative p-3 rounded-xl bg-white border border-[#1E2022]/20 hover:border-[#1E2022]/45 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
+              <div className="relative p-3 rounded-xl bg-white border border-[#1E2022]/20 hover:border-[#1E2022]/45 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
                 <div
                   onClick={() => setIsBudgetOpen(!isBudgetOpen)}
                   className="cursor-pointer"
@@ -724,10 +625,10 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
 
               {/* Primary Search CTA */}
-              <div className="sm:col-span-2 lg:col-span-12 flex">
+              <div className="sm:col-span-2 lg:col-span-1 flex">
                 <button
                   type="submit"
-                  className="group w-full h-12 px-5 rounded-xl bg-[#1E2022] hover:bg-black text-white font-semibold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="group w-full min-h-[3.5rem] lg:px-8 px-5 rounded-xl bg-[#1E2022] hover:bg-black text-white font-semibold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <span className="whitespace-nowrap">Search Trips</span>
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -735,48 +636,18 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
             </div>
           </form>
-          {/* Quick Mood Chips */}
-          <div className="flex items-center gap-2 mt-5 px-1 overflow-x-auto scrollbar-none">
-            <span className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider whitespace-nowrap hidden sm:inline">
-              Try a vibe:
-            </span>
-            <button
-              type="button"
-              onClick={() => applyQuickPreset('weekend')}
-              className="text-xs px-3 py-1 rounded-full bg-white hover:bg-[#FAF8F5] border border-[#1E2022]/15 text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
-            >
-              ⚡ 3-Day Long Weekend
-            </button>
-            <button
-              type="button"
-              onClick={() => applyQuickPreset('beach')}
-              className="text-xs px-3 py-1 rounded-full bg-white hover:bg-[#FAF8F5] border border-[#1E2022]/15 text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
-            >
-              🏝️ Lagoon Overwater
-            </button>
-            <button
-              type="button"
-              onClick={() => applyQuickPreset('alpine')}
-              className="text-xs px-3 py-1 rounded-full bg-white hover:bg-[#FAF8F5] border border-[#1E2022]/15 text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
-            >
-              🏔️ Alpine Chalet
-            </button>
-            <button
-              type="button"
-              onClick={() => applyQuickPreset('honeymoon')}
-              className="text-xs px-3 py-1 rounded-full bg-white hover:bg-[#FAF8F5] border border-[#1E2022]/15 text-[#555A60] whitespace-nowrap transition-colors cursor-pointer"
-            >
-              🥂 Romantic Sanctuary
-            </button>
-          </div>
-
-              </div>
             </div>
           </div>
         </motion.div>
+
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-xs font-semibold text-[#555A60]">
+          <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-[#C2571A]" />100% private chauffeured transit</span>
+          <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-[#C2571A]" />Handpicked boutique stays</span>
+          <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-[#C2571A]" />Zero hidden markups</span>
+        </div>
       </div>
 
-      <div className="mt-14">
+      <div className="mt-10">
         <Marquee items={MARQUEE_ITEMS} />
       </div>
     </section>

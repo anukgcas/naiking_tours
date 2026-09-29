@@ -32,8 +32,9 @@ export const CountUp: React.FC<{ to: number; suffix?: string; decimals?: number;
 };
 
 /** Cycles through words with a vertical slide. */
-export const RotatingWord: React.FC<{ words: string[]; interval?: number }> = ({
+export const RotatingWord: React.FC<{ words: string[]; interval?: number; className?: string }> = ({
   words,
+  className = 'text-[#C2571A]',
   interval = 2600,
 }) => {
   const [i, setI] = useState(0);
@@ -51,7 +52,7 @@ export const RotatingWord: React.FC<{ words: string[]; interval?: number }> = ({
       <AnimatePresence mode="wait" initial={false}>
         <motion.span
           key={words[i]}
-          className="absolute left-0 top-0 text-[#C2571A] whitespace-nowrap"
+          className={`absolute left-0 top-0 ${className} whitespace-nowrap`}
           initial={{ y: '100%', opacity: 0 }}
           animate={{ y: '0%', opacity: 1 }}
           exit={{ y: '-100%', opacity: 0 }}
