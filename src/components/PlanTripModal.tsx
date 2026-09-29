@@ -84,7 +84,7 @@ export const PlanTripModal: React.FC<PlanTripModalProps> = ({
       totalPrice: totalEstimatedBudget,
       status: 'Preparing',
       bookingDate: 'Today',
-      image: '/src/assets/images/hero_bali_luxury_1790674276055.jpg',
+      image: '/images/hero_bali_luxury_1790674276055.jpg',
       tripStyle,
     };
 

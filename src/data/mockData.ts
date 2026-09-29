@@ -8,7 +8,7 @@ export const SIGNATURE_DESTINATIONS: SignatureDestination[] = [
     tagline: 'Terraced sanctuaries & sacred coastlines',
     packageCount: 8,
     startingPrice: 24999,
-    image: '/src/assets/images/hero_bali_luxury_1790674276055.jpg',
+    image: '/images/hero_bali_luxury_1790674276055.jpg',
   },
   {
     id: 'dubai',
@@ -17,7 +17,7 @@ export const SIGNATURE_DESTINATIONS: SignatureDestination[] = [
     tagline: 'Futuristic silhouettes & sunset dunes',
     packageCount: 6,
     startingPrice: 39999,
-    image: '/src/assets/images/dest_dubai_1790674315094.jpg',
+    image: '/images/dest_dubai_1790674315094.jpg',
   },
   {
     id: 'maldives',
@@ -26,7 +26,7 @@ export const SIGNATURE_DESTINATIONS: SignatureDestination[] = [
     tagline: 'Overwater pavilions & turquoise silence',
     packageCount: 5,
     startingPrice: 68500,
-    image: '/src/assets/images/dest_maldives_1790674294175.jpg',
+    image: '/images/dest_maldives_1790674294175.jpg',
   },
   {
     id: 'goa',
@@ -35,7 +35,7 @@ export const SIGNATURE_DESTINATIONS: SignatureDestination[] = [
     tagline: 'Portuguese heritage villas & quiet shores',
     packageCount: 7,
     startingPrice: 18499,
-    image: '/src/assets/images/dest_goa_1790674366139.jpg',
+    image: '/images/dest_goa_1790674366139.jpg',
   },
   {
     id: 'manali',
@@ -44,7 +44,7 @@ export const SIGNATURE_DESTINATIONS: SignatureDestination[] = [
     tagline: 'Cedar-scented pine valleys & alpine peaks',
     packageCount: 5,
     startingPrice: 21999,
-    image: '/src/assets/images/dest_manali_1790674332732.jpg',
+    image: '/images/dest_manali_1790674332732.jpg',
   },
   {
     id: 'singapore',
@@ -53,7 +53,7 @@ export const SIGNATURE_DESTINATIONS: SignatureDestination[] = [
     tagline: 'Verdant supertrees & Michelin culinary art',
     packageCount: 6,
     startingPrice: 44500,
-    image: '/src/assets/images/dest_singapore_1790674346843.jpg',
+    image: '/images/dest_singapore_1790674346843.jpg',
   },
 ];
 
@@ -75,11 +75,11 @@ export const TOUR_PACKAGES: TourPackage[] = [
     description:
       'Immerse in the calm soul of Ubud and the dramatic ocean cliffs of Uluwatu. Curated private chauffeured transfers, artisan coffee tasting, and unhurried temple contemplation.',
     tripStyle: 'Romantic',
-    featuredImage: '/src/assets/images/hero_bali_luxury_1790674276055.jpg',
+    featuredImage: '/images/hero_bali_luxury_1790674276055.jpg',
     gallery: [
-      '/src/assets/images/hero_bali_luxury_1790674276055.jpg',
-      '/src/assets/images/dest_maldives_1790674294175.jpg',
-      '/src/assets/images/dest_singapore_1790674346843.jpg',
+      '/images/hero_bali_luxury_1790674276055.jpg',
+      '/images/dest_maldives_1790674294175.jpg',
+      '/images/dest_singapore_1790674346843.jpg',
     ],
     hotel: {
       name: 'Kamandalu Ubud Rainforest Resort',
@@ -160,11 +160,11 @@ export const TOUR_PACKAGES: TourPackage[] = [
     description:
       'Step directly from your bedroom into crystal turquoise waters. Complete silence, marine turtle encounters, and secluded starlit dining on warm island sand.',
     tripStyle: 'Luxury',
-    featuredImage: '/src/assets/images/dest_maldives_1790674294175.jpg',
+    featuredImage: '/images/dest_maldives_1790674294175.jpg',
     gallery: [
-      '/src/assets/images/dest_maldives_1790674294175.jpg',
-      '/src/assets/images/hero_bali_luxury_1790674276055.jpg',
-      '/src/assets/images/dest_singapore_1790674346843.jpg',
+      '/images/dest_maldives_1790674294175.jpg',
+      '/images/hero_bali_luxury_1790674276055.jpg',
+      '/images/dest_singapore_1790674346843.jpg',
     ],
     hotel: {
       name: 'Velaa Private Island & Lagoon Villas',
@@ -253,11 +253,11 @@ export const TOUR_PACKAGES: TourPackage[] = [
     description:
       'Where cutting-edge architectural audacity meets the timeless golden peace of the Arabian desert. Handpicked luxury experiences with private transit.',
     tripStyle: 'Luxury',
-    featuredImage: '/src/assets/images/dest_dubai_1790674315094.jpg',
+    featuredImage: '/images/dest_dubai_1790674315094.jpg',
     gallery: [
-      '/src/assets/images/dest_dubai_1790674315094.jpg',
-      '/src/assets/images/hero_bali_luxury_1790674276055.jpg',
-      '/src/assets/images/dest_goa_1790674366139.jpg',
+      '/images/dest_dubai_1790674315094.jpg',
+      '/images/hero_bali_luxury_1790674276055.jpg',
+      '/images/dest_goa_1790674366139.jpg',
     ],
     hotel: {
       name: 'The Lana, Dorchester Collection Dubai',
@@ -346,11 +346,11 @@ export const TOUR_PACKAGES: TourPackage[] = [
     description:
       'Discover Goa beyond the parties: serene Portuguese heritage estates, untouched white sand beaches in South Goa, and slow Konkani spice dinners.',
     tripStyle: 'Culture',
-    featuredImage: '/src/assets/images/dest_goa_1790674366139.jpg',
+    featuredImage: '/images/dest_goa_1790674366139.jpg',
     gallery: [
-      '/src/assets/images/dest_goa_1790674366139.jpg',
-      '/src/assets/images/hero_bali_luxury_1790674276055.jpg',
-      '/src/assets/images/dest_manali_1790674332732.jpg',
+      '/images/dest_goa_1790674366139.jpg',
+      '/images/hero_bali_luxury_1790674276055.jpg',
+      '/images/dest_manali_1790674332732.jpg',
     ],
     hotel: {
       name: 'Figueiredo Mansion & Heritage Retreat',
@@ -426,11 +426,11 @@ export const TOUR_PACKAGES: TourPackage[] = [
     description:
       'Crisp Himalayan air, snow-dusted ridges, and roaring cedar wood fires. Experience the tranquil mountain retreat of Old Manali and high-altitude alpine meadows.',
     tripStyle: 'Adventure',
-    featuredImage: '/src/assets/images/dest_manali_1790674332732.jpg',
+    featuredImage: '/images/dest_manali_1790674332732.jpg',
     gallery: [
-      '/src/assets/images/dest_manali_1790674332732.jpg',
-      '/src/assets/images/hero_bali_luxury_1790674276055.jpg',
-      '/src/assets/images/dest_dubai_1790674315094.jpg',
+      '/images/dest_manali_1790674332732.jpg',
+      '/images/hero_bali_luxury_1790674276055.jpg',
+      '/images/dest_dubai_1790674315094.jpg',
     ],
     hotel: {
       name: 'The Himalayan Stone & Wood Sanctuary',
@@ -518,11 +518,11 @@ export const TOUR_PACKAGES: TourPackage[] = [
     description:
       'Where lush tropical greenery intertwines seamlessly with hyper-modern urban architecture. Experience Singapore with effortless private curation.',
     tripStyle: 'Luxury',
-    featuredImage: '/src/assets/images/dest_singapore_1790674346843.jpg',
+    featuredImage: '/images/dest_singapore_1790674346843.jpg',
     gallery: [
-      '/src/assets/images/dest_singapore_1790674346843.jpg',
-      '/src/assets/images/hero_bali_luxury_1790674276055.jpg',
-      '/src/assets/images/dest_maldives_1790674294175.jpg',
+      '/images/dest_singapore_1790674346843.jpg',
+      '/images/hero_bali_luxury_1790674276055.jpg',
+      '/images/dest_maldives_1790674294175.jpg',
     ],
     hotel: {
       name: 'The Ritz-Carlton Millenia Singapore',
@@ -610,7 +610,7 @@ export const INITIAL_BOOKED_TRIPS: TripBooking[] = [
     totalPrice: 79998,
     status: 'Confirmed',
     bookingDate: '12 Sep 2026',
-    image: '/src/assets/images/dest_dubai_1790674315094.jpg',
+    image: '/images/dest_dubai_1790674315094.jpg',
     tripStyle: 'Luxury',
   },
   {
@@ -627,7 +627,7 @@ export const INITIAL_BOOKED_TRIPS: TripBooking[] = [
     totalPrice: 36998,
     status: 'Completed',
     bookingDate: '04 Dec 2025',
-    image: '/src/assets/images/dest_goa_1790674366139.jpg',
+    image: '/images/dest_goa_1790674366139.jpg',
     tripStyle: 'Culture',
   },
 ];
