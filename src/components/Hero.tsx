@@ -232,7 +232,7 @@ export const Hero: React.FC<HeroProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Compact destination banner — kept short so the Trip Finder is visible on first load */}
         <motion.div
-          className="relative rounded-3xl overflow-hidden h-[360px] lg:h-[400px] bg-[#1E2022] shadow-xl"
+          className="relative rounded-3xl overflow-hidden h-[380px] lg:h-[420px] bg-[#1E2022] shadow-xl"
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
@@ -326,9 +326,6 @@ export const Hero: React.FC<HeroProps> = ({
                   className="text-[#F0AE45]"
                 />
               </h1>
-              <p className="hidden sm:block mt-3 text-sm sm:text-base text-white/80 max-w-lg">
-                Curated boutique sanctuaries, dedicated local chauffeurs and unhurried itineraries.
-              </p>
             </div>
 
             {/* Current destination caption */}
