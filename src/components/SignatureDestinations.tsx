@@ -17,6 +17,22 @@ const CARD_META: Record<string, { country: string; tag: string }> = {
   goa: { country: 'India', tag: 'Heritage & Coast' },
 };
 
+const tiltMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const el = e.currentTarget;
+  const r = el.getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width;
+  const y = (e.clientY - r.top) / r.height;
+  el.style.setProperty('--rx', `${((0.5 - y) * 10).toFixed(2)}deg`);
+  el.style.setProperty('--ry', `${((x - 0.5) * 12).toFixed(2)}deg`);
+  el.style.setProperty('--mx', `${(x * 100).toFixed(1)}%`);
+  el.style.setProperty('--my', `${(y * 100).toFixed(1)}%`);
+};
+const tiltLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+  const el = e.currentTarget;
+  el.style.setProperty('--rx', '0deg');
+  el.style.setProperty('--ry', '0deg');
+};
+
 export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
   destinations,
   onSelectDestination,
@@ -89,8 +105,13 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
               <div
                 key={dest.id}
                 onClick={() => onSelectDestination(dest.name)}
-                className="group relative flex-none w-[68%] sm:w-[42%] md:w-[30%] lg:w-auto aspect-[3/4] rounded-[1.75rem] overflow-hidden cursor-pointer select-none bg-[#EAE6DF] snap-start shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl"
+                onMouseMove={tiltMove}
+                onMouseLeave={tiltLeave}
+                style={{ transform: 'perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))', transition: 'transform 0.25s ease-out, box-shadow 0.3s' }}
+                className="group relative flex-none w-[68%] sm:w-[42%] md:w-[30%] lg:w-auto aspect-[3/4] rounded-[1.75rem] cursor-pointer hover:z-20 select-none bg-[#EAE6DF] snap-start shadow-md hover:shadow-2xl"
               >
+                {/* Clip layer: keeps image, glare and shimmer strictly inside THIS card */}
+                <div className="absolute inset-0 overflow-hidden rounded-[1.75rem] [contain:paint] [transform:translateZ(0)]">
                 <img
                   src={dest.image}
                   alt={`${dest.name}, ${dest.country}`}
@@ -98,6 +119,19 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
                   className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+
+                {/* Cursor-following glare */}
+                <div
+                  className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{ background: 'radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.22), transparent 45%)' }}
+                />
+                {/* Shimmer sweep */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                  <div className="absolute top-0 left-0 h-full w-1/2 -translate-x-[160%] group-hover:translate-x-[320%] -skew-x-12 bg-gradient-to-r from-transparent via-white/35 to-transparent transition-transform duration-[900ms] ease-in-out" />
+                </div>
+                <div className="absolute inset-0 rounded-[1.75rem] ring-1 ring-inset ring-white/0 group-hover:ring-white/40 transition-all duration-300 pointer-events-none" />
+
+                </div>
 
                 <div className="absolute bottom-6 left-6 right-6 z-10 text-white">
                   <p className="text-xs font-bold uppercase tracking-wider text-white/85">
