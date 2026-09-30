@@ -460,7 +460,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
 
         {/* 3-column dashboard */}
         <div className="mt-6 grid grid-cols-1 xl:grid-cols-[17rem_1fr_19rem] gap-5 items-start">
-          {/* LEFT: stay style + route (compact sidebar) */}
+          {/* LEFT: stay style (compact sidebar) */}
           <div className="space-y-4 xl:sticky xl:top-24">
             <div className="rounded-2xl border border-[#1E2022]/10 bg-white p-4">
               <h2 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Stay style</h2>
@@ -493,65 +493,30 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
             </div>
 
             <div className="rounded-2xl border border-[#1E2022]/10 bg-white p-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold text-[#1E2022]">Your route</h2>
-                <span className="text-[11px] text-[#6B7280]">
-                  {stops.length || 1} {stops.length > 1 ? 'cities' : 'city'} · {days - 1} nights
-                </span>
-              </div>
-              <ol className="relative mt-3">
-                <span aria-hidden className="absolute left-[0.7rem] top-2 bottom-2 border-l-2 border-dashed border-[#1E2022]/15" />
-                <li className="relative flex items-center gap-2.5 pb-3">
-                  <span className="relative z-10 w-6 h-6 rounded-full bg-[#1E2022]/6 text-[#4B4F55] flex items-center justify-center shrink-0">
-                    <Plane className="w-3 h-3" />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Trip summary</h2>
+              <div className="mt-3 space-y-2 text-[11px]">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#6B7280]">Dates</span>
+                  <span className="font-semibold text-[#1E2022] text-right">
+                    {formatDate(draft.checkIn)} – {formatDate(draft.checkOut)}
                   </span>
-                  <span className="text-xs text-[#6B7280]">Arrival in {dest.name}</span>
-                </li>
-                {groups.map((g, gi) => (
-                  <React.Fragment key={g.key}>
-                    {gi > 0 && (
-                      <li className="relative flex items-center gap-2.5 pb-3">
-                        <span className="relative z-10 w-6 h-6 rounded-full bg-[#FFF6EC] text-[#C2571A] flex items-center justify-center shrink-0">
-                          <Car className="w-3 h-3" />
-                        </span>
-                        <span className="text-[11px] text-[#6B7280]">{transferLabel(dest.id, g.title)}</span>
-                      </li>
-                    )}
-                    <li className="relative flex items-center gap-2.5 pb-3">
-                      <span className="relative z-10 w-6 h-6 rounded-full bg-[#C2571A] text-white flex items-center justify-center shrink-0 text-[10px] font-extrabold">
-                        {gi + 1}
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block text-sm font-bold text-[#1E2022] truncate">{g.title}</span>
-                        <span className="block text-[11px] text-[#6B7280]">
-                          {g.nights} night{g.nights === 1 ? '' : 's'}
-                        </span>
-                      </span>
-                    </li>
-                  </React.Fragment>
-                ))}
-                <li className="relative flex items-center gap-2.5">
-                  <span className="relative z-10 w-6 h-6 rounded-full bg-[#1E2022]/6 text-[#4B4F55] flex items-center justify-center shrink-0">
-                    <Plane className="w-3 h-3 rotate-45" />
-                  </span>
-                  <span className="text-xs text-[#6B7280]">Departure</span>
-                </li>
-              </ol>
-              <div className="mt-4 pt-3 border-t border-[#1E2022]/8 grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={onEditCities}
-                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full bg-[#FAF8F5] border border-[#1E2022]/10 text-xs font-semibold hover:border-[#C2571A] hover:text-[#C2571A] cursor-pointer"
-                >
-                  <Pencil className="w-3 h-3" /> Edit route
-                </button>
-                <button
-                  type="button"
-                  onClick={onEditCities}
-                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full bg-[#FAF8F5] border border-[#1E2022]/10 text-xs font-semibold hover:border-[#C2571A] hover:text-[#C2571A] cursor-pointer"
-                >
-                  <Plus className="w-3 h-3" /> Add city
-                </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#6B7280]">Duration</span>
+                  <span className="font-semibold text-[#1E2022]">{days} days</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#6B7280]">Guests</span>
+                  <span className="font-semibold text-[#1E2022]">{guests}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#6B7280]">Stay style</span>
+                  <span className="font-semibold text-[#1E2022]">{TIER_LABEL[draft.stayTier]}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#6B7280]">Experiences</span>
+                  <span className="font-semibold text-[#1E2022]">{totalPlanned}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -803,31 +768,67 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
               <p className="mt-3 text-[11px] text-[#9CA3AF]">Updates as you add or remove experiences.</p>
             </div>
 
+            {/* Your route */}
             <div className="mt-4 rounded-2xl border border-[#1E2022]/10 bg-white p-4">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Trip summary</h2>
-              <div className="mt-3 space-y-2 text-[11px]">
-                <div className="flex items-center justify-between">
-                  <span className="text-[#6B7280]">Dates</span>
-                  <span className="font-semibold text-[#1E2022] text-right">
-                    {formatDate(draft.checkIn)} – {formatDate(draft.checkOut)}
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-bold text-[#1E2022]">Your route</h2>
+                <span className="text-[11px] text-[#6B7280]">
+                  {stops.length || 1} {stops.length > 1 ? 'cities' : 'city'} · {days - 1} nights
+                </span>
+              </div>
+              <ol className="relative mt-3">
+                <span aria-hidden className="absolute left-[0.7rem] top-2 bottom-2 border-l-2 border-dashed border-[#1E2022]/15" />
+                <li className="relative flex items-center gap-2.5 pb-3">
+                  <span className="relative z-10 w-6 h-6 rounded-full bg-[#1E2022]/6 text-[#4B4F55] flex items-center justify-center shrink-0">
+                    <Plane className="w-3 h-3" />
                   </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[#6B7280]">Duration</span>
-                  <span className="font-semibold text-[#1E2022]">{days} days</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[#6B7280]">Guests</span>
-                  <span className="font-semibold text-[#1E2022]">{guests}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[#6B7280]">Stay style</span>
-                  <span className="font-semibold text-[#1E2022]">{TIER_LABEL[draft.stayTier]}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[#6B7280]">Experiences</span>
-                  <span className="font-semibold text-[#1E2022]">{totalPlanned}</span>
-                </div>
+                  <span className="text-xs text-[#6B7280]">Arrival in {dest.name}</span>
+                </li>
+                {groups.map((g, gi) => (
+                  <React.Fragment key={g.key}>
+                    {gi > 0 && (
+                      <li className="relative flex items-center gap-2.5 pb-3">
+                        <span className="relative z-10 w-6 h-6 rounded-full bg-[#FFF6EC] text-[#C2571A] flex items-center justify-center shrink-0">
+                          <Car className="w-3 h-3" />
+                        </span>
+                        <span className="text-[11px] text-[#6B7280]">{transferLabel(dest.id, g.title)}</span>
+                      </li>
+                    )}
+                    <li className="relative flex items-center gap-2.5 pb-3">
+                      <span className="relative z-10 w-6 h-6 rounded-full bg-[#C2571A] text-white flex items-center justify-center shrink-0 text-[10px] font-extrabold">
+                        {gi + 1}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-bold text-[#1E2022] truncate">{g.title}</span>
+                        <span className="block text-[11px] text-[#6B7280]">
+                          {g.nights} night{g.nights === 1 ? '' : 's'}
+                        </span>
+                      </span>
+                    </li>
+                  </React.Fragment>
+                ))}
+                <li className="relative flex items-center gap-2.5">
+                  <span className="relative z-10 w-6 h-6 rounded-full bg-[#1E2022]/6 text-[#4B4F55] flex items-center justify-center shrink-0">
+                    <Plane className="w-3 h-3 rotate-45" />
+                  </span>
+                  <span className="text-xs text-[#6B7280]">Departure</span>
+                </li>
+              </ol>
+              <div className="mt-4 pt-3 border-t border-[#1E2022]/8 grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={onEditCities}
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full bg-[#FAF8F5] border border-[#1E2022]/10 text-xs font-semibold hover:border-[#C2571A] hover:text-[#C2571A] cursor-pointer"
+                >
+                  <Pencil className="w-3 h-3" /> Edit route
+                </button>
+                <button
+                  type="button"
+                  onClick={onEditCities}
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full bg-[#FAF8F5] border border-[#1E2022]/10 text-xs font-semibold hover:border-[#C2571A] hover:text-[#C2571A] cursor-pointer"
+                >
+                  <Plus className="w-3 h-3" /> Add city
+                </button>
               </div>
             </div>
           </div>
