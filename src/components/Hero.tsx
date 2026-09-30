@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { MapPin, ArrowRight, Search, Sparkles, X } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { MapPin, ArrowRight, Search } from 'lucide-react';
 import { motion, AnimatePresence, animate, useMotionValue } from 'motion/react';
 import { Marquee } from './HeroParts';
 
@@ -186,7 +186,6 @@ const WanderingPlane: React.FC = () => {
 
 export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination }) => {
   const [activeReelIndex, setActiveReelIndex] = useState(0);
-  const [query, setQuery] = useState('');
 
   const currentReel = DESTINATION_REELS[activeReelIndex];
 
@@ -197,23 +196,6 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
     }, REEL_INTERVAL_MS);
     return () => clearTimeout(id);
   }, [activeReelIndex]);
-
-  const q = query.trim().toLowerCase();
-  const matches = useMemo(
-    () =>
-      q
-        ? DESTINATION_REELS.filter((r) =>
-            `${r.name} ${r.country} ${r.tags} ${r.highlight}`.toLowerCase().includes(q)
-          )
-        : [],
-    [q]
-  );
-
-  const submitSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (matches.length > 0) onExploreDestination(matches[0].name);
-    else onStartWizard();
-  };
 
   return (
     <section className="relative pt-[72px] lg:pt-[88px] overflow-x-clip bg-white">
@@ -282,65 +264,19 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3, ease: EASE }}
           >
-            <form onSubmit={submitSearch} className="mt-6 relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#6B7280] pointer-events-none" />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search for a destination…"
-                aria-label="Search for a destination"
-                enterKeyHint="search"
-                autoComplete="off"
-                className="w-full h-14 pl-11 pr-14 rounded-full bg-white border border-[#1E2022]/10 shadow-[0_8px_30px_-12px_rgba(30,32,34,0.25)] text-base text-[#1E2022] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#C2571A] focus:ring-4 focus:ring-[#C2571A]/15 transition"
-              />
-              {query && (
-                <button
-                  type="button"
-                  onClick={() => setQuery('')}
-                  aria-label="Clear search"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center text-[#6B7280] hover:bg-[#1E2022]/5 cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </form>
+            <button
+              type="button"
+              onClick={onStartWizard}
+              aria-label="Search for a destination"
+              className="mt-6 group relative w-full h-14 pl-11 pr-14 rounded-full bg-white border border-[#1E2022]/10 shadow-[0_8px_30px_-12px_rgba(30,32,34,0.25)] text-left text-base text-[#9CA3AF] hover:border-[#C2571A]/50 focus:outline-none focus-visible:border-[#C2571A] focus-visible:ring-4 focus-visible:ring-[#C2571A]/15 transition cursor-pointer"
+            >
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#6B7280]" />
+              Search for a destination…
+              <span className="absolute right-2.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#1E2022] group-hover:bg-[#C2571A] text-white flex items-center justify-center transition-colors">
+                <ArrowRight className="w-4 h-4" />
+              </span>
+            </button>
 
-            {q ? (
-              matches.length > 0 ? (
-                <ul className="mt-5 grid gap-2 sm:grid-cols-2">
-                  {matches.map((reel) => (
-                    <li key={reel.id}>
-                      <button
-                        type="button"
-                        onClick={() => onExploreDestination(reel.name)}
-                        className="group w-full flex items-center gap-3 p-2 pr-3 rounded-2xl bg-white border border-[#1E2022]/8 hover:border-[#C2571A]/50 hover:shadow-md transition text-left cursor-pointer"
-                      >
-                        <img src={reel.image} alt="" className="w-14 h-14 rounded-xl object-cover shrink-0" />
-                        <span className="flex-1 min-w-0">
-                          <span className="block text-sm font-bold text-[#1E2022]">{reel.name}</span>
-                          <span className="block text-xs text-[#6B7280] truncate">{reel.tags}</span>
-                        </span>
-                        <ArrowRight className="w-4 h-4 text-[#C2571A] transition-transform group-hover:translate-x-1" />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="mt-5 flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-[#FAF8F5] border border-[#1E2022]/8">
-                  <p className="text-sm text-[#4B4F55]">
-                    No exact match for &ldquo;{query.trim()}&rdquo;. Let us suggest the perfect place.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={onStartWizard}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E2022] hover:bg-[#C2571A] text-white text-xs font-semibold transition-colors cursor-pointer"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" /> Surprise me
-                  </button>
-                </div>
-              )
-            ) : (
               <div className="mt-6">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-sm font-bold text-[#1E2022]">Popular Destinations</span>
@@ -380,7 +316,6 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
                   ))}
                 </div>
               </div>
-            )}
           </motion.div>
         </div>
 

@@ -139,6 +139,8 @@ export default function App() {
     <div className="min-h-screen flex flex-col bg-white text-[#1E2022] font-sans">
       {showLoader && <Loader onComplete={() => setShowLoader(false)} />}
 
+      {/* The trip-setup page opens as its own full page: no site header, footer or tab bar */}
+      {view !== 'start' && (
       <Header
         activeTab={navTab}
         onNavigate={handleNavigate}
@@ -146,6 +148,7 @@ export default function App() {
         onOpenPlanner={handlePlanCTA}
         bookedTripsCount={bookedTrips.length}
       />
+      )}
 
       <main className="flex-1">
         {view === 'start' ? (
@@ -189,18 +192,22 @@ export default function App() {
         )}
       </main>
 
-      <Footer
-        onNavigate={handleNavigate}
-        onOpenPlanner={handlePlanCTA}
-        onOpenMyTrips={() => setIsMyTripsOpen(true)}
-      />
+      {view !== 'start' && (
+        <>
+          <Footer
+            onNavigate={handleNavigate}
+            onOpenPlanner={handlePlanCTA}
+            onOpenMyTrips={() => setIsMyTripsOpen(true)}
+          />
 
-      <MobileBottomNav
-        currentTab={navTab}
-        onNavigate={handleNavigate}
-        onOpenMyTrips={() => setIsMyTripsOpen(true)}
-        bookedTripsCount={bookedTrips.length}
-      />
+          <MobileBottomNav
+            currentTab={navTab}
+            onNavigate={handleNavigate}
+            onOpenMyTrips={() => setIsMyTripsOpen(true)}
+            bookedTripsCount={bookedTrips.length}
+          />
+        </>
+      )}
 
       <MyTripsDrawer
         isOpen={isMyTripsOpen}

@@ -425,7 +425,7 @@ const q = query.trim().toLowerCase();  const matches = q    ? PLANNER_DESTINATIO
 
   // ---------- wizard ----------
   return (
-    <section className="relative pt-24 lg:pt-28 pb-32">
+    <section className="relative pt-6 lg:pt-8 pb-32">
       <Aurora reduced={reduced} />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top row: Back · progress tab · chosen place (the spot the picked card flies into) */}
@@ -1039,7 +1039,7 @@ const q = query.trim().toLowerCase();  const matches = q    ? PLANNER_DESTINATIO
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 40, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 26 }}
-            className="sticky bottom-[4.75rem] md:bottom-4 z-30 mt-6 max-w-3xl mx-auto px-4"
+            className="sticky bottom-4 z-30 mt-6 max-w-3xl mx-auto px-4"
           >
             <div className="flex items-center justify-between gap-3 p-2.5 pl-5 rounded-full bg-white/80 backdrop-blur-xl border border-white shadow-[0_25px_60px_-15px_rgba(30,32,34,0.45)]">
               <div className="flex items-center gap-1.5" aria-hidden>
