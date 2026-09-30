@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { MapPin, ArrowRight, Compass, Volume2, VolumeX, Sun, Sparkles, Clock } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { MapPin, ArrowRight, Compass, Volume2, VolumeX, Sun, Sparkles, Search, X } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'motion/react';
 import { CountUp, RotatingWord, Marquee } from './HeroParts';
 
@@ -108,7 +108,20 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
   const [activeReelIndex, setActiveReelIndex] = useState(0);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
+  const [query, setQuery] = useState('');
+
   const currentReel = DESTINATION_REELS[activeReelIndex];
+
+  const q = query.trim().toLowerCase();
+  const matches = useMemo(
+    () => (q ? DESTINATION_REELS.filter((r) => `${r.name} ${r.country} ${r.highlight}`.toLowerCase().includes(q)) : []),
+    [q]
+  );
+  const submitSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (matches.length > 0) onExploreDestination(matches[0].name);
+    else onStartWizard();
+  };
 
   // Auto-advance the destination reel; any manual pick restarts the timer
   useEffect(() => {
@@ -153,7 +166,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
     <section className="relative pt-[76px] lg:pt-[84px] pb-0 overflow-x-clip">
         {/* Compact destination banner — kept short so the Trip Finder is visible on first load */}
         <motion.div
-          className="relative w-full overflow-hidden h-[400px] lg:h-[460px] bg-[#1E2022]"
+          className="relative w-full overflow-hidden h-[400px] lg:h-[calc(100svh-290px)] lg:min-h-[420px] lg:max-h-[520px] bg-[#1E2022]"
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
@@ -273,60 +286,126 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
         </motion.div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* TRIP LAUNCHER — one tap into the guided trip planner; overlaps the banner so it is on the first screen */}
+        {/* DESTINATION SEARCH — pick a place and go straight into planning; overlaps the banner so it is on the first screen */}
         <motion.div
           id="hero-search"
-          className="relative z-30 -mt-24 lg:-mt-28 mx-2 sm:mx-4 lg:mx-8"
+          className="relative z-30 -mt-24 lg:-mt-28 mx-1 sm:mx-2 lg:mx-4"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="rounded-3xl bg-white border border-[#1E2022]/12 shadow-2xl p-6 sm:p-8">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-1">
-              <h2 className="text-lg font-bold text-[#1E2022]">Design your own trip</h2>
-              <p className="inline-flex items-center gap-1.5 text-xs text-[#6B7280]">
-                <Clock className="w-3.5 h-3.5" /> Takes about 30 seconds · No payment needed
-              </p>
+          <div className="rounded-[28px] bg-[#FDFBF8] border border-[#1E2022]/8 shadow-2xl p-4 sm:p-5 lg:p-5">
+            <div className="flex items-center gap-3.5">
+              <span className="w-11 h-11 rounded-full bg-[#EFEBE4] flex items-center justify-center shrink-0">
+                <Compass className="w-5 h-5 text-[#1E2022]/70" />
+              </span>
+              <div className="min-w-0">
+                <h2 className="text-lg sm:text-xl font-bold text-[#1E2022] leading-tight">Where do you want to go?</h2>
+                <p className="text-xs text-[#6B7280]">Tap a place to add it to your trip.</p>
+              </div>
             </div>
 
-            <button
-              type="button"
-              onClick={onStartWizard}
-              className="group mt-4 w-full flex items-center gap-4 pl-5 pr-2 py-2 rounded-2xl bg-[#FAF8F5] border border-[#1E2022]/12 hover:border-[#1E2022] hover:bg-white focus-visible:ring-2 focus-visible:ring-[#C2571A] focus:outline-none transition-colors text-left cursor-pointer"
-            >
-              <MapPin className="w-5 h-5 text-[#C2571A] shrink-0" />
-              <span className="flex-1 min-w-0 py-2">
-                <span className="block text-xs font-semibold text-[#1E2022]">Where do you want to go?</span>
-                <span className="block text-sm sm:text-base text-[#9CA3AF] truncate">
-                  Bali, Maldives, Dubai… or let AI surprise you
-                </span>
-              </span>
-              <span className="shrink-0 inline-flex items-center gap-2 px-5 sm:px-7 py-3.5 rounded-xl bg-[#1E2022] group-hover:bg-[#C2571A] text-white text-sm font-semibold transition-colors">
-                <span className="whitespace-nowrap">Start planning</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </span>
-            </button>
-
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <span className="text-xs font-semibold text-[#9CA3AF] mr-1">Popular</span>
-              {DESTINATION_REELS.map((reel) => (
+            <form onSubmit={submitSearch} className="mt-3 relative">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#9CA3AF] pointer-events-none" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search destinations — Bali, beach, UAE…"
+                aria-label="Search destinations"
+                enterKeyHint="search"
+                autoComplete="off"
+                className="w-full h-12 sm:h-14 lg:h-12 pl-12 pr-14 rounded-full bg-white border border-[#1E2022]/8 shadow-[inset_0_1px_3px_rgba(0,0,0,0.04)] text-base text-[#1E2022] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#C2571A] focus:ring-4 focus:ring-[#C2571A]/15 transition"
+              />
+              {query && (
                 <button
-                  key={reel.id}
                   type="button"
-                  onClick={() => onExploreDestination(reel.name)}
-                  className="px-3.5 py-1.5 rounded-full bg-white border border-[#1E2022]/12 text-xs font-semibold text-[#1E2022] hover:border-[#C2571A] hover:text-[#C2571A] transition-colors cursor-pointer"
+                  onClick={() => setQuery('')}
+                  aria-label="Clear search"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center text-[#6B7280] hover:bg-[#1E2022]/5 cursor-pointer"
                 >
-                  {reel.name}
+                  <X className="w-4 h-4" />
                 </button>
-              ))}
-              <button
-                type="button"
-                onClick={onStartWizard}
-                className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-[#C2571A]/10 text-xs font-bold text-[#C2571A] hover:bg-[#C2571A]/20 transition-colors cursor-pointer"
-              >
-                <Sparkles className="w-3.5 h-3.5" /> Let AI choose
-              </button>
-            </div>
+              )}
+            </form>
+
+            {q ? (
+              matches.length > 0 ? (
+                <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  {matches.map((reel) => (
+                    <li key={reel.id}>
+                      <button
+                        type="button"
+                        onClick={() => onExploreDestination(reel.name)}
+                        className="group w-full flex items-center gap-3 p-2 pr-3 rounded-2xl bg-white border border-[#1E2022]/8 hover:border-[#C2571A]/50 hover:shadow-md transition text-left cursor-pointer"
+                      >
+                        <img src={reel.image} alt="" className="w-14 h-14 rounded-xl object-cover shrink-0" />
+                        <span className="flex-1 min-w-0">
+                          <span className="block text-sm font-bold text-[#1E2022]">{reel.name}</span>
+                          <span className="block text-xs text-[#6B7280] truncate">
+                            {reel.country} · {reel.highlight}
+                          </span>
+                        </span>
+                        <ArrowRight className="w-4 h-4 text-[#C2571A] transition-transform group-hover:translate-x-1" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-[#FAF8F5] border border-[#1E2022]/8">
+                  <p className="text-sm text-[#4B4F55]">No exact match for &ldquo;{query.trim()}&rdquo;. Let us suggest the perfect place.</p>
+                  <button
+                    type="button"
+                    onClick={onStartWizard}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E2022] hover:bg-[#C2571A] text-white text-xs font-semibold transition-colors cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" /> Surprise me
+                  </button>
+                </div>
+              )
+            ) : (
+              <div className="mt-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-[#1E2022]">Popular Destinations</span>
+                  <span className="h-px w-16 sm:w-24 bg-gradient-to-r from-[#C2571A]/50 to-transparent" />
+                  <button
+                    type="button"
+                    onClick={onStartWizard}
+                    className="ml-auto inline-flex items-center gap-1 text-[11px] font-semibold text-[#1E2022]/70 hover:text-[#C2571A] cursor-pointer"
+                  >
+                    View all destinations <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
+
+                <div className="mt-3 -mx-4 sm:mx-0 px-4 sm:px-0 flex sm:grid sm:grid-cols-3 lg:grid-cols-6 gap-3 overflow-x-auto sm:overflow-visible snap-x snap-mandatory pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {DESTINATION_REELS.map((reel) => (
+                    <button
+                      key={reel.id}
+                      type="button"
+                      onClick={() => onExploreDestination(reel.name)}
+                      className="group relative shrink-0 snap-start w-[140px] sm:w-auto h-28 sm:h-[104px] lg:h-24 rounded-2xl overflow-hidden text-left cursor-pointer shadow-md"
+                    >
+                      <img
+                        src={reel.image}
+                        alt=""
+                        loading="lazy"
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
+                      <span className="absolute inset-x-3 bottom-2.5 flex items-center justify-between gap-1 text-white">
+                        <span className="inline-flex items-center gap-1.5 text-sm font-semibold min-w-0">
+                          <MapPin className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">{reel.name}</span>
+                        </span>
+                        <span className="w-6 h-6 rounded-full bg-white text-[#1E2022] flex items-center justify-center shrink-0 transition-transform group-hover:translate-x-0.5">
+                          <ArrowRight className="w-3 h-3" />
+                        </span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </motion.div>
       </div>
