@@ -142,6 +142,7 @@ export default function App() {
             draft={draft}
             plan={plan}
             onPlanChange={setPlan}
+            onStayTierChange={(stayTier) => handleDraftChange({ stayTier })}
             onEditDetails={scrollToTripFinder}
             onContinue={() => goTo('overview')}
           />

@@ -12,7 +12,7 @@ interface SuggestRequest {
   totalDays: number;
   adults: number;
   children: number;
-  budgetPerPerson: number;
+  stayStyle: string;
   existing: string[];
 }
 
@@ -49,7 +49,7 @@ export const createAiSuggestHandler = (apiKey: string | undefined) => {
       const existing = (body.existing ?? []).slice(0, 40).join('; ') || 'none';
 
       const prompt = `You are a luxury travel concierge. Suggest 4 distinct activities for Day ${body.day} of a ${body.totalDays}-day trip to ${body.destination}, ${body.country}.
-Travellers: ${body.adults} adult(s), ${body.children} child(ren). Budget: about INR ${body.budgetPerPerson} per adult for the whole trip.
+Travellers: ${body.adults} adult(s), ${body.children} child(ren). Stay style: ${body.stayStyle} (match the level of the experiences to it).
 Already in the itinerary (do not repeat): ${existing}.
 Prefer real, well-known places or experiences. Cost is per adult in INR for the activity only (no hotel, no transport).
 Return a JSON array. Each item: {"name": string (max 60 chars), "category": one of ${CATEGORIES.join('|')}, "slot": one of ${SLOTS.join('|')}, "cost": integer INR, "hours": number 0.5-9, "description": string (max 110 chars)}.`;

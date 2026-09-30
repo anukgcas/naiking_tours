@@ -16,7 +16,6 @@ import { DaySlot, PlanState, TripBooking, TripDraft } from '../types';
 import {
   CATEGORY_STYLES,
   TIER_LABEL,
-  budgetTier,
   computeCosts,
   dayDate,
   formatDate,
@@ -68,13 +67,12 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
   const days = tripDays(draft);
   const nights = days - 1;
   const guests = draft.adults + draft.children;
-  const tier = TIER_LABEL[budgetTier(draft.budgetPerPerson)];
+  const tier = TIER_LABEL[draft.stayTier];
 
   const planned = useMemo(() => plannedActivities(plan), [plan]);
   const costs = useMemo(() => computeCosts(draft, plan), [draft, plan]);
   const insights = useMemo(() => planInsights(draft, plan), [draft, plan]);
   const totalStops = planned.reduce((n, d) => n + d.length, 0);
-  const overBudget = costs.total > costs.budgetTotal;
 
   const [contact, setContact] = useState<ContactDetails>({ name: '', phone: '', email: '' });
   const [errors, setErrors] = useState<Partial<Record<keyof ContactDetails, string>>>({});
@@ -188,7 +186,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                     {costs.rooms} room{costs.rooms > 1 ? 's' : ''} · {nights} night{nights > 1 ? 's' : ''}
                   </p>
                   <p className="text-xs text-[#6B7280] mt-0.5">
-                    {tier} tier boutique stay in {dest.name}, matched to your budget.
+                    {tier} tier boutique stay in {dest.name}, matching the stay style you chose.
                   </p>
                 </div>
               </div>
@@ -275,15 +273,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
               <p className="mt-1 text-xs text-[#6B7280]">
                 About {formatINR(costs.perPerson)} per guest for {guests} guest{guests > 1 ? 's' : ''}. Flights not included.
               </p>
-              <p
-                className={`mt-3 px-3 py-2 rounded-lg text-xs font-semibold ${
-                  overBudget ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'
-                }`}
-              >
-                {overBudget
-                  ? `${formatINR(costs.total - costs.budgetTotal)} over your budget of ${formatINR(costs.budgetTotal)}`
-                  : `${formatINR(costs.budgetTotal - costs.total)} under your budget of ${formatINR(costs.budgetTotal)}`}
-              </p>
+
             </div>
 
             <form onSubmit={handleSubmit} noValidate className="p-5 rounded-2xl bg-white border border-[#1E2022]/10 shadow-sm space-y-3">

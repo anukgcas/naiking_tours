@@ -46,8 +46,8 @@ export interface TripDraft {
   checkOut: string;
   adults: number;
   children: number;
-  /** Budget per adult in INR. 0 = not chosen yet. */
-  budgetPerPerson: number;
+  /** Stay style chosen in the planner: 0 Comfort, 1 Signature, 2 Ultra Luxury. */
+  stayTier: 0 | 1 | 2;
 }
 
 /** Step 2 of the flow: the kanban board. `days[i]` holds activity ids for Day i+1. */
@@ -64,7 +64,6 @@ export interface CostBreakdown {
   activities: number;
   service: number;
   total: number;
-  budgetTotal: number;
   perPerson: number;
   rooms: number;
 }

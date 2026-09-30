@@ -182,12 +182,6 @@ export const CATEGORY_STYLES: Record<ActivityCategory, { bg: string; text: strin
 
 export const CATEGORIES = Object.keys(CATEGORY_STYLES) as ActivityCategory[];
 
-export const BUDGET_OPTIONS = [
-  { label: '₹15,000 – ₹30,000', value: 30000 },
-  { label: '₹30,000 – ₹60,000', value: 60000 },
-  { label: '₹60,000 – ₹1,20,000', value: 120000 },
-  { label: '₹1,20,000+ Luxury', value: 150000 },
-];
 
 export const getDestination = (id: string) => PLANNER_DESTINATIONS.find((d) => d.id === id);
 
@@ -232,7 +226,6 @@ export const validateDraft = (d: TripDraft): string | null => {
   if (nights < 1) return 'Check-out must be at least one night after check-in.';
   if (nights + 1 > MAX_TRIP_DAYS) return `We can plan up to ${MAX_TRIP_DAYS} days at a time.`;
   if (d.adults < 1) return 'At least one adult is needed.';
-  if (!d.budgetPerPerson) return 'Select a budget per person.';
   return null;
 };
 
@@ -269,10 +262,13 @@ export const toPlannedDays = (plan: PlanState): PlannedDay[] =>
 
 // ---------- costs ----------
 
-export const budgetTier = (budgetPerPerson: number) =>
-  budgetPerPerson <= 35000 ? 0 : budgetPerPerson <= 80000 ? 1 : 2;
-
 export const TIER_LABEL = ['Comfort', 'Signature', 'Ultra Luxury'] as const;
+
+export const STAY_TIERS: { label: (typeof TIER_LABEL)[number]; blurb: string }[] = [
+  { label: 'Comfort', blurb: 'Well-rated boutique stays' },
+  { label: 'Signature', blurb: 'Handpicked villas & resorts' },
+  { label: 'Ultra Luxury', blurb: 'Private pool villas & butlers' },
+];
 
 export const computeCosts = (draft: TripDraft, plan: PlanState): CostBreakdown => {
   const dest = getDestination(draft.destinationId);
@@ -281,7 +277,7 @@ export const computeCosts = (draft: TripDraft, plan: PlanState): CostBreakdown =
   const rooms = Math.max(1, Math.ceil(draft.adults / 2));
   const payingGuests = draft.adults + draft.children * 0.5;
 
-  const stay = dest ? dest.stayPerNight[budgetTier(draft.budgetPerPerson)] * nights * rooms : 0;
+  const stay = dest ? dest.stayPerNight[draft.stayTier] * nights * rooms : 0;
   const transfers = dest ? dest.transferPerDay * days : 0;
   const activities = plannedActivities(plan)
     .flat()
@@ -296,7 +292,6 @@ export const computeCosts = (draft: TripDraft, plan: PlanState): CostBreakdown =
     activities,
     service,
     total,
-    budgetTotal: draft.budgetPerPerson * payingGuests,
     perPerson: Math.round(total / Math.max(1, draft.adults + draft.children)),
     rooms,
   };
@@ -306,7 +301,7 @@ export const computeCosts = (draft: TripDraft, plan: PlanState): CostBreakdown =
 
 /**
  * Ranks the ideas not yet planned for a given day. Favours a balanced mix of
- * categories, matches the slot, and skips anything that would blow the budget.
+ * categories, matches the slot, and suits the chosen stay style.
  */
 export const suggestForDay = (
   draft: TripDraft,
@@ -316,9 +311,6 @@ export const suggestForDay = (
 ): Activity[] => {
   const dest = getDestination(draft.destinationId);
   if (!dest) return [];
-  const payingGuests = draft.adults + draft.children * 0.5;
-  const costs = computeCosts(draft, plan);
-  let headroom = costs.budgetTotal - costs.total;
 
   const used = new Set(plan.days.flat());
   const pool = [...dest.activities, ...plan.extras].filter((a) => !used.has(a.id));
@@ -333,23 +325,21 @@ export const suggestForDay = (
     const seenCats = new Set([...today, ...picked].map((a) => a.category));
     const family = draft.children > 0;
     const candidates = pool
-      // Hard budget limit: never suggest something that pushes the total past the budget
-      .filter((a) => a.slot === slot && !picked.includes(a) && a.cost * payingGuests * 1.05 <= headroom)
+      .filter((a) => a.slot === slot && !picked.includes(a))
       .map((a) => {
         let score = seenCats.has(a.category) ? 0 : 3;
         if (family && a.category === 'Adventure' && a.hours > 6) score -= 2;
         if (family && a.category === 'Wellness') score -= 1;
-        if (draft.budgetPerPerson >= 80000 && a.cost >= 5000) score += 1;
+        // Match experiences to the stay style: premium picks for luxury, gentler prices for comfort
+        if (draft.stayTier === 2 && a.cost >= 5000) score += 1;
+        if (draft.stayTier === 0 && a.cost >= 8000) score -= 2;
         // Prefer a light day after a heavy one
         if (today.some((t) => t.hours + a.hours > 9)) score -= 1;
         return { a, score: score + (a.aiGenerated ? 0.5 : 0) };
       })
       .sort((x, y) => y.score - x.score);
 
-    if (candidates[0]) {
-      picked.push(candidates[0].a);
-      headroom -= candidates[0].a.cost * payingGuests * 1.05;
-    }
+    if (candidates[0]) picked.push(candidates[0].a);
   }
   return picked;
 };
@@ -381,8 +371,6 @@ export const planInsights = (draft: TripDraft, plan: PlanState): string[] => {
   const tips: string[] = [];
   const perDay = plannedActivities(plan);
   const total = perDay.flat().length;
-  const costs = computeCosts(draft, plan);
-  const diff = costs.budgetTotal - costs.total;
 
   if (total === 0) {
     tips.push('Start with one anchor experience per day, then let AI fill the gaps around it.');
@@ -392,14 +380,11 @@ export const planInsights = (draft: TripDraft, plan: PlanState): string[] => {
   if (empty.length) tips.push(`Day ${empty.join(', ')} ${empty.length > 1 ? 'are' : 'is'} still open — a slow morning or a spa evening would balance the pace.`);
   const heavy = perDay.map((d, i) => (d.reduce((s, a) => s + a.hours, 0) > 10 ? i + 1 : 0)).filter(Boolean);
   if (heavy.length) tips.push(`Day ${heavy.join(', ')} is packed (10+ hours). Consider moving one item to a lighter day.`);
-  if (diff < 0) tips.push(`You are ${formatINR(-diff)} over budget. Swapping one premium activity for a leisure option usually recovers this.`);
-  else if (diff > costs.budgetTotal * 0.25 && total < tripDays(draft) * 3)
-    tips.push(`You have ${formatINR(diff)} of headroom — room for a signature dinner or spa treatment.`);
   const cats = new Set(perDay.flat().map((a) => a.category));
   if (!cats.has('Food')) tips.push('No food experience yet — a local dining or cooking class rounds out the trip.');
   if (draft.children > 0 && perDay.flat().some((a) => a.category === 'Adventure' && a.hours > 6))
     tips.push('A long adventure day is planned with children — consider a shorter alternative.');
-  if (!tips.length) tips.push('Great balance of pace, variety and budget. You are ready to review your package.');
+  if (!tips.length) tips.push(`Great balance of pace and variety. Your package is ${formatINR(computeCosts(draft, plan).total)} so far — ready to review.`);
   return tips;
 };
 
@@ -409,7 +394,7 @@ export const newDraft = (): TripDraft => ({
   checkOut: '',
   adults: 2,
   children: 0,
-  budgetPerPerson: 0,
+  stayTier: 1,
 });
 
 /**

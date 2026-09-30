@@ -5,7 +5,7 @@ const STEPS = [
   {
     icon: <MapPin className="w-5 h-5" />,
     title: 'Tell us the basics',
-    body: 'Choose your destination, dates, number of travellers and a budget per person.',
+    body: 'Choose your destination, travel dates and how many are travelling.',
   },
   {
     icon: <LayoutGrid className="w-5 h-5" />,
@@ -15,12 +15,12 @@ const STEPS = [
   {
     icon: <Sparkles className="w-5 h-5" />,
     title: 'Let AI fill the gaps',
-    body: 'Get suggestions that balance pace, variety and budget — or ask for fresh ideas for any day.',
+    body: 'Get suggestions that balance pace and variety — or ask for fresh ideas for any day.',
   },
   {
     icon: <CalendarCheck className="w-5 h-5" />,
     title: 'Review & book',
-    body: 'See your full package and price, then send it to a concierge to confirm.',
+    body: 'Your package and price are built from your choices. Send it to a concierge to confirm.',
   },
 ];
 

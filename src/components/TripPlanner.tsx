@@ -20,10 +20,10 @@ import { Activity, ActivityCategory, DaySlot, PlanState, TripDraft } from '../ty
 import {
   CATEGORIES,
   CATEGORY_STYLES,
+  STAY_TIERS,
   TIER_LABEL,
   activityMap,
   autoFillPlan,
-  budgetTier,
   computeCosts,
   dayDate,
   formatDate,
@@ -41,6 +41,7 @@ interface TripPlannerProps {
   draft: TripDraft;
   plan: PlanState;
   onPlanChange: (plan: PlanState) => void;
+  onStayTierChange: (tier: TripDraft['stayTier']) => void;
   onEditDetails: () => void;
   onContinue: () => void;
 }
@@ -71,6 +72,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
   draft,
   plan,
   onPlanChange,
+  onStayTierChange,
   onEditDetails,
   onContinue,
 }) => {
@@ -108,9 +110,6 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
     return ids;
   }, [draft, plan]);
 
-  const overBudget = costs.total > costs.budgetTotal;
-  const pct = Math.min(100, Math.round((costs.total / Math.max(1, costs.budgetTotal)) * 100));
-
   // ---------- board actions ----------
 
   const move = (id: string, from: Column, to: Column, beforeIndex?: number) => {
@@ -139,7 +138,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
     const slots = new Set((planned[dayIndex] ?? []).map((a) => a.slot));
     return slots.size === 3
       ? `Day ${dayIndex + 1} already covers morning, afternoon and evening.`
-      : 'Nothing more fits your remaining budget or open slots. Try removing an item or raising your budget.';
+      : 'Nothing more to suggest for the open slots. Browse the ideas lane or ask AI for fresh ones.';
   };
 
   const addPicksToDay = (dayIndex: number) => {
@@ -159,8 +158,8 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
     onPlanChange(next);
     setAiNote(
       added > 0
-        ? `AI added ${added} experiences across ${days} days, balanced for pace and budget.`
-        : 'Nothing more fits your remaining budget or open slots. Try removing an item or raising your budget.'
+        ? `AI added ${added} experiences across ${days} days, balanced for pace and variety.`
+        : 'Nothing more to suggest for the open slots. Browse the ideas lane or ask AI for fresh ones.'
     );
   };
 
@@ -183,7 +182,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
           totalDays: days,
           adults: draft.adults,
           children: draft.children,
-          budgetPerPerson: draft.budgetPerPerson,
+          stayStyle: TIER_LABEL[draft.stayTier],
           existing: [...dest.activities, ...plan.extras].map((a) => a.name),
         }),
       });
@@ -324,30 +323,54 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
             </h1>
             <p className="mt-1 text-sm text-[#6B7280]">
               {formatDate(draft.checkIn)} – {formatDate(draft.checkOut)} · {days} days · {guests} guest
-              {guests > 1 ? 's' : ''} · {TIER_LABEL[budgetTier(draft.budgetPerPerson)]} stays. Drag ideas onto a day, or tap
+              {guests > 1 ? 's' : ''} · {TIER_LABEL[draft.stayTier]} stays. Drag ideas onto a day, or tap
               “Add”.
             </p>
           </div>
 
-          {/* Budget meter */}
+          {/* Live package price */}
           <div className="w-full md:w-80 p-4 rounded-2xl bg-white border border-[#1E2022]/10">
             <div className="flex items-baseline justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B7280]">Estimated total</span>
-              <span className={`text-lg font-extrabold ${overBudget ? 'text-rose-600' : 'text-[#1E2022]'}`}>
-                {formatINR(costs.total)}
-              </span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B7280]">Your package so far</span>
+              <span className="text-lg font-extrabold text-[#1E2022]">{formatINR(costs.total)}</span>
             </div>
-            <div className="mt-2 h-2 rounded-full bg-[#1E2022]/8 overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-300 ${overBudget ? 'bg-rose-500' : 'bg-[#C2571A]'}`}
-                style={{ width: `${pct}%` }}
-              />
-            </div>
-            <p className="mt-1.5 text-[11px] text-[#6B7280]">
-              {overBudget
-                ? `${formatINR(costs.total - costs.budgetTotal)} over your ${formatINR(costs.budgetTotal)} budget`
-                : `${formatINR(costs.budgetTotal - costs.total)} left of your ${formatINR(costs.budgetTotal)} budget`}
+            <p className="mt-1 text-[11px] text-[#6B7280]">
+              About {formatINR(costs.perPerson)} per guest · stay {formatINR(costs.stay)} · transfers{' '}
+              {formatINR(costs.transfers)} · experiences {formatINR(costs.activities)}
             </p>
+            <p className="mt-1 text-[11px] text-[#9CA3AF]">Updates as you add or remove experiences.</p>
+          </div>
+        </div>
+
+        {/* Stay style: drives the package price instead of a fixed budget */}
+        <div className="mt-5">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Choose your stay style</h2>
+          <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {STAY_TIERS.map((t, i) => {
+              const selected = draft.stayTier === i;
+              return (
+                <button
+                  key={t.label}
+                  type="button"
+                  onClick={() => onStayTierChange(i as TripDraft['stayTier'])}
+                  aria-pressed={selected}
+                  className={`text-left p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                    selected
+                      ? 'bg-white border-[#C2571A] ring-1 ring-[#C2571A] shadow-sm'
+                      : 'bg-white/60 border-[#1E2022]/10 hover:bg-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold text-[#1E2022]">{t.label}</span>
+                    <span className="text-xs font-semibold text-[#C2571A]">
+                      {formatINR(dest.stayPerNight[i])}
+                      <span className="text-[#9CA3AF] font-normal"> / room / night</span>
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-xs text-[#6B7280]">{t.blurb}</p>
+                </button>
+              );
+            })}
           </div>
         </div>
 
