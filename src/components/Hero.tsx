@@ -216,7 +216,7 @@ export const Hero: React.FC<HeroProps> = ({
   const headlineWords = ['Where', 'quiet', 'luxury', 'meets'];
 
   return (
-    <section className="relative pt-[88px] lg:pt-[96px] pb-0 overflow-hidden">
+    <section className="relative pt-[88px] lg:pt-[96px] pb-0 overflow-x-clip">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Compact destination banner — kept short so the Trip Finder is visible on first load */}
         <motion.div
