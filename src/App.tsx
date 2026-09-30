@@ -136,7 +136,7 @@ export default function App() {
   const navTab = view === 'overview' || view === 'start' ? 'plan' : view;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#1E2022] font-sans">
+    <div className="min-h-screen flex flex-col bg-white text-[#1E2022] font-sans">
       {showLoader && <Loader onComplete={() => setShowLoader(false)} />}
 
       <Header

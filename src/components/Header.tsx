@@ -41,12 +41,12 @@ export const Header: React.FC<HeaderProps> = ({
     <header
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         isScrolled
-          ? 'bg-[#FAF8F5]/90 backdrop-blur-md border-b border-[#1E2022]/8 shadow-xs py-3'
-          : 'bg-transparent py-5 md:py-6'
+          ? 'bg-white/90 backdrop-blur-md border-b border-[#1E2022]/8 shadow-xs'
+          : 'bg-white border-b border-[#1E2022]/10 shadow-sm'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between h-[72px] lg:h-[88px]">
           {/* Left: [N logo] Naiking Tours */}
           <button
             onClick={() => onNavigate('home')}
@@ -136,7 +136,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Mobile Dropdown Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden mt-3 p-4 bg-white rounded-2xl border border-[#1E2022]/10 shadow-lg flex flex-col gap-3">
+          <div className="md:hidden mb-3 p-4 bg-white rounded-2xl border border-[#1E2022]/10 shadow-lg flex flex-col gap-3">
             <button
               onClick={() => {
                 onNavigate('home');
