@@ -72,20 +72,6 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             <button
-              onClick={() => onNavigate('plan')}
-              className={`text-sm font-medium tracking-wide transition-colors relative py-1 ${
-                activeTab === 'plan'
-                  ? 'text-[#1E2022]'
-                  : 'text-[#6B7280] hover:text-[#1E2022]'
-              }`}
-            >
-              Customise Your Trip
-              {activeTab === 'plan' && (
-                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#C2571A] rounded-full" />
-              )}
-            </button>
-
-            <button
               onClick={onOpenMyTrips}
               className="text-sm font-medium tracking-wide text-[#6B7280] hover:text-[#1E2022] transition-colors relative py-1 flex items-center gap-1.5"
             >
@@ -145,15 +131,6 @@ export const Header: React.FC<HeaderProps> = ({
               className="text-left text-sm font-medium py-2 px-3 rounded-lg hover:bg-[#FAF8F5]"
             >
               Home
-            </button>
-            <button
-              onClick={() => {
-                onNavigate('plan');
-                setIsMobileMenuOpen(false);
-              }}
-              className="text-left text-sm font-medium py-2 px-3 rounded-lg hover:bg-[#FAF8F5]"
-            >
-              Customise Your Trip
             </button>
             <button
               onClick={() => {
