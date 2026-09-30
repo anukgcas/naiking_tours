@@ -2,12 +2,15 @@ import React, { useMemo, useState } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
+  Car,
   ChevronLeft,
   ChevronRight,
   Clock,
   GripVertical,
   Loader2,
   Moon,
+  Pencil,
+  Plane,
   Plus,
   Sparkles,
   Sun,
@@ -24,6 +27,8 @@ import {
   TIER_LABEL,
   activityMap,
   autoFillPlan,
+  cityOfActivity,
+  cityStops,
   computeCosts,
   dayDate,
   formatDate,
@@ -33,6 +38,7 @@ import {
   plannedActivities,
   sortDaysBySlot,
   suggestForDay,
+  transferLabel,
   tripDays,
 } from '../data/planner';
 import { StepIndicator } from './StepIndicator';
@@ -43,6 +49,7 @@ interface TripPlannerProps {
   onPlanChange: (plan: PlanState) => void;
   onStayTierChange: (tier: TripDraft['stayTier']) => void;
   onEditDetails: () => void;
+  onEditCities: () => void;
   onContinue: () => void;
 }
 
@@ -74,6 +81,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
   onPlanChange,
   onStayTierChange,
   onEditDetails,
+  onEditCities,
   onContinue,
 }) => {
   const dest = getDestination(draft.destinationId)!;
@@ -94,17 +102,42 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
   const insights = useMemo(() => planInsights(draft, plan), [draft, plan]);
   const totalPlanned = planned.reduce((n, d) => n + d.length, 0);
 
+  // Days grouped under the cities on the route (one group holding every day when no cities were picked)
+  const stops = useMemo(() => cityStops(draft), [draft]);
+  const groups = useMemo(
+    () =>
+      stops.length
+        ? stops.map((s) => ({
+            key: s.city.id,
+            title: s.city.name,
+            blurb: s.city.blurb,
+            nights: s.nights,
+            dayIndexes: Array.from({ length: s.endDay - s.startDay + 1 }, (_, k) => s.startDay + k),
+          }))
+        : [
+            {
+              key: 'all',
+              title: dest.name,
+              blurb: dest.country,
+              nights: Math.max(1, days - 1),
+              dayIndexes: plan.days.map((_, i) => i),
+            },
+          ],
+    [stops, dest, days, plan.days]
+  );
+
   const used = useMemo(() => new Set(plan.days.flat()), [plan]);
+  const cityIdsOnRoute = useMemo(() => new Set(stops.map((s) => s.city.id)), [stops]);
+  const ideaRank = (a: Activity) =>
+    Number(draft.interests.includes(a.category)) +
+    (cityIdsOnRoute.size && cityIdsOnRoute.has(cityOfActivity(dest.id, a.id)?.id ?? '') ? 2 : 0);
   const ideas = useMemo(
     () =>
       [...plan.extras, ...dest.activities]
         .filter((a) => !used.has(a.id) && (filter === 'All' || a.category === filter))
-        // Stable sort: ideas matching the traveller's interests float to the top
-        .sort(
-          (a, b) =>
-            Number(draft.interests.includes(b.category)) - Number(draft.interests.includes(a.category))
-        ),
-    [plan.extras, dest, used, filter, draft.interests]
+        // Stable sort: ideas in the chosen cities and matching the traveller's interests float to the top
+        .sort((a, b) => ideaRank(b) - ideaRank(a)),
+    [plan.extras, dest, used, filter, draft.interests, stops]
   );
 
   // The single best next pick for each day — flagged with a sparkle in the ideas lane
@@ -442,6 +475,72 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
 
         {/* Board */}
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-[21rem_1fr] gap-5 items-start">
+          {/* Left column: route + ideas */}
+          <div className="lg:self-stretch">
+            {/* Your route */}
+            <div className="rounded-2xl border border-[#1E2022]/10 bg-white p-4 mb-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-bold text-[#1E2022]">Your route</h2>
+                <span className="text-[11px] text-[#6B7280]">
+                  {stops.length || 1} {stops.length > 1 ? 'cities' : 'city'} · {days - 1} nights
+                </span>
+              </div>
+              <ol className="relative mt-3">
+                <span aria-hidden className="absolute left-[0.7rem] top-2 bottom-2 border-l-2 border-dashed border-[#1E2022]/15" />
+                <li className="relative flex items-center gap-2.5 pb-3">
+                  <span className="relative z-10 w-6 h-6 rounded-full bg-[#1E2022]/6 text-[#4B4F55] flex items-center justify-center shrink-0">
+                    <Plane className="w-3 h-3" />
+                  </span>
+                  <span className="text-xs text-[#6B7280]">Arrival in {dest.name}</span>
+                </li>
+                {groups.map((g, gi) => (
+                  <React.Fragment key={g.key}>
+                    {gi > 0 && (
+                      <li className="relative flex items-center gap-2.5 pb-3">
+                        <span className="relative z-10 w-6 h-6 rounded-full bg-[#FFF6EC] text-[#C2571A] flex items-center justify-center shrink-0">
+                          <Car className="w-3 h-3" />
+                        </span>
+                        <span className="text-[11px] text-[#6B7280]">{transferLabel(dest.id, g.title)}</span>
+                      </li>
+                    )}
+                    <li className="relative flex items-center gap-2.5 pb-3">
+                      <span className="relative z-10 w-6 h-6 rounded-full bg-[#C2571A] text-white flex items-center justify-center shrink-0 text-[10px] font-extrabold">
+                        {gi + 1}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-bold text-[#1E2022] truncate">{g.title}</span>
+                        <span className="block text-[11px] text-[#6B7280]">
+                          {g.nights} night{g.nights === 1 ? '' : 's'}
+                        </span>
+                      </span>
+                    </li>
+                  </React.Fragment>
+                ))}
+                <li className="relative flex items-center gap-2.5">
+                  <span className="relative z-10 w-6 h-6 rounded-full bg-[#1E2022]/6 text-[#4B4F55] flex items-center justify-center shrink-0">
+                    <Plane className="w-3 h-3 rotate-45" />
+                  </span>
+                  <span className="text-xs text-[#6B7280]">Departure</span>
+                </li>
+              </ol>
+              <div className="mt-4 pt-3 border-t border-[#1E2022]/8 grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={onEditCities}
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full bg-[#FAF8F5] border border-[#1E2022]/10 text-xs font-semibold hover:border-[#C2571A] hover:text-[#C2571A] cursor-pointer"
+                >
+                  <Pencil className="w-3 h-3" /> Edit route
+                </button>
+                <button
+                  type="button"
+                  onClick={onEditCities}
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full bg-[#FAF8F5] border border-[#1E2022]/10 text-xs font-semibold hover:border-[#C2571A] hover:text-[#C2571A] cursor-pointer"
+                >
+                  <Plus className="w-3 h-3" /> Add city
+                </button>
+              </div>
+            </div>
+
           {/* Ideas lane */}
           <div
             onDragOver={(e) => allowDrop(e, 'ideas')}
@@ -503,6 +602,9 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                   <p className="mt-1 text-[11px] text-[#6B7280] line-clamp-2">{a.description}</p>
                   <div className="mt-2 flex flex-wrap items-center gap-1.5">
                     <CategoryChip category={a.category} />
+                    {cityOfActivity(dest.id, a.id) && (
+                      <span className="text-[10px] font-semibold text-[#C2571A]">{cityOfActivity(dest.id, a.id)?.name}</span>
+                    )}
                     <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#6B7280]">
                       {SLOT_ICON[a.slot]} {a.slot}
                     </span>
@@ -542,54 +644,83 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
             </div>
           </div>
 
-          {/* Day columns */}
-          <div className="flex gap-4 overflow-x-auto pb-4 -mx-1 px-1 snap-x">
-            {plan.days.map((_, dayIndex) => {
-              const items = planned[dayIndex] ?? [];
-              const dayHours = items.reduce((n, a) => n + a.hours, 0);
-              const dayCost = items.reduce((n, a) => n + a.cost, 0);
-              const isOver = overColumn === dayIndex && drag !== null;
-              return (
-                <div
-                  key={dayIndex}
-                  onDragOver={(e) => allowDrop(e, dayIndex)}
-                  onDragLeave={() => setOverColumn((c) => (c === dayIndex ? null : c))}
-                  onDrop={(e) => dropOn(e, dayIndex)}
-                  className={`w-[17.5rem] shrink-0 snap-start rounded-2xl border p-3 transition-colors ${
-                    isOver ? 'border-[#C2571A] bg-[#C2571A]/5' : 'border-[#1E2022]/10 bg-white/60'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-2 px-1">
-                    <div>
-                      <h3 className="text-sm font-extrabold text-[#1E2022]">Day {dayIndex + 1}</h3>
-                      <p className="text-[11px] text-[#6B7280]">{dayDate(draft.checkIn, dayIndex)}</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => addPicksToDay(dayIndex)}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#C2571A]/10 text-[#C2571A] text-[10px] font-bold hover:bg-[#C2571A]/20 cursor-pointer"
-                      title="Fill this day's open slots with AI picks"
-                    >
-                      <Sparkles className="w-3 h-3" /> Suggest
-                    </button>
-                  </div>
-                  {items.length > 0 && (
-                    <p className="mt-1 px-1 text-[10px] text-[#9CA3AF]">
-                      {items.length} stop{items.length > 1 ? 's' : ''} · {dayHours}h · {formatINR(dayCost)} pp
-                    </p>
-                  )}
+          </div>
 
-                  <div className="mt-3 space-y-2.5 min-h-24">
-                    {items.map((a, idx) => renderPlannedCard(a, dayIndex, idx))}
-                    {items.length === 0 && (
-                      <div className="h-24 rounded-xl border-2 border-dashed border-[#1E2022]/12 flex items-center justify-center text-[11px] text-[#9CA3AF] text-center px-4">
-                        Drop ideas here
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+          {/* Itinerary, grouped by city */}
+          <div className="min-w-0">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Your itinerary</h2>
+            <div className="mt-3">
+              {groups.map((g, gi) => (
+                <React.Fragment key={g.key}>
+                  {gi > 0 && (
+                    <div className="flex flex-col items-center py-1" aria-hidden>
+                      <span className="h-5 border-l-2 border-dashed border-[#1E2022]/20" />
+                      <span className="my-1 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#1E2022]/12 shadow-sm text-xs font-semibold text-[#1E2022]">
+                        <Car className="w-3.5 h-3.5 text-[#C2571A]" /> {transferLabel(dest.id, g.title)}
+                      </span>
+                      <span className="h-5 border-l-2 border-dashed border-[#1E2022]/20" />
+                    </div>
+                  )}
+                  <section className="rounded-2xl border border-[#1E2022]/10 bg-white overflow-hidden shadow-[0_10px_30px_-22px_rgba(30,32,34,0.4)]">
+                    <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-3 bg-gradient-to-r from-[#FFF1DC] to-[#FFE3D2] border-b border-[#F7931E]/20">
+                      <h3 className="text-sm font-extrabold uppercase tracking-wide text-[#1E2022]">
+                        {g.title} <span className="text-[#C2571A]">• {g.nights} night{g.nights === 1 ? '' : 's'}</span>
+                      </h3>
+                      <p className="text-xs text-[#6B7280] truncate">{g.blurb}</p>
+                    </header>
+                    <div className="divide-y divide-[#1E2022]/8">
+                      {g.dayIndexes.map((dayIndex) => {
+                        const items = planned[dayIndex] ?? [];
+                        const dayHours = items.reduce((n, a) => n + a.hours, 0);
+                        const dayCost = items.reduce((n, a) => n + a.cost, 0);
+                        const isOver = overColumn === dayIndex && drag !== null;
+                        return (
+                          <div
+                            key={dayIndex}
+                            onDragOver={(e) => allowDrop(e, dayIndex)}
+                            onDragLeave={() => setOverColumn((c) => (c === dayIndex ? null : c))}
+                            onDrop={(e) => dropOn(e, dayIndex)}
+                            className={`grid sm:grid-cols-[7.5rem_1fr] transition-colors ${isOver ? 'bg-[#C2571A]/5' : ''}`}
+                          >
+                            <div className="flex sm:flex-col items-center sm:items-start justify-between gap-2 px-4 py-3 sm:border-r border-[#1E2022]/8 bg-[#FAF8F5]/60">
+                              <div>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Day</p>
+                                <p className="text-xl font-extrabold leading-none text-[#1E2022]">{String(dayIndex + 1).padStart(2, '0')}</p>
+                                <p className="mt-1 text-[11px] text-[#6B7280]">{dayDate(draft.checkIn, dayIndex)}</p>
+                                {items.length > 0 && (
+                                  <p className="mt-1 text-[10px] text-[#9CA3AF]">
+                                    {items.length} stop{items.length > 1 ? 's' : ''} · {dayHours}h · {formatINR(dayCost)} pp
+                                  </p>
+                                )}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => addPicksToDay(dayIndex)}
+                                className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#C2571A]/10 text-[#C2571A] text-[10px] font-bold hover:bg-[#C2571A]/20 cursor-pointer shrink-0"
+                                title="Fill this day's open slots with AI picks"
+                              >
+                                <Sparkles className="w-3 h-3" /> Suggest
+                              </button>
+                            </div>
+                            <div className="p-3">
+                              {items.length > 0 ? (
+                                <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-2.5">
+                                  {items.map((a, idx) => renderPlannedCard(a, dayIndex, idx))}
+                                </div>
+                              ) : (
+                                <div className="h-20 rounded-xl border-2 border-dashed border-[#1E2022]/12 flex items-center justify-center text-[11px] text-[#9CA3AF] text-center px-4">
+                                  Drop ideas here, or tap Suggest
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </section>
+                </React.Fragment>
+              ))}
+            </div>
           </div>
         </div>
       </div>

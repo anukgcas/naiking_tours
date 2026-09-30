@@ -63,7 +63,12 @@ export default function App() {
   /** Opens the guided wizard, optionally with a place already chosen (skips straight to "who's going"). */
   const startWizard = (opts?: { destinationId?: string; step?: number }) => {
     if (opts?.destinationId) {
-      setDraft((d) => ({ ...d, destinationId: opts.destinationId!, aiDestination: false }));
+      setDraft((d) => ({
+        ...d,
+        destinationId: opts.destinationId!,
+        aiDestination: false,
+        ...(d.destinationId !== opts.destinationId ? { cityIds: [], aiCities: false } : {}),
+      }));
     }
     setWizardStep(opts?.step ?? (opts?.destinationId ? 1 : 0));
     setWizardKey((k) => k + 1);
@@ -165,7 +170,8 @@ export default function App() {
             plan={plan}
             onPlanChange={setPlan}
             onStayTierChange={(stayTier) => handleDraftChange({ stayTier })}
-            onEditDetails={() => startWizard({ step: 3 })}
+            onEditDetails={() => startWizard({ step: 4 })}
+            onEditCities={() => startWizard({ step: 3 })}
             onContinue={() => goTo('overview')}
           />
         ) : view === 'overview' && plan ? (

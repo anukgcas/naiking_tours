@@ -9,6 +9,7 @@ import {
   ArrowRight,
   Baby,
   Calendar,
+  Car,
   Camera,
   Check,
   ChevronLeft,
@@ -35,6 +36,10 @@ import {
   MAX_TRIP_DAYS,
   PLANNER_DESTINATIONS,
   addDaysISO,
+  aiPickCities,
+  cityStops,
+  getCities,
+  transferLabel,
   formatDate,
   getDestination,
   nightsBetween,
@@ -51,7 +56,7 @@ interface TripWizardProps {
   onExit: () => void;
 }
 
-const STEP_LABELS = ['Where', 'Who', 'Interests', 'When'];
+const STEP_LABELS = ['Where', 'Who', 'Interests', 'Cities', 'When'];
 
 const TRAVELLER_TYPES: {
   id: TravellerType;
@@ -104,6 +109,7 @@ const STEP_COPY = [
   { pre: 'Where are you', em: 'going?', sub: 'Tell us your dream destination and we’ll craft the perfect trip for you.' },
   { pre: 'Who’s', em: 'travelling?', sub: 'One tap — you can fine-tune the numbers below.' },
   { pre: 'What are you', em: 'into?', sub: 'Pick as many as you like. We’ll show these first.' },
+  { pre: 'Which cities do you', em: 'want to see?', sub: 'Pick the places you’d like to stay — or let AI plan the route for you.' },
   { pre: 'When and', em: 'for how long?', sub: 'We’ve pre-filled a sensible plan — change anything you like.' },
 ];
 
@@ -394,7 +400,11 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
 
   const chooseDestination = (id: string) => {
     setAiPickedId(null);
-    patch({ destinationId: id, aiDestination: false });
+    patch({
+      destinationId: id,
+      aiDestination: false,
+      ...(id !== draft.destinationId ? { cityIds: [], aiCities: false } : {}),
+    });
   };
 
 
@@ -414,7 +424,17 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
     goTo(3);
   };
 
-  // ----- step 3: dates + finish -----
+  // ----- step 3: cities -----
+
+  const toggleCity = (id: string) =>
+    patch({
+      aiCities: false,
+      cityIds: draft.cityIds.includes(id) ? draft.cityIds.filter((c) => c !== id) : [...draft.cityIds, id],
+    });
+
+  const askAiCities = () => patch({ aiCities: true, cityIds: aiPickCities(draft) });
+
+  // ----- step 4: dates + finish -----
 
   const setStart = (iso: string) => {
     if (!iso) return;
@@ -427,6 +447,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
 
   const finish = () => {
     let final = draft;
+    if (final.aiCities) final = { ...final, cityIds: aiPickCities(final) };
     if (!final.destinationId) {
       const pick = pickDestinationForMe(final);
       final = { ...final, destinationId: pick.id };
@@ -453,12 +474,14 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
   const previewDest = chosenPreview ?? PLANNER_DESTINATIONS[hintIdx % PLANNER_DESTINATIONS.length];
   const showcasing = !chosenPreview;
   const totalTravellers = draft.adults + draft.children;
-  const summaryItems = [
+  const cityNames = draft.cityIds.map((id) => getCities(draft.destinationId).find((c) => c.id === id)?.name).filter(Boolean) as string[];
+  const summaryItems: { icon: React.ReactNode; main: string; sub: string; filled: boolean; only?: number; min?: number }[] = [
     {
       icon: <Calendar className="w-5 h-5" />,
-      main: maxStep >= 3 ? `${nights + 1} days` : 'Pick your dates',
-      sub: maxStep >= 3 ? '(planned)' : '(when & how long)',
-      filled: maxStep >= 3,
+      main: maxStep >= 4 ? `${nights + 1} days` : 'Pick your dates',
+      sub: maxStep >= 4 ? '(planned)' : '(when & how long)',
+      filled: maxStep >= 4,
+      only: 4,
     },
     {
       icon: <Users className="w-5 h-5" />,
@@ -472,14 +495,21 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
         ? 'AI picks'
         : draft.interests.length
         ? draft.interests.map((id) => INTERESTS.find((i) => i.id === id)?.label ?? id).slice(0, 3).join(', ')
-        : maxStep >= 3
+        : maxStep >= 4
         ? 'Anything goes'
         : 'Add interests',
-      sub: draft.aiPlan || draft.interests.length || maxStep >= 3 ? '(interests)' : '(beach, food, culture…)',
-      filled: draft.aiPlan || draft.interests.length > 0 || maxStep >= 3,
+      sub: draft.aiPlan || draft.interests.length || maxStep >= 4 ? '(interests)' : '(beach, food, culture…)',
+      filled: draft.aiPlan || draft.interests.length > 0 || maxStep >= 4,
+    },
+    {
+      icon: <MapPin className="w-5 h-5" />,
+      main: draft.aiCities ? 'AI picks cities' : cityNames.length ? cityNames.join(', ') : 'Choose cities',
+      sub: '(cities)',
+      filled: cityNames.length > 0,
+      min: 3,
     },
   ];
-  const canContinue = step === 0 ? Boolean(dest) : step === 1 ? draft.travellerType !== '' : true;
+  const canContinue = step === 0 ? Boolean(dest) : step === 1 ? draft.travellerType !== '' : step === 3 ? draft.cityIds.length > 0 : true;
 
   const startDate = new Date(draft.checkIn + 'T00:00:00');
   const startMonth = startDate.toLocaleDateString('en-US', { month: 'short' });
@@ -1220,7 +1250,172 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                 </div>
               )}
 
-              {step === 3 && (
+              {step === 3 && (() => {
+                const cities = getCities(draft.destinationId);
+                const stops = cityStops(draft);
+                const aiNames = draft.cityIds.map((id) => cities.find((c) => c.id === id)?.name).filter(Boolean);
+                const CARD_POS = ['20% 30%', '80% 45%', '50% 90%', '10% 75%'];
+                return (
+                  <div className="mt-8 grid lg:grid-cols-[minmax(0,1fr)_21rem] gap-8 xl:gap-12 items-start">
+                    {/* ---- city cards ---- */}
+                    <div>
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        {cities.map((c, i) => {
+                          const selected = draft.cityIds.includes(c.id);
+                          const order = draft.cityIds.indexOf(c.id) + 1;
+                          const acts = (dest?.activities ?? []).filter((a) => c.activityIds.includes(a.id));
+                          const cats = Array.from(new Set(acts.map((a) => a.category))).slice(0, 3);
+                          return (
+                            <motion.button
+                              key={c.id}
+                              type="button"
+                              onClick={() => toggleCity(c.id)}
+                              aria-pressed={selected}
+                              initial={{ opacity: 0, y: 28, scale: 0.96 }}
+                              animate={{ opacity: 1, y: 0, scale: 1 }}
+                              transition={{ delay: i * 0.07, type: 'spring', stiffness: 240, damping: 24 }}
+                              whileHover={reduced ? undefined : { y: -4 }}
+                              whileTap={reduced ? undefined : { scale: 0.98 }}
+                              className={`group relative overflow-hidden rounded-[1.75rem] text-left cursor-pointer bg-white border transition-shadow duration-300 ${
+                                selected
+                                  ? 'border-[#F26B1D] ring-2 ring-[#F26B1D]/40 shadow-[0_22px_45px_-20px_rgba(229,80,26,0.55)]'
+                                  : 'border-[#1E2022]/10 shadow-[0_14px_32px_-22px_rgba(30,32,34,0.45)] hover:shadow-[0_22px_45px_-22px_rgba(30,32,34,0.55)]'
+                              }`}
+                            >
+                              <span className="relative block h-28 overflow-hidden bg-[#EAE6DF]">
+                                {dest && (
+                                  <img
+                                    src={dest.image}
+                                    alt=""
+                                    referrerPolicy="no-referrer"
+                                    className="absolute inset-0 w-full h-full object-cover scale-[1.6] transition-transform duration-700 group-hover:scale-[1.75]"
+                                    style={{ objectPosition: CARD_POS[i % CARD_POS.length] }}
+                                  />
+                                )}
+                                <span className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />
+                                <span className="absolute bottom-3 left-4 right-14 text-lg font-extrabold text-white leading-tight drop-shadow">{c.name}</span>
+                                <AnimatePresence>
+                                  {selected && (
+                                    <motion.span
+                                      initial={{ scale: 0, rotate: -90 }}
+                                      animate={{ scale: 1, rotate: 0 }}
+                                      exit={{ scale: 0 }}
+                                      transition={{ type: 'spring', stiffness: 420, damping: 16 }}
+                                      className={`absolute top-3 right-3 w-9 h-9 rounded-full ${brandGrad} text-white flex items-center justify-center text-sm font-extrabold shadow-lg ring-4 ring-white/30`}
+                                      title={`Stop ${order}`}
+                                    >
+                                      {order}
+                                    </motion.span>
+                                  )}
+                                </AnimatePresence>
+                              </span>
+                              <span className="block p-4">
+                                <span className="block text-sm text-[#6B7280] leading-snug">{c.blurb}</span>
+                                <span className="mt-3 flex flex-wrap items-center gap-1.5">
+                                  {cats.map((cat) => (
+                                    <span key={cat} className="px-2 py-0.5 rounded-full bg-[#1E2022]/6 text-[10px] font-bold text-[#4B4F55]">
+                                      {cat}
+                                    </span>
+                                  ))}
+                                  <span className="text-[11px] font-semibold text-[#9CA3AF]">{acts.length} experiences</span>
+                                </span>
+                              </span>
+                            </motion.button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="mt-7 flex flex-wrap items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={askAiCities}
+                          className="group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full border-2 border-dashed border-[#C2571A]/45 bg-[#FFF6EC] hover:bg-[#FFEBD6] text-sm font-bold text-[#1E2022] cursor-pointer transition-colors"
+                        >
+                          <Sparkles className="w-4 h-4 text-[#C2571A] group-hover:rotate-12 group-hover:scale-125 transition-transform" />
+                          No idea — ask AI to choose the cities
+                        </button>
+                        <AnimatePresence mode="wait">
+                          {draft.aiCities && aiNames.length > 0 && (
+                            <motion.p
+                              key={aiNames.join('|')}
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0 }}
+                              className="text-sm font-semibold text-[#C2571A] flex items-center gap-1.5"
+                              aria-live="polite"
+                            >
+                              <Check className="w-4 h-4" /> AI picked {aiNames.join(' + ')}
+                            </motion.p>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </div>
+
+                    {/* ---- your route ---- */}
+                    <aside aria-label="Your route" className="rounded-[1.75rem] bg-white border border-[#1E2022]/10 shadow-[0_20px_45px_-25px_rgba(30,32,34,0.45)] p-5 lg:sticky lg:top-8">
+                      <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#C2571A]">Your route</p>
+                      <ol className="relative mt-4">
+                        <span aria-hidden className="absolute left-[0.95rem] top-3 bottom-3 border-l-2 border-dashed border-[#1E2022]/15" />
+                        <li className="relative flex items-center gap-3 pb-4">
+                          <span className="relative z-10 w-8 h-8 rounded-full bg-[#1E2022]/6 text-[#4B4F55] flex items-center justify-center shrink-0">
+                            <Plane className="w-4 h-4" />
+                          </span>
+                          <span className="text-sm text-[#6B7280]">Arrive in {dest?.name}</span>
+                        </li>
+                        {stops.length === 0 && (
+                          <li className="relative flex items-center gap-3 pb-4">
+                            <span className="relative z-10 w-8 h-8 rounded-full border-2 border-dashed border-[#C2571A]/40 bg-white flex items-center justify-center shrink-0 text-[#C2571A]/50">
+                              <MapPin className="w-4 h-4" />
+                            </span>
+                            <span className="text-sm font-semibold text-[#9CA3AF]">Pick at least one city</span>
+                          </li>
+                        )}
+                        <AnimatePresence initial={false}>
+                          {stops.map((st, i) => (
+                            <motion.li
+                              key={st.city.id}
+                              layout
+                              initial={{ opacity: 0, x: -12 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, x: 12 }}
+                              className="relative"
+                            >
+                              {i > 0 && (
+                                <div className="flex items-center gap-3 pb-3">
+                                  <span className="relative z-10 w-8 h-8 rounded-full bg-[#FFF6EC] text-[#C2571A] flex items-center justify-center shrink-0">
+                                    <Car className="w-4 h-4" />
+                                  </span>
+                                  <span className="text-xs text-[#6B7280]">{transferLabel(draft.destinationId, st.city.name)}</span>
+                                </div>
+                              )}
+                              <div className="flex items-center gap-3 pb-4">
+                                <span className={`relative z-10 w-8 h-8 rounded-full ${brandGrad} text-white flex items-center justify-center shrink-0 text-xs font-extrabold`}>{i + 1}</span>
+                                <span className="min-w-0">
+                                  <span className="block text-sm font-extrabold text-[#1E2022] truncate">{st.city.name}</span>
+                                  <span className="block text-xs text-[#6B7280]">
+                                    {st.nights} night{st.nights === 1 ? '' : 's'}
+                                  </span>
+                                </span>
+                              </div>
+                            </motion.li>
+                          ))}
+                        </AnimatePresence>
+                        <li className="relative flex items-center gap-3">
+                          <span className="relative z-10 w-8 h-8 rounded-full bg-[#1E2022]/6 text-[#4B4F55] flex items-center justify-center shrink-0">
+                            <Plane className="w-4 h-4 rotate-45" />
+                          </span>
+                          <span className="text-sm text-[#6B7280]">Departure</span>
+                        </li>
+                      </ol>
+                      <p className="mt-4 pt-4 border-t border-[#1E2022]/8 text-xs text-[#9CA3AF]">
+                        Nights are shared across your cities — you can change them on the plan page.
+                      </p>
+                    </aside>
+                  </div>
+                );
+              })()}
+
+              {step === 4 && (
                 <div className="mt-8 grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] gap-5 sm:gap-6 items-start">
                   {/* ---- calendar with the trip range painted on ---- */}
                   {(() => {
@@ -1499,7 +1694,8 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
 
               {/* trip details: dashed = still to fill, solid = done */}
               <div className="hidden md:flex items-center gap-2">
-                {summaryItems.map((it) => (
+                {/* dates are only entered on the last step, so that chip only appears there */}
+                {summaryItems.filter((it) => (it.only === undefined || it.only === step) && (it.min === undefined || step >= it.min)).map((it) => (
                   <motion.span
                     key={it.sub}
                     layout
@@ -1516,7 +1712,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
               </div>
 
               {/* action */}
-              {step < 3 ? (
+              {step < STEP_LABELS.length - 1 ? (
                 <button
                   type="button"
                   disabled={!canContinue}

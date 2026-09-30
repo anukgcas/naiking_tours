@@ -51,6 +51,10 @@ export interface TripDraft {
   interests: ActivityCategory[];
   /** Pre-fill the planner board with AI picks on arrival. */
   aiPlan: boolean;
+  /** Cities / areas to visit inside the destination, in visiting order. */
+  cityIds: string[];
+  /** The traveller asked AI to choose the cities. */
+  aiCities: boolean;
   checkIn: string;
   checkOut: string;
   adults: number;

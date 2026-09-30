@@ -191,6 +191,128 @@ export const formatINR = (n: number) => `₹${Math.round(n).toLocaleString('en-I
 export const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
+// ---------- cities / areas inside a destination ----------
+
+export interface City {
+  id: string;
+  name: string;
+  blurb: string;
+  /** Catalogue activities that belong to this city. */
+  activityIds: string[];
+}
+
+const CITY_DATA: Record<string, { transfer: string; cities: City[] }> = {
+  bali: {
+    transfer: 'Private car transfer',
+    cities: [
+      { id: 'ubud', name: 'Ubud', blurb: 'Rice terraces, temples, art and jungle wellness', activityIds: ['bali-tegallalang', 'bali-tirta', 'bali-coffee', 'bali-ubud-walk', 'bali-swing', 'bali-yoga', 'bali-cooking', 'bali-batur'] },
+      { id: 'uluwatu', name: 'Uluwatu & Jimbaran', blurb: 'Clifftop temples, surf coves and seafood on the sand', activityIds: ['bali-uluwatu', 'bali-jimbaran'] },
+      { id: 'seminyak', name: 'Seminyak', blurb: 'Beach clubs, sunsets, spas and nightlife', activityIds: ['bali-sunset', 'bali-spa'] },
+      { id: 'nusa', name: 'Nusa Penida', blurb: 'Dramatic cliffs, manta rays and quiet island days', activityIds: ['bali-nusa'] },
+    ],
+  },
+  maldives: {
+    transfer: 'Speedboat transfer',
+    cities: [
+      { id: 'north-male', name: 'North Malé Atoll', blurb: 'Local islands, dolphin cruises and easy resort days', activityIds: ['mv-island', 'mv-dolphin', 'mv-breakfast', 'mv-kayak', 'mv-sound'] },
+      { id: 'baa', name: 'Baa Atoll', blurb: 'A UNESCO reserve for reef, diving and night skies', activityIds: ['mv-snorkel', 'mv-dive', 'mv-bio', 'mv-nightfish'] },
+      { id: 'ari', name: 'Ari Atoll', blurb: 'Sandbanks, overwater spas and lantern-lit dinners', activityIds: ['mv-sandbank', 'mv-spa', 'mv-lobster', 'mv-cinema'] },
+    ],
+  },
+  dubai: {
+    transfer: 'Private car transfer',
+    cities: [
+      { id: 'downtown', name: 'Downtown Dubai', blurb: 'Burj Khalifa, fountains, malls and brunch', activityIds: ['dxb-burj', 'dxb-museum', 'dxb-fountain', 'dxb-brunch'] },
+      { id: 'old-dubai', name: 'Old Dubai', blurb: 'Souks, the creek and heritage lanes', activityIds: ['dxb-oldtown', 'dxb-frame'] },
+      { id: 'marina-palm', name: 'Marina & Palm', blurb: 'Yacht dinners, waterparks and spa time', activityIds: ['dxb-marina', 'dxb-palm', 'dxb-spa'] },
+      { id: 'desert', name: 'Desert & Abu Dhabi', blurb: 'Dunes, balloons and the Grand Mosque', activityIds: ['dxb-desert', 'dxb-balloon', 'dxb-mosque'] },
+    ],
+  },
+  manali: {
+    transfer: 'Scenic drive',
+    cities: [
+      { id: 'manali-town', name: 'Manali Town', blurb: 'Cedar temples, cafes, hot springs and bonfires', activityIds: ['mnl-hadimba', 'mnl-old', 'mnl-vashisht', 'mnl-massage', 'mnl-bonfire'] },
+      { id: 'solang', name: 'Solang & Rohtang', blurb: 'Snow activities, high passes and starry meadows', activityIds: ['mnl-solang', 'mnl-paraglide', 'mnl-atal', 'mnl-rohtang', 'mnl-camp'] },
+      { id: 'naggar', name: 'Naggar & Kullu', blurb: 'Castle heritage and river rafting', activityIds: ['mnl-naggar', 'mnl-rafting'] },
+    ],
+  },
+  goa: {
+    transfer: 'Private car transfer',
+    cities: [
+      { id: 'north-goa', name: 'North Goa', blurb: 'Fort sunsets, water sports, flea markets and seafood', activityIds: ['goa-sunset', 'goa-water', 'goa-market', 'goa-seafood'] },
+      { id: 'panjim', name: 'Panjim & Old Goa', blurb: 'Latin quarter, UNESCO churches and river cruises', activityIds: ['goa-fontainhas', 'goa-churches', 'goa-cruise', 'goa-cooking'] },
+      { id: 'south-goa', name: 'South Goa', blurb: 'Quiet coves, spice farms, spas and waterfalls', activityIds: ['goa-south', 'goa-spa', 'goa-spice', 'goa-dudhsagar'] },
+    ],
+  },
+  singapore: {
+    transfer: 'Private car transfer',
+    cities: [
+      { id: 'marina-bay', name: 'Marina Bay', blurb: 'Skyline, Gardens by the Bay and river cruises', activityIds: ['sg-gardens', 'sg-lightshow', 'sg-marina', 'sg-river', 'sg-museum'] },
+      { id: 'heritage', name: 'Chinatown & Heritage', blurb: 'Hawker feasts, shophouses and three cultures', activityIds: ['sg-chinatown', 'sg-hawker', 'sg-brunch'] },
+      { id: 'orchard', name: 'Orchard & Gardens', blurb: 'Orchids, spas, shopping and the night safari', activityIds: ['sg-botanic', 'sg-spa', 'sg-zoo'] },
+      { id: 'sentosa', name: 'Sentosa', blurb: 'Beaches, rides and resort island fun', activityIds: ['sg-sentosa'] },
+    ],
+  },
+};
+
+export const getCities = (destId: string): City[] => CITY_DATA[destId]?.cities ?? [];
+
+export const transferLabel = (destId: string, toCityName: string) =>
+  `${CITY_DATA[destId]?.transfer ?? 'Private transfer'} to ${toCityName}`;
+
+export const cityOfActivity = (destId: string, activityId: string): City | undefined =>
+  getCities(destId).find((c) => c.activityIds.includes(activityId));
+
+export interface CityStop {
+  city: City;
+  nights: number;
+  /** 0-based day indexes, inclusive. */
+  startDay: number;
+  endDay: number;
+}
+
+/**
+ * Splits the trip across the chosen cities: nights are shared evenly (extras go to the
+ * earliest stops) and the last city also owns the departure day.
+ */
+export const cityStops = (d: TripDraft): CityStop[] => {
+  const all = getCities(d.destinationId);
+  const chosen = d.cityIds.map((id) => all.find((c) => c.id === id)).filter((c): c is City => Boolean(c));
+  const nights = Math.max(1, nightsBetween(d.checkIn, d.checkOut));
+  const list = chosen.slice(0, nights); // never more stops than nights
+  if (!list.length) return [];
+  const base = Math.floor(nights / list.length);
+  const extra = nights % list.length;
+  let day = 0;
+  return list.map((city, i) => {
+    const n = base + (i < extra ? 1 : 0);
+    const startDay = day;
+    day += n;
+    return { city, nights: n, startDay, endDay: i === list.length - 1 ? day : day - 1 };
+  });
+};
+
+export const cityForDay = (d: TripDraft, dayIndex: number): City | undefined => {
+  const stops = cityStops(d);
+  return (stops.find((s) => dayIndex >= s.startDay && dayIndex <= s.endDay) ?? stops[stops.length - 1])?.city;
+};
+
+/** AI's choice of cities: more interest matches first, more stops on longer trips, kept in touring order. */
+export const aiPickCities = (d: TripDraft): string[] => {
+  const all = getCities(d.destinationId);
+  if (!all.length) return [];
+  const dest = getDestination(d.destinationId);
+  const nights = Math.max(1, nightsBetween(d.checkIn, d.checkOut));
+  const want = nights <= 2 ? 1 : nights <= 5 ? Math.min(2, all.length) : Math.min(3, all.length);
+  const score = (c: City) => {
+    const acts = (dest?.activities ?? []).filter((a) => c.activityIds.includes(a.id));
+    const hits = d.interests.length ? acts.filter((a) => d.interests.includes(a.category)).length : 0;
+    return hits * 3 + acts.length * 0.5;
+  };
+  const picked = new Set([...all].sort((a, b) => score(b) - score(a)).slice(0, want).map((c) => c.id));
+  return all.map((c) => c.id).filter((id) => picked.has(id));
+};
+
 // ---------- dates ----------
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -318,6 +440,7 @@ export const suggestForDay = (
   const map = activityMap(plan);
   const today = (plan.days[dayIndex] ?? []).map((id) => map.get(id)).filter(Boolean) as Activity[];
   const picked: Activity[] = [];
+  const dayCity = cityForDay(draft, dayIndex);
 
   for (const slot of ['Morning', 'Afternoon', 'Evening'] as DaySlot[]) {
     if (picked.length >= limit) break;
@@ -330,6 +453,11 @@ export const suggestForDay = (
       .map((a) => {
         let score = seenCats.has(a.category) ? 0 : 3;
         if (draft.interests.includes(a.category)) score += 2;
+        // Keep each day inside the city you are staying in
+        if (dayCity) {
+          const home = cityOfActivity(dest.id, a.id);
+          if (home) score += home.id === dayCity.id ? 3 : -3;
+        }
         if (family && a.category === 'Adventure' && a.hours > 6) score -= 2;
         if (family && a.category === 'Wellness') score -= 1;
         // Match experiences to the stay style: premium picks for luxury, gentler prices for comfort
@@ -396,6 +524,8 @@ export const newDraft = (): TripDraft => ({
   travellerType: '',
   interests: [],
   aiPlan: false,
+  cityIds: [],
+  aiCities: false,
   checkIn: '',
   checkOut: '',
   adults: 2,
