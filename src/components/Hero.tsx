@@ -1,39 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import {
-  MapPin,
-  Calendar,
-  Users,
-  Wallet,
-  ArrowRight,
-  Compass,
-  Check,
-  ChevronDown,
-  Volume2,
-  VolumeX,
-  Sun,
-  Clock,
-  Sparkles,
-} from 'lucide-react';
+import { MapPin, ArrowRight, Compass, Volume2, VolumeX, Sun, Sparkles, Clock } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'motion/react';
 import { CountUp, RotatingWord, Marquee } from './HeroParts';
-import { TripDraft } from '../types';
-import {
-  PLANNER_DESTINATIONS,
-  addDaysISO,
-  getDestination,
-  nightsBetween,
-  todayISO,
-  validateDraft,
-} from '../data/planner';
+
 import { sanctuaryAudio } from '../utils/audioSanctuary';
 
 interface HeroProps {
-  draft: TripDraft;
-  onDraftChange: (patch: Partial<TripDraft>) => void;
-  onStartPlanning: () => void;
+  /** Opens the "Where do you want to go?" trip wizard. */
+  onStartWizard: () => void;
+  /** Opens the wizard with this place already chosen. */
   onExploreDestination: (destName: string) => void;
-  /** Increments each time the user is sent here, to flash the trip finder. */
-  highlightKey?: number;
 }
 
 interface DestinationReel {
@@ -128,28 +104,8 @@ const MARQUEE_ITEMS = [
   'Heritage & Adventure',
 ];
 
-export const Hero: React.FC<HeroProps> = ({
-  draft,
-  onDraftChange,
-  onStartPlanning,
-  onExploreDestination,
-  highlightKey = 0,
-}) => {
+export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination }) => {
   const [activeReelIndex, setActiveReelIndex] = useState(0);
-  const { checkIn, checkOut, adults, children } = draft;
-  const selectedDestination = getDestination(draft.destinationId);
-  const [isDestOpen, setIsDestOpen] = useState(false);
-  const [isTravellersOpen, setIsTravellersOpen] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [isHighlighted, setIsHighlighted] = useState(false);
-
-  // Flash the trip finder so it is obvious where a "Customise / Plan a Trip" click landed
-  useEffect(() => {
-    if (!highlightKey) return;
-    setIsHighlighted(true);
-    const id = setTimeout(() => setIsHighlighted(false), 2600);
-    return () => clearTimeout(id);
-  }, [highlightKey]);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
   const currentReel = DESTINATION_REELS[activeReelIndex];
@@ -178,16 +134,6 @@ export const Hero: React.FC<HeroProps> = ({
     my.set(0);
   };
 
-  const nights = Math.max(0, nightsBetween(checkIn, checkOut));
-
-  const setCheckIn = (value: string) => {
-    // Keep check-out valid when check-in moves past it
-    const patch: Partial<TripDraft> = { checkIn: value };
-    if (value && checkOut && nightsBetween(value, checkOut) < 1) patch.checkOut = addDaysISO(value, 1);
-    onDraftChange(patch);
-    setFormError(null);
-  };
-
   const handleSelectReel = (index: number) => {
     setActiveReelIndex(index);
     const target = DESTINATION_REELS[index];
@@ -199,13 +145,6 @@ export const Hero: React.FC<HeroProps> = ({
   const toggleSound = () => {
     const nextState = sanctuaryAudio.toggle(currentReel.audioMode);
     setIsAudioPlaying(nextState);
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const error = validateDraft(draft);
-    setFormError(error);
-    if (!error) onStartPlanning();
   };
 
   const headlineWords = ['Where', 'quiet', 'luxury', 'meets'];
@@ -334,7 +273,7 @@ export const Hero: React.FC<HeroProps> = ({
           </div>
         </motion.div>
 
-        {/* TRIP FINDER — overlaps the banner so it is part of the first screen */}
+        {/* TRIP LAUNCHER — one tap into the guided trip planner; overlaps the banner so it is on the first screen */}
         <motion.div
           id="hero-search"
           className="relative z-30 -mt-24 lg:-mt-28 mx-2 sm:mx-4 lg:mx-8"
@@ -342,230 +281,51 @@ export const Hero: React.FC<HeroProps> = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div>
-            <div
-              className={`relative rounded-3xl bg-white border p-6 sm:p-8 transition-all duration-500 ${
-                isHighlighted
-                  ? 'border-[#C2571A] ring-4 ring-[#C2571A]/30 scale-[1.015] shadow-[0_30px_70px_-12px_rgba(194,87,26,0.55)]'
-                  : 'border-[#1E2022]/12 shadow-2xl'
-              }`}
-            >
-              {isHighlighted && (
-                <span className="absolute -top-3 left-6 px-3 py-1 rounded-full bg-[#C2571A] text-white text-[11px] font-bold shadow-lg">
-                  Start here ↓
-                </span>
-              )}
-              <div className="mb-6">
-                <h2 className="text-lg font-bold text-[#1E2022]">Design your own trip</h2>
-                <p className="mt-0.5 text-sm text-[#6B7280]">
-                  Tell us where, when and who — then build your day-by-day plan with AI suggestions. Your package price comes from what you choose.
-                </p>
-              </div>
-              <form
-            onSubmit={handleSearchSubmit}
-            className=""
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1.1fr_auto] gap-4 items-stretch">
-              {/* Field 1: Destination */}
-              <div className="relative px-4 py-3.5 rounded-xl bg-white border border-[#1E2022]/12 hover:border-[#1E2022]/35 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
-                <div
-                  onClick={() => setIsDestOpen(!isDestOpen)}
-                  className="cursor-pointer"
-                >
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-[#1E2022]">
-                    <MapPin className="w-3.5 h-3.5 text-[#C2571A]" />
-                    <span>Where do you want to go?</span>
-                  </div>
-                  <div className="mt-1 flex items-center justify-between">
-                    <span className={`text-sm truncate ${selectedDestination ? 'font-semibold text-[#1E2022]' : 'font-normal text-[#9CA3AF]'}`}>
-                      {selectedDestination
-                        ? `${selectedDestination.name}, ${selectedDestination.country}`
-                        : 'Choose destination'}
-                    </span>
-                    <ChevronDown className="w-4 h-4 text-[#9CA3AF]" />
-                  </div>
-                </div>
-
-                {isDestOpen && (
-                  <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-[#1E2022]/10 p-2 z-50">
-                    <p className="text-[11px] font-semibold text-[#9CA3AF] px-3 py-1 uppercase tracking-wider">
-                      Popular Choices
-                    </p>
-                    {PLANNER_DESTINATIONS.map((dest) => (
-                      <button
-                        key={dest.id}
-                        type="button"
-                        onClick={() => {
-                          onDraftChange({ destinationId: dest.id });
-                          setIsDestOpen(false);
-                          setFormError(null);
-                        }}
-                        className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-[#FAF8F5] flex items-center justify-between text-[#1E2022]"
-                      >
-                        <span>
-                          {dest.name}, {dest.country}
-                        </span>
-                        {draft.destinationId === dest.id && (
-                          <Check className="w-4 h-4 text-[#C2571A]" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Field 2: Check-in */}
-              <div className="px-4 py-3.5 rounded-xl bg-white border border-[#1E2022]/12 hover:border-[#1E2022]/35 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
-                <label
-                  htmlFor="checkin-hero"
-                  className="flex items-center gap-1.5 text-xs font-semibold text-[#1E2022]"
-                >
-                  <Calendar className="w-3.5 h-3.5 text-[#C2571A]" />
-                  <span>Check-in</span>
-                </label>
-                <input
-                  id="checkin-hero"
-                  type="date"
-                  min={todayISO()}
-                  value={checkIn}
-                  onChange={(e) => setCheckIn(e.target.value)}
-                  className={`mt-1 w-full text-sm bg-transparent focus:outline-none cursor-pointer ${checkIn ? 'font-semibold text-[#1E2022]' : 'font-normal text-[#9CA3AF]'}`}
-                />
-              </div>
-
-              {/* Field 3: Check-out with Nights Pill */}
-              <div className="px-4 py-3.5 rounded-xl bg-white border border-[#1E2022]/12 hover:border-[#1E2022]/35 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
-                <div className="flex items-center justify-between">
-                  <label
-                    htmlFor="checkout-hero"
-                    className="flex items-center gap-1.5 text-xs font-semibold text-[#1E2022]"
-                  >
-                    <Calendar className="w-3.5 h-3.5 text-[#C2571A]" />
-                    <span>Check-out</span>
-                  </label>
-                  {nights > 0 && (
-                    <span className="text-[10px] font-bold text-[#C2571A] bg-[#C2571A]/10 px-1.5 py-0.5 rounded">
-                      {nights}N
-                    </span>
-                  )}
-                </div>
-                <input
-                  id="checkout-hero"
-                  type="date"
-                  min={checkIn ? addDaysISO(checkIn, 1) : todayISO()}
-                  value={checkOut}
-                  onChange={(e) => {
-                    onDraftChange({ checkOut: e.target.value });
-                    setFormError(null);
-                  }}
-                  className={`mt-1 w-full text-sm bg-transparent focus:outline-none cursor-pointer ${checkOut ? 'font-semibold text-[#1E2022]' : 'font-normal text-[#9CA3AF]'}`}
-                />
-              </div>
-
-              {/* Field 4: Travellers */}
-              <div className="relative px-4 py-3.5 rounded-xl bg-white border border-[#1E2022]/12 hover:border-[#1E2022]/35 focus-within:border-[#1E2022] focus-within:ring-2 focus-within:ring-[#1E2022]/10 transition-colors">
-                <div
-                  onClick={() => setIsTravellersOpen(!isTravellersOpen)}
-                  className="cursor-pointer"
-                >
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-[#1E2022]">
-                    <Users className="w-3.5 h-3.5 text-[#C2571A]" />
-                    <span>Travellers</span>
-                  </div>
-                  <div className="mt-1 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-[#1E2022]">
-                      {adults + children} Guest{adults + children > 1 ? 's' : ''}
-                    </span>
-                    <span className="text-xs text-[#9CA3AF]">
-                      {adults}A {children > 0 ? `· ${children}C` : ''}
-                    </span>
-                  </div>
-                </div>
-
-                {isTravellersOpen && (
-                  <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-[#1E2022]/10 p-4 z-50 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-[#1E2022]">Adults</p>
-                        <p className="text-xs text-[#9CA3AF]">Age 12+</p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          disabled={adults <= 1}
-                          onClick={() => onDraftChange({ adults: Math.max(1, adults - 1) })}
-                          className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-sm disabled:opacity-40"
-                        >
-                          -
-                        </button>
-                        <span className="text-sm font-semibold w-4 text-center">
-                          {adults}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => onDraftChange({ adults: Math.min(12, adults + 1) })}
-                          className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-sm"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-[#1E2022]">Children</p>
-                        <p className="text-xs text-[#9CA3AF]">Age 0–11</p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          disabled={children <= 0}
-                          onClick={() => onDraftChange({ children: Math.max(0, children - 1) })}
-                          className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-sm disabled:opacity-40"
-                        >
-                          -
-                        </button>
-                        <span className="text-sm font-semibold w-4 text-center">
-                          {children}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => onDraftChange({ children: Math.min(8, children + 1) })}
-                          className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-sm"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setIsTravellersOpen(false)}
-                      className="w-full py-1.5 text-xs font-semibold rounded-lg bg-[#FAF8F5] hover:bg-gray-100 text-[#1E2022]"
-                    >
-                      Done
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Primary Search CTA */}
-              <div className="sm:col-span-2 lg:col-span-1 flex">
-                <button
-                  type="submit"
-                  className="group w-full min-h-[4rem] lg:px-9 px-6 rounded-xl bg-[#1E2022] hover:bg-black text-white font-semibold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
-                >
-                  <span className="whitespace-nowrap">Start Customising</span>
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                </button>
-              </div>
-            </div>
-            {formError && (
-              <p role="alert" className="mt-4 text-sm font-medium text-[#C2571A]">
-                {formError}
+          <div className="rounded-3xl bg-white border border-[#1E2022]/12 shadow-2xl p-6 sm:p-8">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-1">
+              <h2 className="text-lg font-bold text-[#1E2022]">Design your own trip</h2>
+              <p className="inline-flex items-center gap-1.5 text-xs text-[#6B7280]">
+                <Clock className="w-3.5 h-3.5" /> Takes about 30 seconds · No payment needed
               </p>
-            )}
-          </form>
+            </div>
+
+            <button
+              type="button"
+              onClick={onStartWizard}
+              className="group mt-4 w-full flex items-center gap-4 pl-5 pr-2 py-2 rounded-2xl bg-[#FAF8F5] border border-[#1E2022]/12 hover:border-[#1E2022] hover:bg-white focus-visible:ring-2 focus-visible:ring-[#C2571A] focus:outline-none transition-colors text-left cursor-pointer"
+            >
+              <MapPin className="w-5 h-5 text-[#C2571A] shrink-0" />
+              <span className="flex-1 min-w-0 py-2">
+                <span className="block text-xs font-semibold text-[#1E2022]">Where do you want to go?</span>
+                <span className="block text-sm sm:text-base text-[#9CA3AF] truncate">
+                  Bali, Maldives, Dubai… or let AI surprise you
+                </span>
+              </span>
+              <span className="shrink-0 inline-flex items-center gap-2 px-5 sm:px-7 py-3.5 rounded-xl bg-[#1E2022] group-hover:bg-[#C2571A] text-white text-sm font-semibold transition-colors">
+                <span className="whitespace-nowrap">Start planning</span>
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </span>
+            </button>
+
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="text-xs font-semibold text-[#9CA3AF] mr-1">Popular</span>
+              {DESTINATION_REELS.map((reel) => (
+                <button
+                  key={reel.id}
+                  type="button"
+                  onClick={() => onExploreDestination(reel.name)}
+                  className="px-3.5 py-1.5 rounded-full bg-white border border-[#1E2022]/12 text-xs font-semibold text-[#1E2022] hover:border-[#C2571A] hover:text-[#C2571A] transition-colors cursor-pointer"
+                >
+                  {reel.name}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={onStartWizard}
+                className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-[#C2571A]/10 text-xs font-bold text-[#C2571A] hover:bg-[#C2571A]/20 transition-colors cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5" /> Let AI choose
+              </button>
             </div>
           </div>
         </motion.div>

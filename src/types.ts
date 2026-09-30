@@ -39,9 +39,18 @@ export interface Activity {
   aiGenerated?: boolean;
 }
 
+export type TravellerType = 'solo' | 'couple' | 'family' | 'friends';
+
 /** Step 1 of the flow: what the traveller tells us before planning. */
 export interface TripDraft {
+  /** Empty while the traveller has asked AI to choose (see aiDestination). */
   destinationId: string;
+  aiDestination: boolean;
+  travellerType: TravellerType | '';
+  /** Activity categories the traveller is into; used to rank ideas and AI picks. */
+  interests: ActivityCategory[];
+  /** Pre-fill the planner board with AI picks on arrival. */
+  aiPlan: boolean;
   checkIn: string;
   checkOut: string;
   adults: number;

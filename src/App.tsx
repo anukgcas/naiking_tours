@@ -5,6 +5,7 @@ import { Hero } from './components/Hero';
 import { SignatureDestinations } from './components/SignatureDestinations';
 import { HowItWorks } from './components/HowItWorks';
 import { StandardVsNaiking } from './components/StandardVsNaiking';
+import { TripWizard } from './components/TripWizard';
 import { TripPlanner } from './components/TripPlanner';
 import { TripOverview, ContactDetails } from './components/TripOverview';
 import { MyTripsDrawer } from './components/MyTripsDrawer';
@@ -14,29 +15,31 @@ import { MobileBottomNav } from './components/MobileBottomNav';
 import { SIGNATURE_DESTINATIONS, INITIAL_BOOKED_TRIPS } from './data/mockData';
 import {
   PLANNER_DESTINATIONS,
+  autoFillPlan,
+  computeCosts,
   formatDate,
   getDestination,
   newDraft,
   reconcilePlan,
   toPlannedDays,
-  computeCosts,
   tripDays,
   validateDraft,
 } from './data/planner';
 import { PlanState, TripBooking, TripDraft } from './types';
 import { Check } from 'lucide-react';
 
-type Tab = 'home' | 'why' | 'plan' | 'overview';
+type Tab = 'home' | 'why' | 'start' | 'plan' | 'overview';
 
 export default function App() {
   const [showLoader, setShowLoader] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const [isMyTripsOpen, setIsMyTripsOpen] = useState(false);
 
-  // Customiser state: step 1 (draft) -> step 2 (plan board) -> step 3 (overview)
+  // Customiser: wizard (draft) -> plan board -> overview
   const [draft, setDraft] = useState<TripDraft>(newDraft);
   const [plan, setPlan] = useState<PlanState | null>(null);
-  const [finderPulse, setFinderPulse] = useState(0);
+  const [wizardStep, setWizardStep] = useState(0);
+  const [wizardKey, setWizardKey] = useState(0);
 
   const [bookedTrips, setBookedTrips] = useState<TripBooking[]>(INITIAL_BOOKED_TRIPS);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -53,34 +56,42 @@ export default function App() {
     scrollTop();
   };
 
-  const scrollToTripFinder = () => {
-    setActiveTab('home');
-    // Wait for the home view to mount when coming from another page
-    setTimeout(() => {
-      document.getElementById('hero-search')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setFinderPulse((n) => n + 1);
-    }, 60);
-  };
-
   const canPlan = plan !== null && validateDraft(draft) === null;
 
   const handleDraftChange = (patch: Partial<TripDraft>) => setDraft((d) => ({ ...d, ...patch }));
 
-  const handleStartPlanning = () => {
-    setPlan((prev) => reconcilePlan(prev, draft));
+  /** Opens the guided wizard, optionally with a place already chosen (skips straight to "who's going"). */
+  const startWizard = (opts?: { destinationId?: string; step?: number }) => {
+    if (opts?.destinationId) {
+      setDraft((d) => ({ ...d, destinationId: opts.destinationId!, aiDestination: false }));
+    }
+    setWizardStep(opts?.step ?? (opts?.destinationId ? 1 : 0));
+    setWizardKey((k) => k + 1);
+    goTo('start');
+  };
+
+  const handleWizardComplete = (final: TripDraft) => {
+    setDraft(final);
+    setPlan((prev) => {
+      const base = reconcilePlan(prev, final);
+      return final.aiPlan ? autoFillPlan(final, base) : base;
+    });
     goTo('plan');
   };
 
-  // Header / footer / mobile "Plan a Trip": resume a plan in progress, otherwise start at the trip finder
+  // Header / footer / mobile "Plan a Trip": resume a plan in progress, otherwise begin the wizard
   const handlePlanCTA = () => {
-    if (canPlan && activeTab !== 'plan') goTo('plan');
-    else if (!canPlan) scrollToTripFinder();
+    if (activeTab === 'start') return;
+    if (canPlan) {
+      if (activeTab !== 'plan') goTo('plan');
+    } else {
+      startWizard();
+    }
   };
 
   const handleSelectDestination = (destName: string) => {
     const match = PLANNER_DESTINATIONS.find((d) => d.name.toLowerCase() === destName.toLowerCase());
-    if (match) handleDraftChange({ destinationId: match.id });
-    scrollToTripFinder();
+    startWizard(match ? { destinationId: match.id } : undefined);
   };
 
   const handleNavigate = (tab: 'home' | 'plan' | 'why') => {
@@ -122,7 +133,7 @@ export default function App() {
 
   // Guard: the planner pages need a valid draft and a plan
   const view: Tab = (activeTab === 'plan' || activeTab === 'overview') && !canPlan ? 'home' : activeTab;
-  const navTab = view === 'overview' ? 'plan' : view;
+  const navTab = view === 'overview' || view === 'start' ? 'plan' : view;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#1E2022] font-sans">
@@ -137,13 +148,21 @@ export default function App() {
       />
 
       <main className="flex-1">
-        {view === 'plan' && plan ? (
+        {view === 'start' ? (
+          <TripWizard
+            key={wizardKey}
+            initialDraft={draft}
+            initialStep={wizardStep}
+            onComplete={handleWizardComplete}
+            onExit={() => goTo('home')}
+          />
+        ) : view === 'plan' && plan ? (
           <TripPlanner
             draft={draft}
             plan={plan}
             onPlanChange={setPlan}
             onStayTierChange={(stayTier) => handleDraftChange({ stayTier })}
-            onEditDetails={scrollToTripFinder}
+            onEditDetails={() => startWizard({ step: 3 })}
             onContinue={() => goTo('overview')}
           />
         ) : view === 'overview' && plan ? (
@@ -157,17 +176,11 @@ export default function App() {
           />
         ) : (
           <>
-            <Hero
-              draft={draft}
-              onDraftChange={handleDraftChange}
-              onStartPlanning={handleStartPlanning}
-              onExploreDestination={handleSelectDestination}
-              highlightKey={finderPulse}
-            />
+            <Hero onStartWizard={() => startWizard()} onExploreDestination={handleSelectDestination} />
             <SignatureDestinations
               destinations={SIGNATURE_DESTINATIONS}
               onSelectDestination={handleSelectDestination}
-              onStartCustomising={scrollToTripFinder}
+              onStartCustomising={() => startWizard()}
             />
             <HowItWorks />
             <StandardVsNaiking />

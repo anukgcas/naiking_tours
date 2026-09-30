@@ -97,10 +97,14 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
   const used = useMemo(() => new Set(plan.days.flat()), [plan]);
   const ideas = useMemo(
     () =>
-      [...plan.extras, ...dest.activities].filter(
-        (a) => !used.has(a.id) && (filter === 'All' || a.category === filter)
-      ),
-    [plan.extras, dest, used, filter]
+      [...plan.extras, ...dest.activities]
+        .filter((a) => !used.has(a.id) && (filter === 'All' || a.category === filter))
+        // Stable sort: ideas matching the traveller's interests float to the top
+        .sort(
+          (a, b) =>
+            Number(draft.interests.includes(b.category)) - Number(draft.interests.includes(a.category))
+        ),
+    [plan.extras, dest, used, filter, draft.interests]
   );
 
   // The single best next pick for each day — flagged with a sparkle in the ideas lane

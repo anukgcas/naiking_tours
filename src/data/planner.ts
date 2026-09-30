@@ -5,6 +5,7 @@ import {
   DaySlot,
   PlanState,
   PlannedDay,
+  TravellerType,
   TripDraft,
 } from '../types';
 
@@ -328,6 +329,7 @@ export const suggestForDay = (
       .filter((a) => a.slot === slot && !picked.includes(a))
       .map((a) => {
         let score = seenCats.has(a.category) ? 0 : 3;
+        if (draft.interests.includes(a.category)) score += 2;
         if (family && a.category === 'Adventure' && a.hours > 6) score -= 2;
         if (family && a.category === 'Wellness') score -= 1;
         // Match experiences to the stay style: premium picks for luxury, gentler prices for comfort
@@ -390,6 +392,10 @@ export const planInsights = (draft: TripDraft, plan: PlanState): string[] => {
 
 export const newDraft = (): TripDraft => ({
   destinationId: '',
+  aiDestination: false,
+  travellerType: '',
+  interests: [],
+  aiPlan: false,
   checkIn: '',
   checkOut: '',
   adults: 2,
@@ -409,4 +415,30 @@ export const reconcilePlan = (prev: PlanState | null, draft: TripDraft): PlanSta
     days: Array.from({ length: days }, (_, i) => prev.days[i] ?? []),
     extras: prev.extras,
   };
+};
+
+// ---------- "Let AI choose for me" ----------
+
+const BEST_FOR: Record<string, TravellerType[]> = {
+  bali: ['couple', 'friends', 'solo', 'family'],
+  maldives: ['couple'],
+  dubai: ['family', 'friends'],
+  manali: ['friends', 'couple', 'solo'],
+  goa: ['friends', 'solo', 'family'],
+  singapore: ['family', 'couple'],
+};
+
+/** Scores each destination on interest overlap and who is travelling; ties keep catalogue order. */
+export const pickDestinationForMe = (draft: TripDraft): PlannerDestination => {
+  const scored = PLANNER_DESTINATIONS.map((d) => {
+    const interestHits = draft.interests.length
+      ? d.activities.filter((a) => draft.interests.includes(a.category)).length / d.activities.length
+      : 0;
+    const fit = draft.travellerType && BEST_FOR[d.id]?.includes(draft.travellerType) ? 1 : 0;
+    const nights = nightsBetween(draft.checkIn, draft.checkOut);
+    // Long-haul islands feel rushed on a very short trip
+    const shortTripPenalty = nights <= 3 && d.id === 'maldives' ? -0.3 : 0;
+    return { d, score: interestHits * 3 + fit * 1.5 + shortTripPenalty };
+  }).sort((a, b) => b.score - a.score);
+  return scored[0].d;
 };
