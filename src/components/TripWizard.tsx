@@ -66,6 +66,13 @@ const TRAVELLER_TYPES: {
   { id: 'friends', label: 'Friends', hint: 'A group', icon: <PartyPopper className="w-7 h-7" />, grad: 'from-[#FFC94D] to-[#F7931E]', adults: 4, children: 0 },
 ];
 
+const TRAVELLER_CAPTIONS: Record<TravellerType, string> = {
+  solo: 'Just you — total freedom to roam.',
+  couple: 'Two of you — cosy, romantic pacing.',
+  family: 'Family fun — kid-friendly picks first.',
+  friends: 'A group getaway — shared adventures.',
+};
+
 const INTERESTS: { id: ActivityCategory; label: string; hint: string; icon: React.ReactNode; grad: string }[] = [
   { id: 'Leisure', label: 'Beach & chill', hint: 'Sun, sand, slow days', icon: <Palmtree className="w-6 h-6" />, grad: 'from-[#22D3EE] to-[#0EA5A4]' },
   { id: 'Sightseeing', label: 'Iconic sights', hint: 'The must-see list', icon: <Camera className="w-6 h-6" />, grad: 'from-[#A78BFA] to-[#6366F1]' },
@@ -906,117 +913,201 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
               )}
 
               {step === 1 && (
-                <div>
-                  <motion.div
-                    initial="hidden"
-                    animate="show"
-                    className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5"
-                  >
-                    {TRAVELLER_TYPES.map((t, i) => {
+                <div className="mt-8">
+                  {/* segmented picker with a sliding highlight */}
+                  <div role="radiogroup" aria-label="Who is travelling" className="inline-flex max-w-full overflow-x-auto p-1.5 rounded-full bg-white border border-[#1E2022]/10 shadow-[0_10px_30px_-18px_rgba(30,32,34,0.35)]" style={{ scrollbarWidth: 'none' }}>
+                    {TRAVELLER_TYPES.map((t) => {
                       const selected = draft.travellerType === t.id;
                       return (
-                        <motion.button
+                        <button
                           key={t.id}
                           type="button"
-                          custom={i}
-                          variants={cardVariants}
-                          whileHover={reduced ? undefined : { y: -6 }}
-                          whileTap={reduced ? undefined : { scale: 0.97 }}
+                          role="radio"
+                          aria-checked={selected}
                           onClick={() => chooseTraveller(t)}
-                          aria-pressed={selected}
-                          className={`group relative overflow-hidden p-5 sm:p-7 rounded-[2rem] border text-left cursor-pointer transition-all duration-300 ${
-                            selected
-                              ? `bg-gradient-to-br ${t.grad} border-transparent text-white shadow-[0_25px_50px_-15px_rgba(30,32,34,0.45)]`
-                              : 'bg-white/80 backdrop-blur border-white text-[#1E2022] shadow-[0_15px_35px_-20px_rgba(30,32,34,0.4)] hover:shadow-[0_25px_50px_-20px_rgba(30,32,34,0.5)]'
-                          }`}
+                          className="relative flex items-center gap-2.5 h-14 pl-2.5 pr-5 sm:pr-7 rounded-full cursor-pointer shrink-0"
                         >
-                          <span
-                            className={`relative w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:rotate-6 group-hover:scale-110 ${
-                              selected ? 'bg-white/25 text-white backdrop-blur' : `bg-gradient-to-br ${t.grad} text-white shadow-lg`
+                          {selected && (
+                            <motion.span
+                              layoutId="who-pill"
+                              className={`absolute inset-0 rounded-full ${brandGrad} shadow-[0_10px_25px_-8px_rgba(229,80,26,0.65)]`}
+                              transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 32 }}
+                            />
+                          )}
+                          <motion.span
+                            className={`relative w-10 h-10 rounded-full flex items-center justify-center [&>svg]:w-5 [&>svg]:h-5 transition-colors ${
+                              selected ? 'bg-white text-[#E5501A]' : 'bg-[#1E2022]/6 text-[#1E2022]'
                             }`}
+                            animate={selected && !reduced ? { rotate: [0, -14, 14, 0], scale: [1, 1.15, 1] } : { rotate: 0, scale: 1 }}
+                            transition={{ duration: 0.5 }}
                           >
                             {t.icon}
-                          </span>
-                          <h3 className="relative mt-5 text-xl font-extrabold">{t.label}</h3>
-                          <p className={`relative text-sm ${selected ? 'text-white/85' : 'text-[#6B7280]'}`}>{t.hint}</p>
-                          <AnimatePresence>
-                            {selected && (
-                              <motion.span
-                                initial={{ scale: 0, rotate: -90 }}
-                                animate={{ scale: 1, rotate: 0 }}
-                                exit={{ scale: 0 }}
-                                transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-                                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white text-[#1E2022] flex items-center justify-center shadow-lg"
-                              >
-                                <Check className="w-4 h-4" />
-                              </motion.span>
-                            )}
-                          </AnimatePresence>
-                        </motion.button>
+                          </motion.span>
+                          <span className={`relative text-base font-extrabold transition-colors ${selected ? 'text-white' : 'text-[#1E2022]'}`}>{t.label}</span>
+                        </button>
                       );
                     })}
-                  </motion.div>
+                  </div>
 
-                  <AnimatePresence>
-                    {draft.travellerType && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="mt-6 p-6 rounded-[2rem] bg-white/80 backdrop-blur border border-white shadow-[0_15px_35px_-20px_rgba(30,32,34,0.4)] grid sm:grid-cols-2 gap-6">
-                          {(
-                            [
-                              { key: 'adults', label: 'Adults', sub: 'Age 12+', min: 1, max: 12 },
-                              { key: 'children', label: 'Children', sub: 'Age 0–11', min: 0, max: 8 },
-                            ] as const
-                          ).map((row) => (
-                            <div key={row.key} className="flex items-center justify-between">
-                              <div>
-                                <p className="text-base font-extrabold text-[#1E2022]">{row.label}</p>
-                                <p className="text-xs text-[#9CA3AF]">{row.sub}</p>
-                              </div>
-                              <div className="flex items-center gap-4">
-                                <button
-                                  type="button"
-                                  disabled={draft[row.key] <= row.min}
-                                  onClick={() => patch({ [row.key]: draft[row.key] - 1 })}
-                                  className={stepperBtn}
-                                  aria-label={`Fewer ${row.label.toLowerCase()}`}
-                                >
-                                  <Minus className="w-4 h-4" />
-                                </button>
-                                <span className="relative w-8 h-8 overflow-hidden text-center">
-                                  <AnimatePresence mode="popLayout" initial={false}>
-                                    <motion.span
-                                      key={draft[row.key]}
-                                      initial={{ y: 18, opacity: 0 }}
-                                      animate={{ y: 0, opacity: 1 }}
-                                      exit={{ y: -18, opacity: 0 }}
-                                      transition={{ duration: 0.2 }}
-                                      className="absolute inset-0 text-2xl font-extrabold tabular-nums leading-8"
-                                    >
-                                      {draft[row.key]}
-                                    </motion.span>
-                                  </AnimatePresence>
-                                </span>
-                                <button
-                                  type="button"
-                                  disabled={draft[row.key] >= row.max}
-                                  onClick={() => patch({ [row.key]: draft[row.key] + 1 })}
-                                  className={stepperBtn}
-                                  aria-label={`More ${row.label.toLowerCase()}`}
-                                >
-                                  <Plus className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </div>
-                          ))}
+                  {/* the crew stage + counters */}
+                  <div className="mt-6 grid md:grid-cols-[1.35fr_1fr] gap-5 items-stretch">
+                    <div className="relative overflow-hidden rounded-[2rem] border border-[#F7931E]/20 bg-gradient-to-br from-[#FFF7EC] to-[#FFEBD6] p-6 sm:p-8 min-h-[16rem] flex flex-col">
+                      <span
+                        aria-hidden
+                        className="absolute inset-0 opacity-[0.5]"
+                        style={{ backgroundImage: 'radial-gradient(rgba(194,87,26,0.18) 1px, transparent 1px)', backgroundSize: '18px 18px' }}
+                      />
+                      <div className="relative flex items-start justify-between gap-4">
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#C2571A]">Your crew</p>
+                          <AnimatePresence mode="wait" initial={false}>
+                            <motion.p
+                              key={draft.travellerType || 'none'}
+                              initial={{ opacity: 0, y: 8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -8 }}
+                              transition={{ duration: 0.2 }}
+                              className="mt-1.5 text-lg sm:text-xl font-extrabold text-[#1E2022] leading-snug max-w-sm"
+                            >
+                              {draft.travellerType ? TRAVELLER_CAPTIONS[draft.travellerType] : 'Choose who’s travelling to build your crew.'}
+                            </motion.p>
+                          </AnimatePresence>
                         </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                        {draft.travellerType && (
+                          <div className="shrink-0 text-right">
+                            <span className="relative inline-flex h-14 w-14 overflow-hidden justify-center">
+                              <AnimatePresence mode="popLayout" initial={false}>
+                                <motion.span
+                                  key={totalTravellers}
+                                  initial={{ y: '80%', opacity: 0 }}
+                                  animate={{ y: 0, opacity: 1 }}
+                                  exit={{ y: '-80%', opacity: 0 }}
+                                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                                  className="text-5xl font-extrabold leading-[3.5rem] text-saffron-gradient tabular-nums"
+                                >
+                                  {totalTravellers}
+                                </motion.span>
+                              </AnimatePresence>
+                            </span>
+                            <p className="-mt-1 text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">{totalTravellers === 1 ? 'traveller' : 'travellers'}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="relative mt-auto pt-8">
+                        <div className="flex flex-wrap items-end gap-2.5 min-h-[3.5rem]">
+                          {draft.travellerType ? (
+                            <AnimatePresence mode="popLayout">
+                              {Array.from({ length: draft.adults }).map((_, i) => (
+                                <motion.span
+                                  key={`a${i}`}
+                                  layout
+                                  initial={{ scale: 0, y: 24 }}
+                                  animate={reduced ? { scale: 1, y: 0 } : { scale: 1, y: [0, -5, 0] }}
+                                  exit={{ scale: 0, y: -20 }}
+                                  transition={{
+                                    scale: { type: 'spring', stiffness: 420, damping: 16 },
+                                    y: { delay: 0.5 + i * 0.15, duration: 2.6, repeat: Infinity, ease: 'easeInOut' },
+                                  }}
+                                  className={`w-12 h-12 rounded-full ${brandGrad} text-white flex items-center justify-center shadow-[0_8px_18px_-6px_rgba(229,80,26,0.6)]`}
+                                >
+                                  <User className="w-5 h-5" />
+                                </motion.span>
+                              ))}
+                              {Array.from({ length: draft.children }).map((_, i) => (
+                                <motion.span
+                                  key={`c${i}`}
+                                  layout
+                                  initial={{ scale: 0, y: 24 }}
+                                  animate={reduced ? { scale: 1, y: 0 } : { scale: 1, y: [0, -4, 0] }}
+                                  exit={{ scale: 0, y: -20 }}
+                                  transition={{
+                                    scale: { type: 'spring', stiffness: 420, damping: 16 },
+                                    y: { delay: 0.7 + i * 0.15, duration: 2.2, repeat: Infinity, ease: 'easeInOut' },
+                                  }}
+                                  className="w-9 h-9 rounded-full bg-white border-2 border-[#F7931E] text-[#C2571A] flex items-center justify-center shadow-sm"
+                                >
+                                  <Baby className="w-4 h-4" />
+                                </motion.span>
+                              ))}
+                            </AnimatePresence>
+                          ) : (
+                            [0, 1, 2, 3].map((i) => (
+                              <motion.span
+                                key={i}
+                                animate={reduced ? undefined : { opacity: [0.35, 0.9, 0.35] }}
+                                transition={{ duration: 2.4, repeat: Infinity, delay: i * 0.3 }}
+                                className="w-12 h-12 rounded-full border-2 border-dashed border-[#C2571A]/40 flex items-center justify-center text-[#C2571A]/50"
+                              >
+                                <User className="w-5 h-5" />
+                              </motion.span>
+                            ))
+                          )}
+                        </div>
+                        <div className="mt-4 border-t-2 border-dashed border-[#C2571A]/25" />
+                      </div>
+                    </div>
+
+                    <div className="rounded-[2rem] bg-white border border-[#1E2022]/8 shadow-[0_15px_35px_-22px_rgba(30,32,34,0.4)] p-6 flex flex-col justify-center divide-y divide-[#1E2022]/8">
+                      {draft.travellerType ? (
+                        (
+                          [
+                            { key: 'adults', label: 'Adults', sub: 'Age 12+', min: 1, max: 12 },
+                            { key: 'children', label: 'Children', sub: 'Age 0–11', min: 0, max: 8 },
+                          ] as const
+                        ).map((row) => (
+                          <div key={row.key} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
+                            <div>
+                              <p className="text-base font-extrabold text-[#1E2022]">{row.label}</p>
+                              <p className="text-xs text-[#9CA3AF]">{row.sub}</p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <button
+                                type="button"
+                                disabled={draft[row.key] <= row.min}
+                                onClick={() => patch({ [row.key]: draft[row.key] - 1 })}
+                                className={stepperBtn}
+                                aria-label={`Fewer ${row.label.toLowerCase()}`}
+                              >
+                                <Minus className="w-4 h-4" />
+                              </button>
+                              <span className="relative w-8 h-8 overflow-hidden text-center">
+                                <AnimatePresence mode="popLayout" initial={false}>
+                                  <motion.span
+                                    key={draft[row.key]}
+                                    initial={{ y: 18, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    exit={{ y: -18, opacity: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="absolute inset-0 text-2xl font-extrabold tabular-nums leading-8"
+                                  >
+                                    {draft[row.key]}
+                                  </motion.span>
+                                </AnimatePresence>
+                              </span>
+                              <button
+                                type="button"
+                                disabled={draft[row.key] >= row.max}
+                                onClick={() => patch({ [row.key]: draft[row.key] + 1 })}
+                                className={stepperBtn}
+                                aria-label={`More ${row.label.toLowerCase()}`}
+                              >
+                                <Plus className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-6">
+                          <span className="mx-auto w-12 h-12 rounded-full bg-[#1E2022]/6 flex items-center justify-center text-[#9CA3AF]">
+                            <Users className="w-5 h-5" />
+                          </span>
+                          <p className="mt-3 text-sm font-bold text-[#1E2022]">Pick a group above</p>
+                          <p className="mt-1 text-xs text-[#6B7280]">Then adjust adults and children here.</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
 
