@@ -102,7 +102,7 @@ const tagline = (id: string) => SIGNATURE_DESTINATIONS.find((d) => d.id === id)?
 const brandGrad = 'bg-gradient-to-r from-[#F7931E] via-[#E5501A] to-[#C2571A]';
 
 const stepperBtn =
-  'w-10 h-10 rounded-full bg-white/80 backdrop-blur border border-[#1E2022]/10 shadow-sm flex items-center justify-center hover:bg-white hover:border-[#C2571A]/40 hover:text-[#C2571A] hover:scale-105 active:scale-95 disabled:opacity-30 disabled:hover:scale-100 disabled:hover:text-inherit cursor-pointer transition-all';
+  'w-10 h-10 rounded-full bg-white/80 backdrop-blur border border-[#1E2022]/10 shadow-sm flex items-center justify-center hover:bg-white hover:border-[#C2571A]/40 hover:text-[#C2571A] hover:scale-105 active:scale-95 disabled:opacity-30 disabled:hover:scale-100 disabled:hover:text-inherit disabled:hover:bg-white/80 disabled:hover:border-[#1E2022]/10 disabled:cursor-not-allowed cursor-pointer transition-all';
 
 const cardVariants = {
   hidden: { opacity: 0, y: 28, scale: 0.96 },
@@ -228,6 +228,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
   const [maxStep, setMaxStep] = useState(initialStep);
   const [query, setQuery] = useState('');
   const [hintIdx, setHintIdx] = useState(0);
+  const [edge, setEdge] = useState({ start: true, end: false });
   const [direction, setDirection] = useState(1);
   const [building, setBuilding] = useState(false);
   const [aiPickedId, setAiPickedId] = useState<string | null>(null);
@@ -265,6 +266,7 @@ useEffect(() => {    if (reduced || step !== 0 || query) return;    const id = w
     later(() => goTo(1), reduced ? 150 : 350);
   };
 
+const updateEdge = () => {    const el = rowRef.current;    if (el) setEdge({ start: el.scrollLeft <= 4, end: el.scrollLeft + el.clientWidth >= el.scrollWidth - 4 });  };  useEffect(() => {    if (step !== 0) return;    updateEdge();    window.addEventListener('resize', updateEdge);    return () => window.removeEventListener('resize', updateEdge);  }, [step, query]);
   const scrollRow = (dir: 1 | -1) => rowRef.current?.scrollBy({ left: dir * 340, behavior: 'smooth' });
 
   const chooseDestination = (id: string, card: HTMLElement | null) => {
@@ -560,7 +562,7 @@ const q = query.trim().toLowerCase();  const matches = q    ? PLANNER_DESTINATIO
                           className="absolute left-14 right-12 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-base pointer-events-none overflow-hidden h-7"
                           aria-hidden
                         >
-                          <span className="font-medium text-[#9CA3AF] whitespace-nowrap">Search destination</span>
+                          <span className="font-medium leading-7 text-[#9CA3AF] whitespace-nowrap">Search destination</span>
                           <span className="relative flex-1 h-7 overflow-hidden">
                             <AnimatePresence mode="popLayout" initial={false}>
                               <motion.span
@@ -594,10 +596,10 @@ const q = query.trim().toLowerCase();  const matches = q    ? PLANNER_DESTINATIO
                       </AnimatePresence>
                     </div>
                     <div className="hidden md:flex items-center gap-2 shrink-0">
-                      <button type="button" onClick={() => scrollRow(-1)} className={stepperBtn} aria-label="Scroll destinations left">
+                      <button type="button" onClick={() => scrollRow(-1)} disabled={edge.start} className={stepperBtn} aria-label="Scroll destinations left">
                         <ChevronLeft className="w-4 h-4" />
                       </button>
-                      <button type="button" onClick={() => scrollRow(1)} className={stepperBtn} aria-label="Scroll destinations right">
+                      <button type="button" onClick={() => scrollRow(1)} disabled={edge.end} className={stepperBtn} aria-label="Scroll destinations right">
                         <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>
@@ -605,6 +607,7 @@ const q = query.trim().toLowerCase();  const matches = q    ? PLANNER_DESTINATIO
 
                   <div
                     ref={rowRef}
+                    onScroll={updateEdge}
                     className="mt-2 flex gap-5 overflow-x-auto -mr-4 sm:-mr-6 lg:-mr-8 pr-4 sm:pr-6 lg:pr-8 pl-1 pt-4 pb-10 snap-x snap-mandatory scroll-smooth scroll-pl-1"
                     style={{ scrollbarWidth: 'none' }}
                   >
