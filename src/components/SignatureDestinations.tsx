@@ -5,7 +5,7 @@ import { SignatureDestination } from '../types';
 interface SignatureDestinationsProps {
   destinations: SignatureDestination[];
   onSelectDestination: (destName: string) => void;
-  onViewAllPackages: () => void;
+  onStartCustomising: () => void;
 }
 
 const CARD_ORDER = ['bali', 'maldives', 'dubai', 'manali', 'goa'];
@@ -36,7 +36,7 @@ const tiltLeave = (e: React.MouseEvent<HTMLDivElement>) => {
 export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
   destinations,
   onSelectDestination,
-  onViewAllPackages,
+  onStartCustomising,
 }) => {
   const ordered = CARD_ORDER.map((id) => destinations.find((d) => d.id === id)).filter(
     (d): d is SignatureDestination => Boolean(d)
@@ -60,7 +60,7 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
               Signature Destinations
             </h2>
             <p className="mt-1 text-sm sm:text-base text-[#6B7280]">
-              Places worth putting on your calendar.
+              Pick a place, then shape every day of it your way.
             </p>
           </div>
 
@@ -84,10 +84,10 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
             </div>
 
             <button
-              onClick={onViewAllPackages}
+              onClick={onStartCustomising}
               className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1E2022] hover:text-[#C2571A] transition-colors group cursor-pointer"
             >
-              <span>View All Packages</span>
+              <span>Start Customising</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </button>
           </div>
@@ -140,7 +140,7 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
                   <h3 className="mt-0.5 text-2xl font-extrabold leading-tight">{dest.name}</h3>
                   <p className="mt-1 text-sm text-white/85">{meta?.tag ?? dest.tagline}</p>
                   <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[#F28A55]">
-                    Explore Journeys
+                    Plan This Trip
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </span>
                 </div>

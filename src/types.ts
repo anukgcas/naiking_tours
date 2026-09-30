@@ -7,65 +7,75 @@ export type TripStyle =
   | 'Nature'
   | 'Culture';
 
-export interface ItineraryDay {
-  dayNumber: number;
-  title: string;
-  subtitle: string;
-  theme: string;
-  morning: string;
-  afternoon: string;
-  evening: string;
-  mealsIncluded: string[];
-  stay: string;
-  highlight: string;
-}
-
-export interface TourPackage {
-  id: string;
-  name: string;
-  destination: string;
-  country: string;
-  badge?: 'Popular' | 'Best Seller' | 'Signature' | 'Limited';
-  duration: string;
-  daysCount: number;
-  nightsCount: number;
-  rating: number;
-  reviewCount: number;
-  startingPrice: number;
-  originalPrice?: number;
-  shortHighlight: string;
-  description: string;
-  tripStyle: TripStyle;
-  featuredImage: string;
-  gallery: string[];
-  hotel: {
-    name: string;
-    tier: string;
-    description: string;
-    amenities: string[];
-  };
-  transport: {
-    type: string;
-    details: string;
-  };
-  inclusions: string[];
-  exclusions: string[];
-  itinerary: ItineraryDay[];
-}
-
 export interface SignatureDestination {
   id: string;
   name: string;
   country: string;
   tagline: string;
-  packageCount: number;
-  startingPrice: number;
   image: string;
+}
+
+export type ActivityCategory =
+  | 'Sightseeing'
+  | 'Culture'
+  | 'Adventure'
+  | 'Food'
+  | 'Wellness'
+  | 'Leisure';
+
+export type DaySlot = 'Morning' | 'Afternoon' | 'Evening';
+
+/** A place / experience the traveller can drop onto a day of the board. */
+export interface Activity {
+  id: string;
+  name: string;
+  category: ActivityCategory;
+  slot: DaySlot;
+  /** Cost per adult in INR (children are charged at half). */
+  cost: number;
+  hours: number;
+  description: string;
+  /** True when suggested live by the AI rather than from the curated catalogue. */
+  aiGenerated?: boolean;
+}
+
+/** Step 1 of the flow: what the traveller tells us before planning. */
+export interface TripDraft {
+  destinationId: string;
+  checkIn: string;
+  checkOut: string;
+  adults: number;
+  children: number;
+  /** Budget per adult in INR. 0 = not chosen yet. */
+  budgetPerPerson: number;
+}
+
+/** Step 2 of the flow: the kanban board. `days[i]` holds activity ids for Day i+1. */
+export interface PlanState {
+  signature: string;
+  days: string[][];
+  /** AI-suggested activities added to the ideas lane during this session. */
+  extras: Activity[];
+}
+
+export interface CostBreakdown {
+  stay: number;
+  transfers: number;
+  activities: number;
+  service: number;
+  total: number;
+  budgetTotal: number;
+  perPerson: number;
+  rooms: number;
+}
+
+export interface PlannedDay {
+  day: number;
+  items: { name: string; slot: DaySlot; category: ActivityCategory; cost: number }[];
 }
 
 export interface TripBooking {
   id: string;
-  packageId?: string;
   destination: string;
   packageName: string;
   startDate: string;
@@ -79,14 +89,6 @@ export interface TripBooking {
   bookingDate: string;
   image: string;
   tripStyle?: TripStyle;
-}
-
-export interface TripSearchState {
-  destination: string;
-  checkIn: string;
-  checkOut: string;
-  adults: number;
-  children: number;
-  budgetRange: string;
-  tripStyle?: TripStyle;
+  /** Present on trips built with the customiser. */
+  itinerary?: PlannedDay[];
 }

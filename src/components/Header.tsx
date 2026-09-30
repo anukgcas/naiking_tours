@@ -1,24 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Heart, Sparkles, Menu, X } from 'lucide-react';
+import { Sparkles, Menu, X } from 'lucide-react';
 import { NLogo } from './NLogo';
 
 interface HeaderProps {
-  activeTab: 'home' | 'packages' | 'why';
-  onNavigate: (tab: 'home' | 'packages' | 'why') => void;
-  onOpenFavorites: () => void;
+  activeTab: 'home' | 'plan' | 'why';
+  onNavigate: (tab: 'home' | 'plan' | 'why') => void;
   onOpenMyTrips: () => void;
   onOpenPlanner: () => void;
-  favoritesCount: number;
   bookedTripsCount: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   activeTab,
   onNavigate,
-  onOpenFavorites,
   onOpenMyTrips,
   onOpenPlanner,
-  favoritesCount,
   bookedTripsCount,
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -76,15 +72,15 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             <button
-              onClick={() => onNavigate('packages')}
+              onClick={() => onNavigate('plan')}
               className={`text-sm font-medium tracking-wide transition-colors relative py-1 ${
-                activeTab === 'packages'
+                activeTab === 'plan'
                   ? 'text-[#1E2022]'
                   : 'text-[#6B7280] hover:text-[#1E2022]'
               }`}
             >
-              Tours & Packages
-              {activeTab === 'packages' && (
+              Customise Your Trip
+              {activeTab === 'plan' && (
                 <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#C2571A] rounded-full" />
               )}
             </button>
@@ -118,26 +114,6 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Right: Favorite icon + Plan a Trip CTA */}
           <div className="flex items-center gap-3">
-            {/* Favorite Icon */}
-            <button
-              onClick={onOpenFavorites}
-              className="relative p-2.5 rounded-full text-[#1E2022] hover:bg-[#1E2022]/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A]"
-              aria-label={`View favorites (${favoritesCount})`}
-            >
-              <Heart
-                className={`w-5 h-5 transition-transform duration-200 active:scale-90 ${
-                  favoritesCount > 0
-                    ? 'fill-[#C2571A] text-[#C2571A]'
-                    : 'text-[#1E2022]'
-                }`}
-              />
-              {favoritesCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 text-[10px] font-semibold bg-[#C2571A] text-white rounded-full flex items-center justify-center">
-                  {favoritesCount}
-                </span>
-              )}
-            </button>
-
             {/* Plan a Trip Primary CTA */}
             <button
               onClick={onOpenPlanner}
@@ -172,12 +148,12 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
             <button
               onClick={() => {
-                onNavigate('packages');
+                onNavigate('plan');
                 setIsMobileMenuOpen(false);
               }}
               className="text-left text-sm font-medium py-2 px-3 rounded-lg hover:bg-[#FAF8F5]"
             >
-              Tours & Packages
+              Customise Your Trip
             </button>
             <button
               onClick={() => {

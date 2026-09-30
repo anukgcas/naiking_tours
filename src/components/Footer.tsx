@@ -3,7 +3,7 @@ import { ArrowRight, Mail, Check } from 'lucide-react';
 import { NLogo } from './NLogo';
 
 interface FooterProps {
-  onNavigate: (tab: 'home' | 'packages' | 'why') => void;
+  onNavigate: (tab: 'home' | 'plan' | 'why') => void;
   onOpenPlanner: () => void;
   onOpenMyTrips: () => void;
 }
@@ -57,10 +57,10 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <button
-                  onClick={() => onNavigate('packages')}
+                  onClick={() => onNavigate('plan')}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
-                  Tours & Packages
+                  Customise Your Trip
                 </button>
               </li>
               <li>

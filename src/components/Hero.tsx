@@ -16,13 +16,23 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'motion/react';
 import { CountUp, RotatingWord, Marquee } from './HeroParts';
-import { TripSearchState } from '../types';
+import { TripDraft } from '../types';
+import {
+  BUDGET_OPTIONS,
+  PLANNER_DESTINATIONS,
+  addDaysISO,
+  getDestination,
+  nightsBetween,
+  todayISO,
+  validateDraft,
+} from '../data/planner';
 import { sanctuaryAudio } from '../utils/audioSanctuary';
 
 interface HeroProps {
-  onSearch: (search: TripSearchState) => void;
+  draft: TripDraft;
+  onDraftChange: (patch: Partial<TripDraft>) => void;
+  onStartPlanning: () => void;
   onExploreDestination: (destName: string) => void;
-  packagesCount?: number;
 }
 
 interface DestinationReel {
@@ -117,30 +127,19 @@ const MARQUEE_ITEMS = [
   'Heritage & Adventure',
 ];
 
-const BUDGET_OPTIONS = [
-  { label: 'Any Budget', value: 'any' },
-  { label: '₹15,000 – ₹30,000', value: '15k-30k' },
-  { label: '₹30,000 – ₹60,000', value: '30k-60k' },
-  { label: '₹60,000 – ₹1,20,000', value: '60k-120k' },
-  { label: '₹1,20,000+ Luxury', value: '120k+' },
-];
-
 export const Hero: React.FC<HeroProps> = ({
-  onSearch,
+  draft,
+  onDraftChange,
+  onStartPlanning,
   onExploreDestination,
-  packagesCount = 6,
 }) => {
   const [activeReelIndex, setActiveReelIndex] = useState(0);
-  const [destination, setDestination] = useState('');
+  const { checkIn, checkOut, adults, children, budgetPerPerson } = draft;
+  const selectedDestination = getDestination(draft.destinationId);
   const [isDestOpen, setIsDestOpen] = useState(false);
-  const [checkIn, setCheckIn] = useState('');
-  const [checkOut, setCheckOut] = useState('');
-  const [adults, setAdults] = useState(2);
-  const [children, setChildren] = useState(0);
-  const [guestsChosen, setGuestsChosen] = useState(false);
   const [isTravellersOpen, setIsTravellersOpen] = useState(false);
-  const [budgetRange, setBudgetRange] = useState('');
   const [isBudgetOpen, setIsBudgetOpen] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
   const currentReel = DESTINATION_REELS[activeReelIndex];
@@ -169,13 +168,14 @@ export const Hero: React.FC<HeroProps> = ({
     my.set(0);
   };
 
-  // Calculate nights
-  const calculateNights = () => {
-    if (!checkIn || !checkOut) return 0;
-    const d1 = new Date(checkIn);
-    const d2 = new Date(checkOut);
-    const diff = Math.ceil(Math.abs(d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
-    return isNaN(diff) ? 0 : diff;
+  const nights = Math.max(0, nightsBetween(checkIn, checkOut));
+
+  const setCheckIn = (value: string) => {
+    // Keep check-out valid when check-in moves past it
+    const patch: Partial<TripDraft> = { checkIn: value };
+    if (value && checkOut && nightsBetween(value, checkOut) < 1) patch.checkOut = addDaysISO(value, 1);
+    onDraftChange(patch);
+    setFormError(null);
   };
 
   const handleSelectReel = (index: number) => {
@@ -193,18 +193,13 @@ export const Hero: React.FC<HeroProps> = ({
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch({
-      destination: destination.split(',')[0].trim() || 'all',
-      checkIn,
-      checkOut,
-      adults,
-      children,
-      budgetRange: budgetRange || 'any',
-    });
+    const error = validateDraft(draft);
+    setFormError(error);
+    if (!error) onStartPlanning();
   };
 
   const selectedBudgetLabel =
-    BUDGET_OPTIONS.find((b) => b.value === budgetRange)?.label || '';
+    BUDGET_OPTIONS.find((b) => b.value === budgetPerPerson)?.label || '';
 
   const headlineWords = ['Where', 'quiet', 'luxury', 'meets'];
 
@@ -343,8 +338,10 @@ export const Hero: React.FC<HeroProps> = ({
           <div>
             <div className="relative rounded-3xl bg-white border border-[#1E2022]/12 shadow-2xl p-6 sm:p-8">
               <div className="mb-6">
-                <h2 className="text-lg font-bold text-[#1E2022]">Find your perfect trip</h2>
-                <p className="mt-0.5 text-sm text-[#6B7280]">Tell us where and when — we will shape the rest.</p>
+                <h2 className="text-lg font-bold text-[#1E2022]">Design your own trip</h2>
+                <p className="mt-0.5 text-sm text-[#6B7280]">
+                  Tell us where, when, who and how much — then build your day-by-day plan with AI suggestions.
+                </p>
               </div>
               <form
             onSubmit={handleSearchSubmit}
@@ -362,8 +359,10 @@ export const Hero: React.FC<HeroProps> = ({
                     <span>Where do you want to go?</span>
                   </div>
                   <div className="mt-1 flex items-center justify-between">
-                    <span className={`text-sm truncate ${destination ? 'font-semibold text-[#1E2022]' : 'font-normal text-[#9CA3AF]'}`}>
-                      {destination || 'Search destination'}
+                    <span className={`text-sm truncate ${selectedDestination ? 'font-semibold text-[#1E2022]' : 'font-normal text-[#9CA3AF]'}`}>
+                      {selectedDestination
+                        ? `${selectedDestination.name}, ${selectedDestination.country}`
+                        : 'Choose destination'}
                     </span>
                     <ChevronDown className="w-4 h-4 text-[#9CA3AF]" />
                   </div>
@@ -374,20 +373,21 @@ export const Hero: React.FC<HeroProps> = ({
                     <p className="text-[11px] font-semibold text-[#9CA3AF] px-3 py-1 uppercase tracking-wider">
                       Popular Choices
                     </p>
-                    {DESTINATION_REELS.map((reel) => (
+                    {PLANNER_DESTINATIONS.map((dest) => (
                       <button
-                        key={reel.id}
+                        key={dest.id}
                         type="button"
                         onClick={() => {
-                          setDestination(`${reel.name}, ${reel.country}`);
+                          onDraftChange({ destinationId: dest.id });
                           setIsDestOpen(false);
+                          setFormError(null);
                         }}
                         className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-[#FAF8F5] flex items-center justify-between text-[#1E2022]"
                       >
                         <span>
-                          {reel.name}, {reel.country}
+                          {dest.name}, {dest.country}
                         </span>
-                        {destination.startsWith(reel.name) && (
+                        {draft.destinationId === dest.id && (
                           <Check className="w-4 h-4 text-[#C2571A]" />
                         )}
                       </button>
@@ -408,6 +408,7 @@ export const Hero: React.FC<HeroProps> = ({
                 <input
                   id="checkin-hero"
                   type="date"
+                  min={todayISO()}
                   value={checkIn}
                   onChange={(e) => setCheckIn(e.target.value)}
                   className={`mt-1 w-full text-sm bg-transparent focus:outline-none cursor-pointer ${checkIn ? 'font-semibold text-[#1E2022]' : 'font-normal text-[#9CA3AF]'}`}
@@ -424,17 +425,21 @@ export const Hero: React.FC<HeroProps> = ({
                     <Calendar className="w-3.5 h-3.5 text-[#C2571A]" />
                     <span>Check-out</span>
                   </label>
-                  {calculateNights() > 0 && (
+                  {nights > 0 && (
                     <span className="text-[10px] font-bold text-[#C2571A] bg-[#C2571A]/10 px-1.5 py-0.5 rounded">
-                      {calculateNights()}N
+                      {nights}N
                     </span>
                   )}
                 </div>
                 <input
                   id="checkout-hero"
                   type="date"
+                  min={checkIn ? addDaysISO(checkIn, 1) : todayISO()}
                   value={checkOut}
-                  onChange={(e) => setCheckOut(e.target.value)}
+                  onChange={(e) => {
+                    onDraftChange({ checkOut: e.target.value });
+                    setFormError(null);
+                  }}
                   className={`mt-1 w-full text-sm bg-transparent focus:outline-none cursor-pointer ${checkOut ? 'font-semibold text-[#1E2022]' : 'font-normal text-[#9CA3AF]'}`}
                 />
               </div>
@@ -450,18 +455,12 @@ export const Hero: React.FC<HeroProps> = ({
                     <span>Travellers</span>
                   </div>
                   <div className="mt-1 flex items-center justify-between">
-                    {guestsChosen ? (
-                      <>
-                        <span className="text-sm font-semibold text-[#1E2022]">
-                          {adults + children} Guest{adults + children > 1 ? 's' : ''}
-                        </span>
-                        <span className="text-xs text-[#9CA3AF]">
-                          {adults}A {children > 0 ? `· ${children}C` : ''}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-sm font-normal text-[#9CA3AF]">Add guests</span>
-                    )}
+                    <span className="text-sm font-semibold text-[#1E2022]">
+                      {adults + children} Guest{adults + children > 1 ? 's' : ''}
+                    </span>
+                    <span className="text-xs text-[#9CA3AF]">
+                      {adults}A {children > 0 ? `· ${children}C` : ''}
+                    </span>
                   </div>
                 </div>
 
@@ -476,7 +475,7 @@ export const Hero: React.FC<HeroProps> = ({
                         <button
                           type="button"
                           disabled={adults <= 1}
-                          onClick={() => setAdults((prev) => Math.max(1, prev - 1))}
+                          onClick={() => onDraftChange({ adults: Math.max(1, adults - 1) })}
                           className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-sm disabled:opacity-40"
                         >
                           -
@@ -486,7 +485,7 @@ export const Hero: React.FC<HeroProps> = ({
                         </span>
                         <button
                           type="button"
-                          onClick={() => setAdults((prev) => prev + 1)}
+                          onClick={() => onDraftChange({ adults: Math.min(12, adults + 1) })}
                           className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-sm"
                         >
                           +
@@ -503,7 +502,7 @@ export const Hero: React.FC<HeroProps> = ({
                         <button
                           type="button"
                           disabled={children <= 0}
-                          onClick={() => setChildren((prev) => Math.max(0, prev - 1))}
+                          onClick={() => onDraftChange({ children: Math.max(0, children - 1) })}
                           className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-sm disabled:opacity-40"
                         >
                           -
@@ -513,7 +512,7 @@ export const Hero: React.FC<HeroProps> = ({
                         </span>
                         <button
                           type="button"
-                          onClick={() => setChildren((prev) => prev + 1)}
+                          onClick={() => onDraftChange({ children: Math.min(8, children + 1) })}
                           className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-sm"
                         >
                           +
@@ -523,10 +522,7 @@ export const Hero: React.FC<HeroProps> = ({
 
                     <button
                       type="button"
-                      onClick={() => {
-                        setGuestsChosen(true);
-                        setIsTravellersOpen(false);
-                      }}
+                      onClick={() => setIsTravellersOpen(false)}
                       className="w-full py-1.5 text-xs font-semibold rounded-lg bg-[#FAF8F5] hover:bg-gray-100 text-[#1E2022]"
                     >
                       Done
@@ -563,13 +559,14 @@ export const Hero: React.FC<HeroProps> = ({
                         key={opt.value}
                         type="button"
                         onClick={() => {
-                          setBudgetRange(opt.value);
+                          onDraftChange({ budgetPerPerson: opt.value });
                           setIsBudgetOpen(false);
+                          setFormError(null);
                         }}
                         className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-[#FAF8F5] flex items-center justify-between text-[#1E2022]"
                       >
                         <span>{opt.label}</span>
-                        {budgetRange === opt.value && (
+                        {budgetPerPerson === opt.value && (
                           <Check className="w-4 h-4 text-[#C2571A]" />
                         )}
                       </button>
@@ -584,11 +581,16 @@ export const Hero: React.FC<HeroProps> = ({
                   type="submit"
                   className="group w-full min-h-[4rem] lg:px-9 px-6 rounded-xl bg-[#1E2022] hover:bg-black text-white font-semibold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
-                  <span className="whitespace-nowrap">Search Trips</span>
+                  <span className="whitespace-nowrap">Start Customising</span>
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </button>
               </div>
             </div>
+            {formError && (
+              <p role="alert" className="mt-4 text-sm font-medium text-[#C2571A]">
+                {formError}
+              </p>
+            )}
           </form>
             </div>
           </div>

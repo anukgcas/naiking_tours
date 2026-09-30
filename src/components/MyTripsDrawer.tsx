@@ -1,25 +1,22 @@
 import React, { useState } from 'react';
-import { X, Calendar, Users, CheckCircle, Clock, ChevronRight, Compass } from 'lucide-react';
-import { TripBooking, TourPackage } from '../types';
+import { X, Calendar, Users, ChevronDown, Compass } from 'lucide-react';
+import { TripBooking } from '../types';
 
 interface MyTripsDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   trips: TripBooking[];
-  packages: TourPackage[];
-  onSelectPackage: (pkg: TourPackage) => void;
-  onExplorePackages: () => void;
+  onPlanTrip: () => void;
 }
 
 export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
   isOpen,
   onClose,
   trips,
-  packages,
-  onSelectPackage,
-  onExplorePackages,
+  onPlanTrip,
 }) => {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -30,14 +27,6 @@ export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
 
   const currentList = activeTab === 'upcoming' ? upcomingTrips : pastTrips;
 
-  const handleViewItinerary = (trip: TripBooking) => {
-    const matchedPkg = packages.find((p) => p.id === trip.packageId || p.destination.toLowerCase() === trip.destination.toLowerCase());
-    if (matchedPkg) {
-      onSelectPackage(matchedPkg);
-      onClose();
-    }
-  };
-
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-black/50 backdrop-blur-xs flex justify-end animate-in fade-in duration-200">
       <div className="w-full max-w-md bg-[#FAF8F5] h-full shadow-2xl flex flex-col border-l border-[#1E2022]/10 animate-in slide-in-from-right duration-300">
@@ -46,7 +35,7 @@ export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
           <div>
             <h3 className="text-lg font-bold text-[#1E2022]">My Trips</h3>
             <p className="text-xs text-[#6B7280]">
-              Your booked journeys and concierge itineraries.
+              Your custom journeys and concierge itineraries.
             </p>
           </div>
           <button
@@ -152,20 +141,47 @@ export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
                   </div>
                 </div>
 
-                {/* View Itinerary CTA */}
+                {/* Price + itinerary toggle (custom trips only) */}
                 <div className="pt-2 flex items-center justify-between">
                   <span className="text-xs font-bold text-[#1E2022]">
                     ₹{trip.totalPrice.toLocaleString('en-IN')}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => handleViewItinerary(trip)}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#1E2022] hover:text-[#C2571A] transition-colors cursor-pointer"
-                  >
-                    <span>View Itinerary</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
+                  {trip.itinerary && (
+                    <button
+                      type="button"
+                      onClick={() => setExpandedId(expandedId === trip.id ? null : trip.id)}
+                      aria-expanded={expandedId === trip.id}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#1E2022] hover:text-[#C2571A] transition-colors cursor-pointer"
+                    >
+                      <span>{expandedId === trip.id ? 'Hide Itinerary' : 'View Itinerary'}</span>
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform ${expandedId === trip.id ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+                  )}
                 </div>
+
+                {trip.itinerary && expandedId === trip.id && (
+                  <ol className="pt-3 border-t border-[#1E2022]/6 space-y-3">
+                    {trip.itinerary.map((d) => (
+                      <li key={d.day}>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-[#C2571A]">Day {d.day}</p>
+                        {d.items.length === 0 ? (
+                          <p className="text-xs text-[#9CA3AF]">Free day</p>
+                        ) : (
+                          <ul className="mt-1 space-y-1">
+                            {d.items.map((it) => (
+                              <li key={it.name} className="text-xs text-[#555A60] flex gap-2">
+                                <span className="w-16 shrink-0 text-[#9CA3AF]">{it.slot}</span>
+                                <span>{it.name}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </li>
+                    ))}
+                  </ol>
+                )}
               </div>
             ))
           ) : (
@@ -175,17 +191,17 @@ export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
                 No {activeTab} trips found
               </h4>
               <p className="text-xs text-[#6B7280] mt-1 mb-4">
-                Explore our signature packages and reserve your next sanctuary.
+                Design your own journey, day by day, and send it to a concierge.
               </p>
               <button
                 type="button"
                 onClick={() => {
                   onClose();
-                  onExplorePackages();
+                  onPlanTrip();
                 }}
                 className="px-4 py-2 rounded-full bg-[#1E2022] text-white text-xs font-semibold hover:bg-[#C2571A] transition-colors cursor-pointer"
               >
-                Browse Tour Packages
+                Plan a Trip
               </button>
             </div>
           )}
