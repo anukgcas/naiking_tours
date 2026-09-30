@@ -150,11 +150,10 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
   const headlineWords = ['Where', 'quiet', 'luxury', 'meets'];
 
   return (
-    <section className="relative pt-[88px] lg:pt-[96px] pb-0 overflow-x-clip">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section className="relative pt-[76px] lg:pt-[84px] pb-0 overflow-x-clip">
         {/* Compact destination banner — kept short so the Trip Finder is visible on first load */}
         <motion.div
-          className="relative rounded-3xl overflow-hidden h-[400px] lg:h-[440px] bg-[#1E2022] shadow-xl"
+          className="relative w-full overflow-hidden h-[400px] lg:h-[460px] bg-[#1E2022]"
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
@@ -174,7 +173,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
           </AnimatePresence>
           <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-black/10 pointer-events-none" />
 
-          <div className="relative h-full p-5 sm:p-8 lg:p-10 pb-28 lg:pb-32 flex flex-col">
+          <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 lg:py-10 pb-28 lg:pb-32 flex flex-col">
             {/* Top row: tags + destination switcher */}
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="flex flex-wrap items-center gap-2">
@@ -251,7 +250,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
             </div>
 
             {/* Current destination caption */}
-            <div className="hidden lg:block absolute right-10 bottom-32 text-right text-white">
+            <div className="hidden lg:block absolute right-8 bottom-32 text-right text-white">
               <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/70 block">
                 {currentReel.country}
               </span>
@@ -273,6 +272,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
           </div>
         </motion.div>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* TRIP LAUNCHER — one tap into the guided trip planner; overlaps the banner so it is on the first screen */}
         <motion.div
           id="hero-search"
