@@ -23,9 +23,11 @@ import {
   Palmtree,
   Plane,
   Plus,
+  Search,
   Sparkles,
   User,
   Users,
+  X,
   UtensilsCrossed,
 } from 'lucide-react';
 import { ActivityCategory, TravellerType, TripDraft } from '../types';
@@ -146,9 +148,16 @@ const DestCard: React.FC<{
       type="button"
       custom={index}
       variants={cardVariants}
+      initial="hidden"
+      animate="show"
+      exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.15 } }}
+      layout
       onClick={(e) => onPick(e.currentTarget)}
+      whileHover={reduced ? undefined : { y: -12, scale: 1.02 }}
+      whileTap={reduced ? undefined : { scale: 0.98 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 22 }}
       aria-pressed={selected}
-      className={`group relative flex-none hover:-translate-y-1 w-[68%] sm:w-[44%] md:w-[31%] lg:w-[23.5%] aspect-[3/4] snap-start rounded-[2rem] overflow-hidden text-left bg-[#EAE6DF] cursor-pointer transition-all duration-300 ${
+      className={`group relative flex-none w-[calc((100%-1.25rem)/1.4)] sm:w-[calc((100%-1.25rem)/1.6)] md:w-[calc((100%-2.5rem)/2.5)] lg:w-[calc((100%-3.75rem)/3.5)] snap-start aspect-[3/4] rounded-[2rem] overflow-hidden text-left bg-[#EAE6DF] cursor-pointer transition-shadow duration-300 ${
         selected
           ? 'ring-[3px] ring-[#F7931E] shadow-[0_25px_60px_-15px_rgba(229,80,26,0.55)]'
           : 'shadow-[0_18px_40px_-20px_rgba(30,32,34,0.45)] hover:shadow-[0_30px_60px_-20px_rgba(30,32,34,0.6)]'
@@ -158,22 +167,23 @@ const DestCard: React.FC<{
         src={image}
         alt={`${name}, ${country}`}
         referrerPolicy="no-referrer"
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-110"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-black/5" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#E5501A]/50 via-[#F7931E]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-      <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-[11px] font-bold uppercase tracking-wider text-white">
+      <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 group-hover:bg-white group-hover:text-[#1E2022] transition-all duration-300 text-[11px] font-bold uppercase tracking-wider text-white">
         <MapPin className="w-3 h-3 text-[#FFC94D]" /> {country}
       </span>
 
-      <div className="absolute bottom-0 left-0 right-0 p-5 text-white" >
+      <div className="absolute bottom-0 left-0 right-0 p-5 text-white transition-transform duration-500 ease-out group-hover:-translate-y-1">
         <h3 className="text-[1.7rem] font-extrabold leading-tight tracking-tight drop-shadow">{name}</h3>
         <p className="mt-1 text-xs text-white/80 line-clamp-2">{tag}</p>
         <span
           className={`mt-4 inline-flex items-center gap-2 pl-2 pr-4 py-1.5 rounded-full text-sm font-bold transition-all duration-300 ${
             selected
               ? `${brandGrad} text-white shadow-lg`
-              : 'bg-white/15 backdrop-blur-md border border-white/30 text-white group-hover:bg-white group-hover:text-[#C2571A]'
+              : 'bg-white/15 backdrop-blur-md border border-white/30 text-white group-hover:bg-white group-hover:border-white group-hover:text-[#C2571A] group-hover:pr-3'
           }`}
         >
           <span
@@ -181,9 +191,10 @@ const DestCard: React.FC<{
               selected ? 'bg-white/25' : 'bg-[#F7931E] text-white'
             }`}
           >
-            {selected ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-90" />}
+            {selected ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180" />}
           </span>
           {selected ? 'Added' : 'Add to my trip'}
+          {!selected && <ArrowRight className="h-4 -ml-1 w-0 opacity-0 group-hover:w-4 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-300" />}
         </span>
       </div>
 
@@ -215,6 +226,8 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
   });
   const [step, setStep] = useState(initialStep);
   const [maxStep, setMaxStep] = useState(initialStep);
+  const [query, setQuery] = useState('');
+  const [hintIdx, setHintIdx] = useState(0);
   const [direction, setDirection] = useState(1);
   const [building, setBuilding] = useState(false);
   const [aiPickedId, setAiPickedId] = useState<string | null>(null);
@@ -222,16 +235,17 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
   const [flyer, setFlyer] = useState<{ src: string; from: DOMRect; to: DOMRect; id: string } | null>(null);
 
   const slotRef = useRef<HTMLDivElement>(null);
-  const rowRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const timers = useRef<number[]>([]);
 
+useEffect(() => {    if (reduced || step !== 0 || query) return;    const id = window.setInterval(() => setHintIdx((i) => i + 1), 2200);    return () => clearInterval(id);  }, [reduced, step, query]);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     headingRef.current?.focus({ preventScroll: true });
   }, [step]);
 
+  const rowRef = useRef<HTMLDivElement>(null);
   const later = (fn: () => void, ms: number) => timers.current.push(window.setTimeout(fn, ms));
 
   const patch = (p: Partial<TripDraft>) => setDraft((d) => ({ ...d, ...p }));
@@ -251,6 +265,8 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
     later(() => goTo(1), reduced ? 150 : 350);
   };
 
+  const scrollRow = (dir: 1 | -1) => rowRef.current?.scrollBy({ left: dir * 340, behavior: 'smooth' });
+
   const chooseDestination = (id: string, card: HTMLElement | null) => {
     const img = card?.querySelector('img');
     const slot = slotRef.current;
@@ -258,7 +274,6 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
     setFlyer({ id, src: img.src, from: img.getBoundingClientRect(), to: slot.getBoundingClientRect() });
   };
 
-  const scrollRow = (dir: 1 | -1) => rowRef.current?.scrollBy({ left: dir * 340, behavior: 'smooth' });
 
   // ----- step 1: travellers -----
 
@@ -302,6 +317,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
 
   // ----- derived UI state -----
 
+const q = query.trim().toLowerCase();  const matches = q    ? PLANNER_DESTINATIONS.filter((d) => `${d.name} ${d.country} ${tagline(d.id)}`.toLowerCase().includes(q))    : PLANNER_DESTINATIONS;
   const canContinue = step === 0 ? Boolean(dest) : step === 1 ? draft.travellerType !== '' : true;
 
   const startDate = new Date(draft.checkIn + 'T00:00:00');
@@ -402,16 +418,6 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
         </h1>
         <p className="mt-2 text-sm sm:text-base text-[#6B7280] max-w-xl">{copy.sub}</p>
       </div>
-      {step === 0 && (
-        <div className="hidden md:flex items-center gap-2 shrink-0">
-          <button type="button" onClick={() => scrollRow(-1)} className={stepperBtn} aria-label="Scroll destinations left">
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <button type="button" onClick={() => scrollRow(1)} className={stepperBtn} aria-label="Scroll destinations right">
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-      )}
     </div>
   );
 
@@ -536,28 +542,106 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
               {heading}
 
               {step === 0 && (
-                <motion.div
-                  ref={rowRef}
-                  initial="hidden"
-                  animate="show"
-                  className="mt-8 flex gap-5 overflow-x-auto px-1 pb-8 pt-2 snap-x snap-mandatory scroll-smooth"
-                  style={{ scrollbarWidth: 'none' }}
-                >
-                  {PLANNER_DESTINATIONS.map((d, i) => (
-                    <DestCard
-                      key={d.id}
-                      index={i}
-                      reduced={reduced}
-                      selected={draft.destinationId === d.id}
-                      dimmed={flyer?.id === d.id}
-                      name={d.name}
-                      country={d.country}
-                      image={d.image}
-                      tagline={tagline(d.id)}
-                      onPick={(el) => chooseDestination(d.id, el)}
-                    />
-                  ))}
-                </motion.div>
+                <div>
+                  <div className="mt-6 flex items-center justify-between gap-4">
+                    <div className="relative flex-1 max-w-xl">
+                      <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9CA3AF] pointer-events-none" />
+                      <input
+                        type="text"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        aria-label="Search destinations"
+                        autoComplete="off"
+                        className="w-full pl-14 pr-12 py-4 rounded-full bg-white border border-[#1E2022]/10 shadow-sm text-base font-semibold text-[#1E2022] focus:outline-none focus:border-[#F7931E] focus:ring-4 focus:ring-[#F7931E]/20 transition"
+                      />
+                      {/* Static lead-in + place names that roll upward */}
+                      {!query && (
+                        <div
+                          className="absolute left-14 right-12 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-base pointer-events-none overflow-hidden h-7"
+                          aria-hidden
+                        >
+                          <span className="font-medium text-[#9CA3AF] whitespace-nowrap">Search destination</span>
+                          <span className="relative flex-1 h-7 overflow-hidden">
+                            <AnimatePresence mode="popLayout" initial={false}>
+                              <motion.span
+                                key={hintIdx}
+                                initial={{ y: '100%', opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                exit={{ y: '-100%', opacity: 0 }}
+                                transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                                className="absolute inset-0 leading-7 font-bold text-[#C2571A] whitespace-nowrap"
+                              >
+                                {PLANNER_DESTINATIONS[hintIdx % PLANNER_DESTINATIONS.length].name}
+                              </motion.span>
+                            </AnimatePresence>
+                          </span>
+                        </div>
+                      )}
+                      <AnimatePresence>
+                        {query && (
+                          <motion.button
+                            type="button"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0 }}
+                            onClick={() => setQuery('')}
+                            aria-label="Clear search"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#1E2022]/8 hover:bg-[#1E2022]/15 flex items-center justify-center cursor-pointer"
+                          >
+                            <X className="w-4 h-4" />
+                          </motion.button>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                    <div className="hidden md:flex items-center gap-2 shrink-0">
+                      <button type="button" onClick={() => scrollRow(-1)} className={stepperBtn} aria-label="Scroll destinations left">
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <button type="button" onClick={() => scrollRow(1)} className={stepperBtn} aria-label="Scroll destinations right">
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div
+                    ref={rowRef}
+                    className="mt-2 flex gap-5 overflow-x-auto -mr-4 sm:-mr-6 lg:-mr-8 pr-4 sm:pr-6 lg:pr-8 pl-1 pt-4 pb-10 snap-x snap-mandatory scroll-smooth scroll-pl-1"
+                    style={{ scrollbarWidth: 'none' }}
+                  >
+                    <AnimatePresence mode="popLayout">
+                      {matches.map((d, i) => (
+                        <DestCard
+                          key={d.id}
+                          index={i}
+                          reduced={reduced}
+                          selected={draft.destinationId === d.id}
+                          dimmed={flyer?.id === d.id}
+                          name={d.name}
+                          country={d.country}
+                          image={d.image}
+                          tagline={tagline(d.id)}
+                          onPick={(el) => chooseDestination(d.id, el)}
+                        />
+                      ))}
+                    </AnimatePresence>
+                  </div>
+
+                  {matches.length === 0 && (
+                    <div className="py-14 text-center">
+                      <div className="mx-auto w-14 h-14 rounded-full bg-white border border-[#1E2022]/10 shadow-sm flex items-center justify-center text-[#9CA3AF]">
+                        <Search className="w-6 h-6" />
+                      </div>
+                      <p className="mt-4 text-lg font-extrabold text-[#1E2022]">No places match “{query.trim()}”</p>
+                      <button
+                        type="button"
+                        onClick={() => setQuery('')}
+                        className="mt-3 text-sm font-bold text-[#C2571A] hover:underline cursor-pointer"
+                      >
+                        Show all destinations
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
 
               {step === 1 && (
