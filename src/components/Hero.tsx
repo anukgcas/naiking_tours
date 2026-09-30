@@ -33,6 +33,8 @@ interface HeroProps {
   onDraftChange: (patch: Partial<TripDraft>) => void;
   onStartPlanning: () => void;
   onExploreDestination: (destName: string) => void;
+  /** Increments each time the user is sent here, to flash the trip finder. */
+  highlightKey?: number;
 }
 
 interface DestinationReel {
@@ -132,6 +134,7 @@ export const Hero: React.FC<HeroProps> = ({
   onDraftChange,
   onStartPlanning,
   onExploreDestination,
+  highlightKey = 0,
 }) => {
   const [activeReelIndex, setActiveReelIndex] = useState(0);
   const { checkIn, checkOut, adults, children, budgetPerPerson } = draft;
@@ -140,6 +143,15 @@ export const Hero: React.FC<HeroProps> = ({
   const [isTravellersOpen, setIsTravellersOpen] = useState(false);
   const [isBudgetOpen, setIsBudgetOpen] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [isHighlighted, setIsHighlighted] = useState(false);
+
+  // Flash the trip finder so it is obvious where a "Customise / Plan a Trip" click landed
+  useEffect(() => {
+    if (!highlightKey) return;
+    setIsHighlighted(true);
+    const id = setTimeout(() => setIsHighlighted(false), 2600);
+    return () => clearTimeout(id);
+  }, [highlightKey]);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
   const currentReel = DESTINATION_REELS[activeReelIndex];
@@ -336,7 +348,18 @@ export const Hero: React.FC<HeroProps> = ({
           transition={{ duration: 0.9, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
         >
           <div>
-            <div className="relative rounded-3xl bg-white border border-[#1E2022]/12 shadow-2xl p-6 sm:p-8">
+            <div
+              className={`relative rounded-3xl bg-white border p-6 sm:p-8 transition-all duration-500 ${
+                isHighlighted
+                  ? 'border-[#C2571A] ring-4 ring-[#C2571A]/30 scale-[1.015] shadow-[0_30px_70px_-12px_rgba(194,87,26,0.55)]'
+                  : 'border-[#1E2022]/12 shadow-2xl'
+              }`}
+            >
+              {isHighlighted && (
+                <span className="absolute -top-3 left-6 px-3 py-1 rounded-full bg-[#C2571A] text-white text-[11px] font-bold shadow-lg">
+                  Start here ↓
+                </span>
+              )}
               <div className="mb-6">
                 <h2 className="text-lg font-bold text-[#1E2022]">Design your own trip</h2>
                 <p className="mt-0.5 text-sm text-[#6B7280]">

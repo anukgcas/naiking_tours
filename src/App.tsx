@@ -36,6 +36,7 @@ export default function App() {
   // Customiser state: step 1 (draft) -> step 2 (plan board) -> step 3 (overview)
   const [draft, setDraft] = useState<TripDraft>(newDraft);
   const [plan, setPlan] = useState<PlanState | null>(null);
+  const [finderPulse, setFinderPulse] = useState(0);
 
   const [bookedTrips, setBookedTrips] = useState<TripBooking[]>(INITIAL_BOOKED_TRIPS);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -57,6 +58,7 @@ export default function App() {
     // Wait for the home view to mount when coming from another page
     setTimeout(() => {
       document.getElementById('hero-search')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setFinderPulse((n) => n + 1);
     }, 60);
   };
 
@@ -159,6 +161,7 @@ export default function App() {
               onDraftChange={handleDraftChange}
               onStartPlanning={handleStartPlanning}
               onExploreDestination={handleSelectDestination}
+              highlightKey={finderPulse}
             />
             <SignatureDestinations
               destinations={SIGNATURE_DESTINATIONS}
