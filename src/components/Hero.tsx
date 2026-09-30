@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { MapPin, ArrowRight, Search, Sparkles, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, ArrowRight, Search, Sparkles, X } from 'lucide-react';
 import { motion, AnimatePresence, animate, useMotionValue } from 'motion/react';
 import { Marquee } from './HeroParts';
 
@@ -187,7 +187,6 @@ const WanderingPlane: React.FC = () => {
 export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination }) => {
   const [activeReelIndex, setActiveReelIndex] = useState(0);
   const [query, setQuery] = useState('');
-  const rowRef = useRef<HTMLDivElement>(null);
 
   const currentReel = DESTINATION_REELS[activeReelIndex];
 
@@ -215,9 +214,6 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
     if (matches.length > 0) onExploreDestination(matches[0].name);
     else onStartWizard();
   };
-
-  const scrollRow = (dir: 1 | -1) =>
-    rowRef.current?.scrollBy({ left: dir * 380, behavior: 'smooth' });
 
   return (
     <section className="relative pt-[72px] lg:pt-[88px] overflow-x-clip bg-white">
@@ -259,7 +255,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[140px] sm:pt-[180px] lg:pt-14 pb-8 lg:pb-14 flex lg:items-center">
-        <div className="w-full lg:max-w-[640px]">
+        <div className="w-full lg:max-w-[700px]">
           <motion.p
             className="mb-2 text-[11px] sm:text-xs font-bold uppercase tracking-[0.22em] text-[#C2571A]"
             initial={{ opacity: 0, y: 10 }}
@@ -348,34 +344,24 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
               <div className="mt-6">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-sm font-bold text-[#1E2022]">Popular Destinations</span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => scrollRow(-1)}
-                      aria-label="Scroll destinations left"
-                      className="w-8 h-8 rounded-full bg-white border border-[#1E2022]/12 shadow-sm flex items-center justify-center text-[#1E2022] hover:bg-[#1E2022] hover:text-white transition-colors cursor-pointer"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => scrollRow(1)}
-                      aria-label="Scroll destinations right"
-                      className="w-8 h-8 rounded-full bg-white border border-[#1E2022]/12 shadow-sm flex items-center justify-center text-[#1E2022] hover:bg-[#1E2022] hover:text-white transition-colors cursor-pointer"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={onStartWizard}
+                    className="group inline-flex items-center gap-1 text-xs font-semibold text-[#C2571A] hover:underline cursor-pointer"
+                  >
+                    Explore destinations
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </button>
                 </div>
 
-                <div ref={rowRef} className="mt-3 -mx-4 sm:-mx-2 px-4 sm:px-2 pt-2 pb-5 -mb-2 flex gap-3 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                  {DESTINATION_REELS.map((reel, idx) => (
+                <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {DESTINATION_REELS.slice(0, 4).map((reel, idx) => (
                     <button
                       key={reel.id}
                       type="button"
                       onClick={() => onExploreDestination(reel.name)}
                       onMouseEnter={() => setActiveReelIndex(idx)}
-                      className={`group relative shrink-0 snap-start w-[168px] sm:w-[178px] h-[130px] sm:h-[136px] rounded-2xl overflow-hidden text-left cursor-pointer shadow-lg transition-all duration-300 ${
+                      className={`group relative h-[120px] sm:h-[136px] rounded-2xl overflow-hidden text-left cursor-pointer shadow-lg transition-all duration-300 ${
                         activeReelIndex === idx ? 'ring-2 ring-white outline outline-2 outline-[#C2571A]' : ''
                       }`}
                     >
@@ -388,7 +374,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
                       <span className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
                       <span className="absolute inset-x-3 bottom-2.5 text-white">
                         <span className="block text-sm font-bold leading-tight">{reel.name}</span>
-                        <span className="block text-[10px] leading-snug text-white/85 truncate">{reel.tags}</span>
+                        <span className="block text-[10px] leading-snug text-white/85">{reel.tags}</span>
                       </span>
                     </button>
                   ))}
