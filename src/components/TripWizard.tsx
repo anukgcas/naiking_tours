@@ -11,6 +11,8 @@ import {
   Calendar,
   Camera,
   Check,
+  ChevronLeft,
+  ChevronRight,
   Flower2,
   Heart,
   Landmark,
@@ -72,6 +74,10 @@ const TRAVELLER_CAPTIONS: Record<TravellerType, string> = {
   family: 'Family fun — kid-friendly picks first.',
   friends: 'A group getaway — shared adventures.',
 };
+
+const pad2 = (n: number) => String(n).padStart(2, '0');
+const isoOf = (y: number, m: number, d: number) => `${y}-${pad2(m + 1)}-${pad2(d)}`;
+const monthOf = (iso: string) => ({ y: Number(iso.slice(0, 4)), m: Number(iso.slice(5, 7)) - 1 });
 
 const INTERESTS: { id: ActivityCategory; label: string; hint: string; icon: React.ReactNode; grad: string }[] = [
   { id: 'Leisure', label: 'Beach & chill', hint: 'Sun, sand, slow days', icon: <Palmtree className="w-6 h-6" />, grad: 'from-[#22D3EE] to-[#0EA5A4]' },
@@ -352,6 +358,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
   const [aiPickedId, setAiPickedId] = useState<string | null>(null);
   const [buildMsg, setBuildMsg] = useState(0);
   const [hoverId, setHoverId] = useState<string | null>(null);
+  const [view, setView] = useState(() => monthOf(draft.checkIn));
 
   const headingRef = useRef<HTMLHeadingElement>(null);
   const timers = useRef<number[]>([]);
@@ -362,6 +369,10 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
     return () => clearInterval(id);
   }, [reduced, step, query]);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  // keep the calendar on the month of the chosen start date (e.g. after a preset)
+  useEffect(() => {
+    setView(monthOf(draft.checkIn));
+  }, [draft.checkIn]);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     headingRef.current?.focus({ preventScroll: true });
@@ -1112,70 +1123,93 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
               )}
 
               {step === 2 && (
-                <div>
-                  <motion.div
-                    initial="hidden"
-                    animate="show"
-                    className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5"
-                  >
+                <div className="mt-8">
+                  {/* ---- numbered interest index (matches the destination step) ---- */}
+                  <ol className="grid md:grid-cols-2 md:gap-x-12 border-t border-[#1E2022]/10 max-w-4xl">
                     {INTERESTS.map((it, i) => {
                       const selected = draft.interests.includes(it.id);
                       return (
-                        <motion.button
+                        <motion.li
                           key={it.id}
-                          type="button"
-                          custom={i}
-                          variants={cardVariants}
-                          whileHover={reduced ? undefined : { y: -4 }}
-                          whileTap={reduced ? undefined : { scale: 0.96 }}
-                          onClick={() => toggleInterest(it.id)}
-                          aria-pressed={selected}
-                          className={`group relative overflow-hidden flex items-center gap-4 p-4 sm:p-5 rounded-[1.75rem] border text-left cursor-pointer transition-all duration-300 ${
-                            selected
-                              ? 'bg-[#1E2022] border-[#1E2022] text-white shadow-[0_25px_50px_-18px_rgba(30,32,34,0.6)]'
-                              : 'bg-white/80 backdrop-blur border-white text-[#1E2022] shadow-[0_15px_35px_-22px_rgba(30,32,34,0.45)] hover:shadow-[0_25px_50px_-22px_rgba(30,32,34,0.55)]'
-                          }`}
+                          initial={{ opacity: 0, x: reduced ? 0 : -24 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.06, type: 'spring', stiffness: 260, damping: 26 }}
+                          className="border-b border-[#1E2022]/10"
                         >
-                          <span
-                            className={`relative w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 text-white bg-gradient-to-br ${it.grad} shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6`}
+                          <button
+                            type="button"
+                            onClick={() => toggleInterest(it.id)}
+                            aria-pressed={selected}
+                            className="group relative w-full flex items-center gap-4 py-4 sm:py-5 text-left cursor-pointer"
                           >
-                            <AnimatePresence mode="wait" initial={false}>
-                              <motion.span
-                                key={selected ? 'c' : 'i'}
-                                initial={{ scale: 0, rotate: -90 }}
-                                animate={{ scale: 1, rotate: 0 }}
-                                exit={{ scale: 0 }}
-                                transition={{ type: 'spring', stiffness: 420, damping: 20 }}
-                                className="flex"
+                            <span
+                              aria-hidden
+                              className={`absolute inset-y-0 -inset-x-3 rounded-2xl transition-colors duration-300 ${selected ? 'bg-[#F7931E]/10' : 'bg-transparent group-hover:bg-[#1E2022]/[0.04]'}`}
+                            />
+                            <span className="relative w-7 text-sm font-bold tabular-nums text-[#9CA3AF]">{String(i + 1).padStart(2, '0')}</span>
+                            <span
+                              className={`relative w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-white bg-gradient-to-br ${it.grad} shadow-md transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105 ${selected ? 'scale-105' : ''}`}
+                            >
+                              {it.icon}
+                            </span>
+                            <span className="relative flex-1 min-w-0">
+                              <span
+                                className={`block text-xl sm:text-2xl font-extrabold tracking-tight leading-tight transition-all duration-300 ${
+                                  selected ? 'text-saffron-gradient' : 'text-[#1E2022]/85 group-hover:translate-x-1'
+                                }`}
                               >
-                                {selected ? <Check className="w-6 h-6" /> : it.icon}
-                              </motion.span>
-                            </AnimatePresence>
-                          </span>
-                          <span className="relative">
-                            <span className="block text-base font-extrabold">{it.label}</span>
-                            <span className={`block text-xs ${selected ? 'text-white/70' : 'text-[#6B7280]'}`}>{it.hint}</span>
-                          </span>
-                        </motion.button>
+                                {it.label}
+                              </span>
+                              <span className="mt-0.5 block text-xs sm:text-sm text-[#6B7280] truncate">{it.hint}</span>
+                            </span>
+                            <span className="relative shrink-0">
+                              <AnimatePresence mode="wait" initial={false}>
+                                {selected ? (
+                                  <motion.span
+                                    key="on"
+                                    initial={{ scale: 0, rotate: -90 }}
+                                    animate={{ scale: 1, rotate: 0 }}
+                                    exit={{ scale: 0 }}
+                                    transition={{ type: 'spring', stiffness: 420, damping: 16 }}
+                                    className={`flex w-9 h-9 rounded-full ${brandGrad} text-white items-center justify-center shadow-md`}
+                                  >
+                                    <Check className="w-5 h-5" />
+                                  </motion.span>
+                                ) : (
+                                  <motion.span
+                                    key="off"
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    exit={{ scale: 0 }}
+                                    className="flex w-9 h-9 rounded-full border border-[#1E2022]/15 items-center justify-center text-[#1E2022] group-hover:bg-[#1E2022] group-hover:text-white group-hover:border-[#1E2022] transition-colors"
+                                  >
+                                    <Plus className="w-4 h-4" />
+                                  </motion.span>
+                                )}
+                              </AnimatePresence>
+                            </span>
+                          </button>
+                        </motion.li>
                       );
                     })}
-                  </motion.div>
+                  </ol>
 
-                  <div className="mt-6 flex flex-wrap items-center gap-3">
+                  <div className="mt-7 flex flex-wrap items-center gap-3">
                     <button
                       type="button"
                       onClick={letAiCustomise}
-                      className="group relative overflow-hidden inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-[#1E2022] to-[#3a2a22] text-white text-sm font-bold shadow-xl hover:shadow-2xl hover:-translate-y-0.5 cursor-pointer transition-all"
+                      className="group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full border-2 border-dashed border-[#C2571A]/45 bg-[#FFF6EC] hover:bg-[#FFEBD6] text-sm font-bold text-[#1E2022] cursor-pointer transition-colors"
                     >
-                      <Sparkles className="relative w-4 h-4 text-[#FFC94D] group-hover:rotate-12 transition-transform" />
-                      <span className="relative">No idea — let AI customise it for me</span>
+                      <Sparkles className="w-4 h-4 text-[#C2571A] group-hover:rotate-12 group-hover:scale-125 transition-transform" />
+                      No idea — let AI customise it for me
+                      <ArrowRight className="w-4 h-4 text-[#C2571A] group-hover:translate-x-1 transition-transform" />
                     </button>
                     <AnimatePresence>
                       {draft.interests.length > 0 && (
                         <motion.span
-                          initial={{ opacity: 0, scale: 0.8 }}
+                          initial={{ opacity: 0, scale: 0.7 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.8 }}
+                          exit={{ opacity: 0, scale: 0.7 }}
                           className="px-3.5 py-2 rounded-full bg-[#C2571A]/10 text-[#C2571A] text-sm font-bold"
                         >
                           {draft.interests.length} selected
@@ -1187,192 +1221,238 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
               )}
 
               {step === 3 && (
-                <div>
-                  <div className="mt-8 grid lg:grid-cols-2 gap-5">
-                    {/* Start date */}
-                    <div className="relative overflow-hidden p-6 rounded-[2rem] bg-white/80 backdrop-blur border border-white shadow-[0_15px_35px_-20px_rgba(30,32,34,0.4)]">
-                      <label htmlFor="wiz-start" className="flex items-center gap-2 text-sm font-extrabold text-[#1E2022]">
-                        <span className={`w-7 h-7 rounded-lg ${brandGrad} text-white flex items-center justify-center`}>
-                          <Calendar className="w-4 h-4" />
-                        </span>
-                        Starting on
-                      </label>
-
-                      <div className="mt-4 flex items-center gap-4">
-                        <div className="w-20 rounded-2xl overflow-hidden shadow-lg border border-[#1E2022]/8 shrink-0 text-center bg-white">
-                          <div className={`${brandGrad} text-white text-[11px] font-extrabold uppercase tracking-widest py-1`}>{startMonth}</div>
-                          <div className="relative h-12 overflow-hidden">
-                            <AnimatePresence mode="popLayout" initial={false}>
-                              <motion.div
-                                key={draft.checkIn}
-                                initial={{ y: 24, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                exit={{ y: -24, opacity: 0 }}
-                                transition={{ duration: 0.25 }}
-                                className="absolute inset-0 text-3xl font-extrabold leading-[3rem] text-[#1E2022]"
+                <div className="mt-8 grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] gap-5 sm:gap-6 items-start">
+                  {/* ---- calendar with the trip range painted on ---- */}
+                  {(() => {
+                    const today = todayISO();
+                    const lead = new Date(view.y, view.m, 1).getDay();
+                    const count = new Date(view.y, view.m + 1, 0).getDate();
+                    const title = new Date(view.y, view.m, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                    const atCurrent = view.y === monthOf(today).y && view.m === monthOf(today).m;
+                    const shift = (delta: number) =>
+                      setView((v) => {
+                        const d = new Date(v.y, v.m + delta, 1);
+                        return { y: d.getFullYear(), m: d.getMonth() };
+                      });
+                    return (
+                      <div className="rounded-[2rem] bg-white border border-[#1E2022]/8 shadow-[0_20px_45px_-25px_rgba(30,32,34,0.45)] p-5 sm:p-7">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#C2571A]">Start date</p>
+                            <AnimatePresence mode="wait" initial={false}>
+                              <motion.h2
+                                key={title}
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -8 }}
+                                transition={{ duration: 0.15 }}
+                                className="mt-0.5 text-xl font-extrabold text-[#1E2022]"
                               >
-                                {startDay}
-                              </motion.div>
+                                {title}
+                              </motion.h2>
                             </AnimatePresence>
                           </div>
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-lg font-extrabold text-[#1E2022]">{startWeekday}</p>
-                          <p className="text-xs text-[#6B7280]">Tap the field to pick another day</p>
-                        </div>
-                      </div>
-
-                      <input
-                        id="wiz-start"
-                        type="date"
-                        min={todayISO()}
-                        value={draft.checkIn}
-                        onChange={(e) => setStart(e.target.value)}
-                        className="mt-4 w-full px-4 py-3 text-base font-semibold rounded-2xl bg-[#FAF8F5] border border-[#1E2022]/10 focus:outline-none focus:ring-2 focus:ring-[#F7931E]/50 focus:border-[#F7931E] cursor-pointer transition"
-                      />
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {START_PRESETS.map((p) => {
-                          const iso = addDaysISO(todayISO(), p.days);
-                          const on = draft.checkIn === iso;
-                          return (
-                            <button
-                              key={p.label}
-                              type="button"
-                              onClick={() => setStart(iso)}
-                              aria-pressed={on}
-                              className={`px-4 py-2 rounded-full text-xs font-bold cursor-pointer transition-all ${
-                                on
-                                  ? `${brandGrad} text-white shadow-md scale-105`
-                                  : 'bg-[#1E2022]/6 hover:bg-[#1E2022]/12 hover:scale-105'
-                              }`}
-                            >
-                              {p.label}
+                          <div className="flex gap-2">
+                            <button type="button" onClick={() => shift(-1)} disabled={atCurrent} aria-label="Previous month" className={stepperBtn}>
+                              <ChevronLeft className="w-4 h-4" />
                             </button>
-                          );
-                        })}
-                      </div>
-                    </div>
+                            <button type="button" onClick={() => shift(1)} aria-label="Next month" className={stepperBtn}>
+                              <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
 
-                    {/* Nights */}
-                    <div className="relative overflow-hidden p-6 rounded-[2rem] bg-[#1E2022] text-white shadow-[0_25px_50px_-20px_rgba(30,32,34,0.6)]">
-                      <p className="relative text-sm font-extrabold">How many nights?</p>
-                      <div className="relative mt-4 flex items-center justify-between gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setNights(nights - 1)}
-                          disabled={nights <= 1}
-                          className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center active:scale-90 disabled:opacity-30 cursor-pointer transition-all"
-                          aria-label="Fewer nights"
-                        >
-                          <Minus className="w-5 h-5" />
-                        </button>
-                        <div className="text-center">
-                          <div className="relative h-16 w-24 overflow-hidden">
+                        <div className="mt-5 grid grid-cols-7 text-center text-[11px] font-bold uppercase tracking-wider text-[#9CA3AF]">
+                          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((w, i) => (
+                            <span key={i}>{w}</span>
+                          ))}
+                        </div>
+                        <AnimatePresence mode="wait" initial={false}>
+                          <motion.div
+                            key={title}
+                            initial={{ opacity: 0, x: reduced ? 0 : 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: reduced ? 0 : -20 }}
+                            transition={{ duration: 0.18 }}
+                            className="mt-2 grid grid-cols-7 gap-y-1"
+                          >
+                            {Array.from({ length: lead }).map((_, i) => (
+                              <span key={`b${i}`} />
+                            ))}
+                            {Array.from({ length: count }).map((_, i) => {
+                              const day = i + 1;
+                              const iso = isoOf(view.y, view.m, day);
+                              const past = iso < today;
+                              const isStart = iso === draft.checkIn;
+                              const isEnd = iso === draft.checkOut;
+                              const between = iso > draft.checkIn && iso < draft.checkOut;
+                              return (
+                                <div
+                                  key={iso}
+                                  className={`flex justify-center ${between ? 'bg-[#F7931E]/12' : ''} ${isStart ? 'bg-gradient-to-r from-transparent to-[#F7931E]/12' : ''} ${
+                                    isEnd ? 'bg-gradient-to-l from-transparent to-[#F7931E]/12' : ''
+                                  }`}
+                                >
+                                  <button
+                                    type="button"
+                                    disabled={past}
+                                    onClick={() => setStart(iso)}
+                                    aria-label={formatDate(iso)}
+                                    aria-pressed={isStart}
+                                    className={`w-10 h-10 rounded-full text-sm font-semibold flex items-center justify-center transition cursor-pointer disabled:cursor-not-allowed ${
+                                      isStart
+                                        ? `${brandGrad} text-white font-extrabold shadow-[0_8px_18px_-6px_rgba(229,80,26,0.7)]`
+                                        : isEnd
+                                        ? 'bg-[#1E2022] text-white font-extrabold'
+                                        : past
+                                        ? 'text-[#1E2022]/20'
+                                        : 'text-[#1E2022] hover:bg-[#1E2022]/8'
+                                    }`}
+                                  >
+                                    {day}
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </motion.div>
+                        </AnimatePresence>
+
+                        <div className="mt-5 flex flex-wrap gap-2">
+                          {START_PRESETS.map((p) => {
+                            const iso = addDaysISO(today, p.days);
+                            const on = draft.checkIn === iso;
+                            return (
+                              <button
+                                key={p.label}
+                                type="button"
+                                onClick={() => setStart(iso)}
+                                aria-pressed={on}
+                                className={`px-4 py-2 rounded-full text-xs font-bold cursor-pointer transition ${on ? 'bg-[#1E2022] text-white' : 'bg-[#1E2022]/6 hover:bg-[#1E2022]/12'}`}
+                              >
+                                {p.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  <div className="flex flex-col gap-5 sm:gap-6">
+                    {/* nights */}
+                    <div className="rounded-[2rem] bg-white border border-[#1E2022]/8 shadow-[0_20px_45px_-25px_rgba(30,32,34,0.45)] p-6 sm:p-7">
+                      <label htmlFor="wiz-nights" className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#C2571A]">
+                        How many nights?
+                      </label>
+                      <div className="mt-2 flex items-end justify-between gap-4">
+                        <p className="flex items-baseline gap-2">
+                          <span className="relative inline-flex h-[4.5rem] min-w-[4.5rem] overflow-hidden">
                             <AnimatePresence mode="popLayout" initial={false}>
                               <motion.span
                                 key={nights}
-                                initial={{ y: 40, opacity: 0 }}
+                                initial={{ y: '80%', opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
-                                exit={{ y: -40, opacity: 0 }}
-                                transition={{ type: 'spring', stiffness: 350, damping: 26 }}
-                                className="absolute inset-0 text-6xl font-extrabold tabular-nums leading-[4rem] text-saffron-gradient"
+                                exit={{ y: '-80%', opacity: 0 }}
+                                transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                                className="text-7xl font-extrabold leading-[4.5rem] tabular-nums text-saffron-gradient"
                               >
                                 {nights}
                               </motion.span>
                             </AnimatePresence>
-                          </div>
-                          <p className="text-xs font-bold uppercase tracking-widest text-white/60">{nights === 1 ? 'night' : 'nights'}</p>
+                          </span>
+                          <span className="text-sm font-semibold text-[#6B7280]">{nights === 1 ? 'night' : 'nights'}</span>
+                        </p>
+                        <div className="flex gap-2 pb-2">
+                          <button type="button" onClick={() => setNights(nights - 1)} disabled={nights <= 1} className={stepperBtn} aria-label="Fewer nights">
+                            <Minus className="w-4 h-4" />
+                          </button>
+                          <button type="button" onClick={() => setNights(nights + 1)} disabled={nights >= MAX_TRIP_DAYS - 1} className={stepperBtn} aria-label="More nights">
+                            <Plus className="w-4 h-4" />
+                          </button>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => setNights(nights + 1)}
-                          disabled={nights >= MAX_TRIP_DAYS - 1}
-                          className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center active:scale-90 disabled:opacity-30 cursor-pointer transition-all"
-                          aria-label="More nights"
-                        >
-                          <Plus className="w-5 h-5" />
-                        </button>
                       </div>
-
-                      <div className="relative mt-5 flex items-center gap-1" aria-hidden>
-                        {Array.from({ length: Math.min(MAX_TRIP_DAYS - 1, 14) }).map((_, k) => (
-                          <motion.span
-                            key={k}
-                            animate={{ opacity: k < nights ? 1 : 0.2, scaleY: k < nights ? 1 : 0.6 }}
-                            transition={{ delay: reduced ? 0 : k * 0.015 }}
-                            className="flex-1 h-2 rounded-full bg-gradient-to-r from-[#FFC94D] to-[#E5501A]"
-                          />
-                        ))}
-                      </div>
-
-                      <div className="relative mt-5 flex flex-wrap gap-2">
+                      <input
+                        id="wiz-nights"
+                        type="range"
+                        min={1}
+                        max={MAX_TRIP_DAYS - 1}
+                        value={nights}
+                        onChange={(e) => setNights(Number(e.target.value))}
+                        className="mt-3 w-full accent-[#E5501A] cursor-pointer"
+                      />
+                      <div className="mt-3 flex flex-wrap gap-2">
                         {NIGHT_PRESETS.map((n) => (
                           <button
                             key={n}
                             type="button"
                             onClick={() => setNights(n)}
                             aria-pressed={nights === n}
-                            className={`px-4 py-2 rounded-full text-xs font-bold cursor-pointer transition-all ${
-                              nights === n ? 'bg-white text-[#1E2022] scale-105 shadow-md' : 'bg-white/10 hover:bg-white/20 hover:scale-105'
-                            }`}
+                            className={`px-4 py-2 rounded-full text-xs font-bold cursor-pointer transition ${nights === n ? 'bg-[#1E2022] text-white' : 'bg-[#1E2022]/6 hover:bg-[#1E2022]/12'}`}
                           >
                             {n} nights
                           </button>
                         ))}
                       </div>
                     </div>
-                  </div>
 
-                  {/* Route summary */}
-                  <div className="mt-5 flex items-center gap-4 p-5 rounded-[1.75rem] bg-white/80 backdrop-blur border border-white shadow-[0_15px_35px_-22px_rgba(30,32,34,0.4)]">
-                    <div className="text-left">
-                      <p className="text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">Depart</p>
-                      <p className="text-sm sm:text-base font-extrabold text-[#1E2022]">{formatDate(draft.checkIn)}</p>
+                    {/* boarding pass */}
+                    <div className="relative rounded-[2rem] bg-gradient-to-br from-[#1E2022] to-[#3a2a22] text-white p-6 sm:p-7 shadow-[0_28px_60px_-24px_rgba(30,32,34,0.7)] overflow-hidden">
+                      <span aria-hidden className="absolute -left-3 top-[58%] w-6 h-6 rounded-full bg-[#FBF7F2]" />
+                      <span aria-hidden className="absolute -right-3 top-[58%] w-6 h-6 rounded-full bg-[#FBF7F2]" />
+                      <div className="flex items-center gap-3">
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Depart</p>
+                          <p className="text-lg font-extrabold leading-tight">{formatDate(draft.checkIn)}</p>
+                          <p className="text-xs text-white/60">{startWeekday}</p>
+                        </div>
+                        <div className="relative flex-1 h-8 flex items-center" aria-hidden>
+                          <span className="absolute inset-x-0 top-1/2 border-t-2 border-dashed border-white/25" />
+                          <motion.span
+                            className="absolute text-[#FFC94D]"
+                            animate={reduced ? { left: '45%' } : { left: ['0%', '85%'] }}
+                            transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut', repeatType: 'reverse' }}
+                          >
+                            <Plane className="w-5 h-5" />
+                          </motion.span>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Return</p>
+                          <p className="text-lg font-extrabold leading-tight">{formatDate(draft.checkOut)}</p>
+                          <p className="text-xs text-white/60">{nights + 1} days</p>
+                        </div>
+                      </div>
+                      <div className="mt-6 pt-5 border-t-2 border-dashed border-white/15 flex items-center justify-between gap-3">
+                        <p className="flex items-center gap-2 text-sm font-bold">
+                          <MapPin className="w-4 h-4 text-[#FFC94D]" />
+                          {dest ? `${dest.name}, ${dest.country}` : 'AI picks your destination'}
+                        </p>
+                        <p className="text-xs font-semibold text-white/60">
+                          {totalTravellers} traveller{totalTravellers === 1 ? '' : 's'}
+                        </p>
+                      </div>
                     </div>
-                    <div className="relative flex-1 h-8 flex items-center" aria-hidden>
-                      <span className="absolute inset-x-0 top-1/2 border-t-2 border-dashed border-[#1E2022]/20" />
-                      <motion.span
-                        className="absolute text-[#C2571A]"
-                        animate={reduced ? { left: '45%' } : { left: ['0%', '92%'] }}
-                        transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-                      >
-                        <Plane className="w-5 h-5" />
-                      </motion.span>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">Return · {nights + 1} days</p>
-                      <p className="text-sm sm:text-base font-extrabold text-[#1E2022]">{formatDate(draft.checkOut)}</p>
-                    </div>
-                  </div>
 
-                  <label
-                    className={`group mt-5 flex items-start gap-4 p-5 rounded-[1.75rem] border cursor-pointer transition-all ${
-                      draft.aiPlan
-                        ? 'bg-gradient-to-r from-[#FFF4E0] to-[#FFE3D2] border-[#F7931E]/50 shadow-md'
-                        : 'bg-white/80 backdrop-blur border-white hover:border-[#C2571A]/40 shadow-sm'
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={draft.aiPlan}
-                      onChange={(e) => patch({ aiPlan: e.target.checked })}
-                      className="sr-only"
-                    />
-                    <span
-                      className={`mt-0.5 w-12 h-7 rounded-full p-1 flex shrink-0 transition-colors ${draft.aiPlan ? 'bg-[#E5501A] justify-end' : 'bg-[#1E2022]/15 justify-start'}`}
-                      aria-hidden
+                    {/* AI toggle */}
+                    <label
+                      className={`flex items-start gap-4 p-5 rounded-[1.75rem] border cursor-pointer transition-all ${
+                        draft.aiPlan ? 'bg-gradient-to-r from-[#FFF4E0] to-[#FFE3D2] border-[#F7931E]/50 shadow-md' : 'bg-white border-[#1E2022]/8 hover:border-[#C2571A]/40 shadow-sm'
+                      }`}
                     >
-                      <motion.span layout transition={{ type: 'spring', stiffness: 500, damping: 30 }} className="w-5 h-5 rounded-full bg-white shadow" />
-                    </span>
-                    <span>
-                      <span className="flex items-center gap-1.5 text-sm font-extrabold text-[#1E2022]">
-                        <Sparkles className="w-4 h-4 text-[#C2571A]" /> Pre-fill my days with AI picks
+                      <input type="checkbox" checked={draft.aiPlan} onChange={(e) => patch({ aiPlan: e.target.checked })} className="sr-only peer" />
+                      <span
+                        aria-hidden
+                        className={`mt-0.5 w-12 h-7 rounded-full p-1 flex shrink-0 transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-[#F7931E] ${draft.aiPlan ? 'bg-[#E5501A] justify-end' : 'bg-[#1E2022]/15 justify-start'}`}
+                      >
+                        <motion.span layout transition={{ type: 'spring', stiffness: 500, damping: 30 }} className="w-5 h-5 rounded-full bg-white shadow" />
                       </span>
-                      <span className="block mt-0.5 text-xs text-[#6B7280]">
-                        Start with a suggested plan, then swap anything on the next page.
+                      <span>
+                        <span className="flex items-center gap-1.5 text-sm font-extrabold text-[#1E2022]">
+                          <Sparkles className="w-4 h-4 text-[#C2571A]" /> Pre-fill my days with AI picks
+                        </span>
+                        <span className="block mt-0.5 text-xs text-[#6B7280]">Start with a suggested plan, then swap anything on the next page.</span>
                       </span>
-                    </span>
-                  </label>
+                    </label>
+                  </div>
                 </div>
               )}
             </motion.div>
