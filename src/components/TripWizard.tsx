@@ -52,7 +52,6 @@ interface TripWizardProps {
 }
 
 const STEP_LABELS = ['Where', 'Who', 'Interests', 'When'];
-const STEP_ICONS = [MapPin, Users, Heart, Calendar];
 
 const TRAVELLER_TYPES: {
   id: TravellerType;
@@ -405,8 +404,6 @@ const q = query.trim().toLowerCase();  const matches = q    ? PLANNER_DESTINATIO
   }
 
   const copy = STEP_COPY[step];
-  // The plane flies along the connector between the two steps we just moved across
-  const flightSeg = direction > 0 ? step - 1 : step;
 
   const heading = (
     <div className="flex items-end justify-between gap-4">
@@ -442,59 +439,39 @@ const q = query.trim().toLowerCase();  const matches = q    ? PLANNER_DESTINATIO
             <span className="hidden sm:inline">{step === 0 ? 'Home' : 'Back'}</span>
           </button>
 
-          <nav
-            aria-label="Trip setup progress"
-            className="justify-self-center rounded-full bg-white border border-[#1E2022]/10 shadow-sm p-1.5"
-          >
+          <nav aria-label="Trip setup progress" className="justify-self-center flex items-center gap-3 sm:gap-4">
+            <span className="text-sm font-bold tabular-nums tracking-wide text-[#1E2022]">
+              {String(step + 1).padStart(2, '0')} / {String(STEP_LABELS.length).padStart(2, '0')}
+            </span>
             <ol className="flex items-center">
               {STEP_LABELS.map((label, i) => {
-                const Icon = STEP_ICONS[i];
                 const done = i < step;
                 const active = i === step;
                 return (
                   <React.Fragment key={label}>
                     <li aria-current={active ? 'step' : undefined}>
-                      <motion.button
-                        layout
+                      <button
                         type="button"
                         disabled={i > maxStep}
                         onClick={() => goTo(i)}
                         aria-label={label}
-                        transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-                        className={`h-9 rounded-full flex items-center justify-center gap-1.5 text-xs font-bold cursor-pointer disabled:cursor-default ${
-                          active
-                            ? 'bg-[#1E2022] text-white px-3.5'
-                            : done
-                            ? `${brandGrad} text-white w-9`
-                            : 'bg-[#1E2022]/5 text-[#9CA3AF] w-9'
-                        }`}
+                        title={label}
+                        className="p-1.5 -m-1.5 cursor-pointer disabled:cursor-default"
                       >
-                        {done ? <Check className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
-                        {active && <span>{label}</span>}
-                      </motion.button>
+                        <motion.span
+                          className={`block rounded-full transition-colors ${
+                            active ? 'bg-[#1E2022]' : done ? 'bg-[#1E2022]/45' : 'bg-[#1E2022]/15'
+                          }`}
+                          animate={{ width: active ? 10 : 7, height: active ? 10 : 7 }}
+                          transition={{ duration: reduced ? 0 : 0.25 }}
+                        />
+                      </button>
                     </li>
                     {i < STEP_LABELS.length - 1 && (
-                      <span className="relative w-4 sm:w-7 h-[3px] mx-1 rounded-full bg-[#1E2022]/10" aria-hidden>
-                        <motion.span
-                          className={`absolute inset-0 rounded-full ${brandGrad}`}
-                          style={{ originX: 0 }}
-                          initial={false}
-                          animate={{ scaleX: i < step ? 1 : 0 }}
-                          transition={{ duration: reduced ? 0 : 0.6 }}
-                        />
-                        {i === flightSeg && !reduced && (
-                          <motion.span
-                            key={step}
-                            className="absolute top-1/2 text-[#E5501A]"
-                            style={{ x: '-50%', y: '-50%', scaleX: direction < 0 ? -1 : 1 }}
-                            initial={{ left: direction > 0 ? '0%' : '100%', opacity: 0 }}
-                            animate={{ left: direction > 0 ? '100%' : '0%', opacity: [0, 1, 1, 0] }}
-                            transition={{ duration: 0.8, ease: 'easeInOut' }}
-                          >
-                            <Plane className="w-4 h-4 fill-current" />
-                          </motion.span>
-                        )}
-                      </span>
+                      <span
+                        aria-hidden
+                        className={`h-px w-6 sm:w-9 ${done ? 'bg-[#1E2022]/35' : 'bg-[#1E2022]/12'}`}
+                      />
                     )}
                   </React.Fragment>
                 );
