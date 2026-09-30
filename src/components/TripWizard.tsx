@@ -11,8 +11,6 @@ import {
   Calendar,
   Camera,
   Check,
-  ChevronLeft,
-  ChevronRight,
   Flower2,
   Heart,
   Landmark,
@@ -90,13 +88,31 @@ const BUILD_MESSAGES = [
 ];
 
 const STEP_COPY = [
-  { pre: 'Where do you want', em: 'to go?', sub: 'Tap a place to add it to your trip.' },
+  { pre: 'Where are you', em: 'going?', sub: 'Tell us your dream destination and we’ll craft the perfect trip for you.' },
   { pre: 'Who’s', em: 'travelling?', sub: 'One tap — you can fine-tune the numbers below.' },
   { pre: 'What are you', em: 'into?', sub: 'Pick as many as you like. We’ll show these first.' },
   { pre: 'When and', em: 'for how long?', sub: 'We’ve pre-filled a sensible plan — change anything you like.' },
 ];
 
-const tagline = (id: string) => SIGNATURE_DESTINATIONS.find((d) => d.id === id)?.tagline ?? '';
+const MOODS: { label: string; keys: string[] }[] = [
+  { label: 'All', keys: [] },
+  { label: 'Beach', keys: ['beach', 'overwater'] },
+  { label: 'Mountains', keys: ['mountain', 'snow'] },
+  { label: 'City', keys: ['city', 'skyline'] },
+  { label: 'Romance', keys: ['romance', 'calm'] },
+  { label: 'Adventure', keys: ['adventure'] },
+];
+
+const DEST_TAGS: Record<string, string> = {
+  bali: 'Culture • Beaches • Adventure',
+  maldives: 'Overwater • Romance • Calm',
+  dubai: 'City • Shopping • Luxury',
+  manali: 'Mountains • Snow • Adventure',
+  goa: 'Beach • Party • Food',
+  singapore: 'Skyline • Food • Family',
+};
+
+const tagline = (id: string) => DEST_TAGS[id] ?? SIGNATURE_DESTINATIONS.find((d) => d.id === id)?.tagline ?? '';
 
 const brandGrad = 'bg-gradient-to-r from-[#F7931E] via-[#E5501A] to-[#C2571A]';
 
@@ -129,88 +145,182 @@ const Aurora: React.FC<{ reduced: boolean | null }> = ({ reduced }) => (
   </div>
 );
 
-/** Destination photo card */
-const DestCard: React.FC<{
-  index: number;
-  reduced: boolean | null;
-  selected: boolean;
-  dimmed: boolean;
-  name: string;
-  country: string;
-  image: string;
-  tagline: string;
-  onPick: (el: HTMLElement) => void;
-}> = ({ index, reduced, selected, dimmed, name, country, image, tagline: tag, onPick }) => {
+
+type SceneTheme = 'snow' | 'sea' | 'city' | 'sky';
+
+const sceneThemeOf = (tag: string): SceneTheme => {
+  const t = tag.toLowerCase();
+  if (t.includes('snow') || t.includes('mountain')) return 'snow';
+  if (t.includes('overwater') || t.includes('beach')) return 'sea';
+  if (t.includes('city') || t.includes('skyline')) return 'city';
+  return 'sky';
+};
+
+const SCENE_GLOW: Record<SceneTheme, [string, string]> = {
+  snow: ['rgba(253,164,175,0.10)', 'rgba(254,215,170,0.14)'],
+  sea: ['rgba(253,186,116,0.14)', 'rgba(252,165,165,0.09)'],
+  city: ['rgba(251,191,36,0.12)', 'rgba(244,114,182,0.07)'],
+  sky: ['rgba(255,201,77,0.13)', 'rgba(251,146,60,0.08)'],
+};
+
+// deterministic "random" so particles do not jump between renders
+const pr = (i: number, k: number) => ((i * 9301 + k * 49297) % 233280) / 233280;
+const CITY_BARS = [38, 62, 46, 84, 56, 100, 70, 48, 92, 60, 76, 42, 88, 54, 66, 96, 50, 72];
+
+/** Ambient, destination-themed scenery that fills the empty page space and changes with the place you hover or pick */
+const DestinationScene: React.FC<{ dest?: { id: string; name: string }; mark?: { id: string; name: string }; reduced: boolean | null }> = ({ dest, mark, reduced }) => {
+  const theme = dest ? sceneThemeOf(tagline(dest.id)) : 'sky';
+  const [g1, g2] = SCENE_GLOW[theme];
+  const still = Boolean(reduced);
 
   return (
-    <motion.button
-      type="button"
-      custom={index}
-      variants={cardVariants}
-      initial="hidden"
-      animate="show"
-      exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.15 } }}
-      layout
-      onClick={(e) => onPick(e.currentTarget)}
-      whileHover={reduced ? undefined : { y: -12, scale: 1.02 }}
-      whileTap={reduced ? undefined : { scale: 0.98 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-      aria-pressed={selected}
-      className={`group relative flex-none w-[calc((100%-1.25rem)/1.4)] sm:w-[calc((100%-1.25rem)/1.6)] md:w-[calc((100%-2.5rem)/2.5)] lg:w-[calc((100%-3.75rem)/3.5)] snap-start aspect-[3/4] rounded-[2rem] overflow-hidden text-left bg-[#EAE6DF] cursor-pointer transition-shadow duration-300 ${
-        selected
-          ? 'ring-[3px] ring-[#F7931E] shadow-[0_25px_60px_-15px_rgba(229,80,26,0.55)]'
-          : 'shadow-[0_18px_40px_-20px_rgba(30,32,34,0.45)] hover:shadow-[0_30px_60px_-20px_rgba(30,32,34,0.6)]'
-      } ${dimmed ? 'opacity-60' : ''}`}
-    >
-      <img
-        src={image}
-        alt={`${name}, ${country}`}
-        referrerPolicy="no-referrer"
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-110"
+    <div className="pointer-events-none absolute inset-0 overflow-hidden z-0" aria-hidden>
+      {/* tinted light that shifts colour with the place */}
+      <motion.div
+        className="absolute -top-32 -left-32 w-[34rem] h-[34rem] rounded-full blur-3xl"
+        animate={{ backgroundColor: g1, ...(still ? {} : { x: [0, 70, 0], y: [0, 50, 0] }) }}
+        transition={{ backgroundColor: { duration: 1 }, x: { duration: 16, repeat: Infinity, ease: 'easeInOut' }, y: { duration: 16, repeat: Infinity, ease: 'easeInOut' } }}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-black/5" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#E5501A]/50 via-[#F7931E]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <motion.div
+        className="absolute top-1/3 -right-40 w-[36rem] h-[36rem] rounded-full blur-3xl"
+        animate={{ backgroundColor: g2, ...(still ? {} : { x: [0, -80, 0], y: [0, 70, 0] }) }}
+        transition={{ backgroundColor: { duration: 1 }, x: { duration: 19, repeat: Infinity, ease: 'easeInOut' }, y: { duration: 19, repeat: Infinity, ease: 'easeInOut' } }}
+      />
 
-      <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 group-hover:bg-white group-hover:text-[#1E2022] transition-all duration-300 text-[11px] font-bold uppercase tracking-wider text-white">
-        <MapPin className="w-3 h-3 text-[#FFC94D]" /> {country}
-      </span>
-
-      <div className="absolute bottom-0 left-0 right-0 p-5 text-white transition-transform duration-500 ease-out group-hover:-translate-y-1">
-        <h3 className="text-[1.7rem] font-extrabold leading-tight tracking-tight drop-shadow">{name}</h3>
-        <p className="mt-1 text-xs text-white/80 line-clamp-2">{tag}</p>
-        <span
-          className={`mt-4 inline-flex items-center gap-2 pl-2 pr-4 py-1.5 rounded-full text-sm font-bold transition-all duration-300 ${
-            selected
-              ? `${brandGrad} text-white shadow-lg`
-              : 'bg-white/15 backdrop-blur-md border border-white/30 text-white group-hover:bg-white group-hover:border-white group-hover:text-[#C2571A] group-hover:pr-3'
-          }`}
-        >
-          <span
-            className={`w-6 h-6 rounded-full flex items-center justify-center ${
-              selected ? 'bg-white/25' : 'bg-[#F7931E] text-white'
-            }`}
-          >
-            {selected ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180" />}
-          </span>
-          {selected ? 'Added' : 'Add to my trip'}
-          {!selected && <ArrowRight className="h-4 -ml-1 w-0 opacity-0 group-hover:w-4 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-300" />}
-        </span>
-      </div>
-
-      <AnimatePresence>
-        {selected && (
+      {/* giant outlined place name */}
+      <AnimatePresence mode="popLayout">
+        {mark && (
           <motion.span
-            initial={{ scale: 0, rotate: -90 }}
-            animate={{ scale: 1, rotate: 0 }}
-            exit={{ scale: 0 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-            className={`absolute top-4 right-4 w-9 h-9 rounded-full ${brandGrad} text-white flex items-center justify-center shadow-lg ring-4 ring-white/30`}
+            key={mark.id}
+            initial={{ opacity: 0, y: 70, filter: 'blur(8px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, y: -70, filter: 'blur(8px)' }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute right-3 sm:right-8 top-28 sm:top-24 text-[22vw] sm:text-[12vw] font-black leading-none tracking-tighter whitespace-nowrap select-none text-transparent"
+            style={{ WebkitTextStroke: '2px rgba(194,87,26,0.08)' }}
           >
-            <Check className="w-5 h-5" />
+            {mark.name}
           </motion.span>
         )}
       </AnimatePresence>
-    </motion.button>
+
+      {/* drifting clouds */}
+      {!still &&
+        [0, 1, 2].map((i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full bg-orange-50/80 blur-xl"
+            style={{ top: `${14 + i * 24}%`, width: 120 + i * 60, height: 34 + i * 10 }}
+            initial={{ left: '-25%' }}
+            animate={{ left: '110%' }}
+            transition={{ duration: 34 + i * 12, repeat: Infinity, ease: 'linear', delay: -i * 14 }}
+          />
+        ))}
+
+      {/* a plane crossing the page */}
+      {!still && (
+        <motion.div
+          className="absolute top-0 left-0 text-[#C2571A]/35"
+          initial={{ x: '-10vw', y: '34vh', rotate: 38 }}
+          animate={{ x: '108vw', y: ['34vh', '12vh', '30vh', '18vh'], rotate: [38, 58, 40, 52] }}
+          transition={{ duration: 26, repeat: Infinity, ease: 'linear', repeatDelay: 3 }}
+        >
+          <Plane className="w-9 h-9" strokeWidth={1.4} />
+        </motion.div>
+      )}
+
+      {/* weather / mood particles + skyline, per destination type */}
+      <AnimatePresence mode="wait">
+        <motion.div key={theme} className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }}>
+          {Array.from({ length: 18 }).map((_, i) => {
+            const left = `${pr(i, 1) * 100}%`;
+            const size = 4 + pr(i, 2) * 8;
+            const dur = 7 + pr(i, 3) * 8;
+            const delay = -pr(i, 4) * dur;
+            if (still) return null;
+            if (theme === 'snow')
+              return (
+                <motion.span
+                  key={i}
+                  className="absolute rounded-full bg-[#FDBA74]/30"
+                  style={{ left, width: size, height: size, top: 0 }}
+                  animate={{ y: ['-5vh', '105vh'], x: [0, 24, -18, 10] }}
+                  transition={{ duration: dur + 4, repeat: Infinity, ease: 'linear', delay }}
+                />
+              );
+            if (theme === 'sea')
+              return (
+                <motion.span
+                  key={i}
+                  className="absolute rounded-full border border-[#FB923C]/20 bg-[#FB923C]/[0.04]"
+                  style={{ left, width: size * 2, height: size * 2, bottom: 0 }}
+                  animate={{ y: ['0vh', '-95vh'], opacity: [0, 0.9, 0], scale: [0.6, 1.2] }}
+                  transition={{ duration: dur, repeat: Infinity, ease: 'easeOut', delay }}
+                />
+              );
+            if (theme === 'city')
+              return (
+                <motion.span
+                  key={i}
+                  className="absolute rounded-full bg-[#F59E0B]/60"
+                  style={{ left, top: `${pr(i, 5) * 80}%`, width: size / 2 + 2, height: size / 2 + 2, boxShadow: '0 0 10px 2px rgba(245,158,11,0.25)' }}
+                  animate={{ opacity: [0.15, 1, 0.15], scale: [0.8, 1.3, 0.8] }}
+                  transition={{ duration: 2 + pr(i, 6) * 3, repeat: Infinity, ease: 'easeInOut', delay }}
+                />
+              );
+            return (
+              <motion.span
+                key={i}
+                className="absolute text-[#F7931E]/35"
+                style={{ left, bottom: 0 }}
+                animate={{ y: ['0vh', '-90vh'], opacity: [0, 1, 0], rotate: [0, 180] }}
+                transition={{ duration: dur + 3, repeat: Infinity, ease: 'easeOut', delay }}
+              >
+                <Sparkles style={{ width: size + 6, height: size + 6 }} />
+              </motion.span>
+            );
+          })}
+
+          {/* scenery along the bottom edge */}
+          {theme === 'sea' && (
+            <div className="absolute inset-x-0 bottom-0 h-28 overflow-hidden">
+              {[0, 1].map((k) => (
+                <motion.svg
+                  key={k}
+                  viewBox="0 0 800 80"
+                  preserveAspectRatio="none"
+                  className="absolute bottom-0 h-full w-[200%]"
+                  style={{ opacity: k ? 0.07 : 0.11, bottom: k ? 6 : 0 }}
+                  animate={still ? undefined : { x: k ? ['-50%', '0%'] : ['0%', '-50%'] }}
+                  transition={{ duration: k ? 16 : 11, repeat: Infinity, ease: 'linear' }}
+                >
+                  <path d="M0 40 Q 100 4 200 40 T 400 40 T 600 40 T 800 40 V80 H0Z" fill="#FDBA74" />
+                </motion.svg>
+              ))}
+            </div>
+          )}
+          {theme === 'snow' && (
+            <svg viewBox="0 0 800 120" preserveAspectRatio="none" className="absolute inset-x-0 bottom-0 w-full h-40">
+              <path d="M0 120 L90 50 L150 85 L260 10 L370 95 L450 40 L560 100 L650 30 L800 120Z" fill="#FDBA74" fillOpacity="0.1" />
+              <path d="M0 120 L120 75 L220 105 L330 55 L470 110 L590 70 L700 108 L800 80 V120Z" fill="#F9A8D4" fillOpacity="0.07" />
+            </svg>
+          )}
+          {theme === 'city' && (
+            <div className="absolute inset-x-0 bottom-0 h-40 flex items-end gap-1 px-2">
+              {CITY_BARS.map((h, i) => (
+                <motion.span
+                  key={i}
+                  className="flex-1 rounded-t-sm bg-gradient-to-t from-[#F59E0B]/10 to-[#F472B6]/[0.04]"
+                  initial={{ height: 0 }}
+                  animate={{ height: `${h}%` }}
+                  transition={{ delay: i * 0.03, type: 'spring', stiffness: 90, damping: 16 }}
+                />
+              ))}
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </div>
   );
 };
 
@@ -219,33 +329,37 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
 
   // Defaults keep the last step to a single tap: a date a month out, five nights
   const [draft, setDraft] = useState<TripDraft>(() => {
-    if (initialDraft.checkIn && initialDraft.checkOut) return initialDraft;
+    // Opening at "Where" means nothing is chosen yet, so do not carry over an old pick
+    const base = initialStep === 0 ? { ...initialDraft, destinationId: '', aiDestination: false } : initialDraft;
+    if (base.checkIn && base.checkOut) return base;
     const start = addDaysISO(todayISO(), 30);
-    return { ...initialDraft, checkIn: start, checkOut: addDaysISO(start, 5) };
+    return { ...base, checkIn: start, checkOut: addDaysISO(start, 5) };
   });
   const [step, setStep] = useState(initialStep);
   const [maxStep, setMaxStep] = useState(initialStep);
   const [query, setQuery] = useState('');
   const [hintIdx, setHintIdx] = useState(0);
-  const [edge, setEdge] = useState({ start: true, end: false });
+  const [mood, setMood] = useState(MOODS[0].label);
   const [direction, setDirection] = useState(1);
   const [building, setBuilding] = useState(false);
   const [aiPickedId, setAiPickedId] = useState<string | null>(null);
   const [buildMsg, setBuildMsg] = useState(0);
-  const [flyer, setFlyer] = useState<{ src: string; from: DOMRect; to: DOMRect; id: string } | null>(null);
+  const [hoverId, setHoverId] = useState<string | null>(null);
 
-  const slotRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const timers = useRef<number[]>([]);
 
-useEffect(() => {    if (reduced || step !== 0 || query) return;    const id = window.setInterval(() => setHintIdx((i) => i + 1), 2200);    return () => clearInterval(id);  }, [reduced, step, query]);
+  useEffect(() => {
+    if (reduced || step !== 0 || query) return;
+    const id = window.setInterval(() => setHintIdx((i) => i + 1), 2200);
+    return () => clearInterval(id);
+  }, [reduced, step, query]);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     headingRef.current?.focus({ preventScroll: true });
   }, [step]);
 
-  const rowRef = useRef<HTMLDivElement>(null);
   const later = (fn: () => void, ms: number) => timers.current.push(window.setTimeout(fn, ms));
 
   const patch = (p: Partial<TripDraft>) => setDraft((d) => ({ ...d, ...p }));
@@ -260,20 +374,11 @@ useEffect(() => {    if (reduced || step !== 0 || query) return;    const id = w
 
   // ----- step 0: destination -----
 
-  const commitDestination = (id: string) => {
+  const chooseDestination = (id: string) => {
+    setAiPickedId(null);
     patch({ destinationId: id, aiDestination: false });
-    later(() => goTo(1), reduced ? 150 : 350);
   };
 
-const updateEdge = () => {    const el = rowRef.current;    if (el) setEdge({ start: el.scrollLeft <= 4, end: el.scrollLeft + el.clientWidth >= el.scrollWidth - 4 });  };  useEffect(() => {    if (step !== 0) return;    updateEdge();    window.addEventListener('resize', updateEdge);    return () => window.removeEventListener('resize', updateEdge);  }, [step, query]);
-  const scrollRow = (dir: 1 | -1) => rowRef.current?.scrollBy({ left: dir * 340, behavior: 'smooth' });
-
-  const chooseDestination = (id: string, card: HTMLElement | null) => {
-    const img = card?.querySelector('img');
-    const slot = slotRef.current;
-    if (reduced || !img || !slot) return commitDestination(id);
-    setFlyer({ id, src: img.src, from: img.getBoundingClientRect(), to: slot.getBoundingClientRect() });
-  };
 
 
   // ----- step 1: travellers -----
@@ -318,7 +423,44 @@ const updateEdge = () => {    const el = rowRef.current;    if (el) setEdge({ st
 
   // ----- derived UI state -----
 
-const q = query.trim().toLowerCase();  const matches = q    ? PLANNER_DESTINATIONS.filter((d) => `${d.name} ${d.country} ${tagline(d.id)}`.toLowerCase().includes(q))    : PLANNER_DESTINATIONS;
+  const q = query.trim().toLowerCase();
+  const moodKeys = MOODS.find((m) => m.label === mood)?.keys ?? [];
+  const matches = PLANNER_DESTINATIONS.filter((d) => {
+    const hay = `${d.name} ${d.country} ${tagline(d.id)}`.toLowerCase();
+    return (!q || hay.includes(q)) && (moodKeys.length === 0 || moodKeys.some((k) => hay.includes(k)));
+  });
+  const previewId = hoverId ?? draft.destinationId ?? '';
+  // Never leave the postcard blank: with nothing hovered or chosen it showcases popular places
+  const chosenPreview = getDestination(previewId) ?? (q ? matches[0] : undefined);
+  const previewDest = chosenPreview ?? PLANNER_DESTINATIONS[hintIdx % PLANNER_DESTINATIONS.length];
+  const showcasing = !chosenPreview;
+  const totalTravellers = draft.adults + draft.children;
+  const summaryItems = [
+    {
+      icon: <Calendar className="w-5 h-5" />,
+      main: maxStep >= 3 ? `${nights + 1} days` : 'Pick your dates',
+      sub: maxStep >= 3 ? '(planned)' : '(when & how long)',
+      filled: maxStep >= 3,
+    },
+    {
+      icon: <Users className="w-5 h-5" />,
+      main: draft.travellerType ? `${totalTravellers} traveller${totalTravellers === 1 ? '' : 's'}` : 'Who’s going?',
+      sub: draft.travellerType ? `(${draft.travellerType})` : '(solo / couple / friends etc.)',
+      filled: Boolean(draft.travellerType),
+    },
+    {
+      icon: <Flower2 className="w-5 h-5" />,
+      main: draft.aiPlan
+        ? 'AI picks'
+        : draft.interests.length
+        ? draft.interests.map((id) => INTERESTS.find((i) => i.id === id)?.label ?? id).slice(0, 3).join(', ')
+        : maxStep >= 3
+        ? 'Anything goes'
+        : 'Add interests',
+      sub: draft.aiPlan || draft.interests.length || maxStep >= 3 ? '(interests)' : '(beach, food, culture…)',
+      filled: draft.aiPlan || draft.interests.length > 0 || maxStep >= 3,
+    },
+  ];
   const canContinue = step === 0 ? Boolean(dest) : step === 1 ? draft.travellerType !== '' : true;
 
   const startDate = new Date(draft.checkIn + 'T00:00:00');
@@ -413,7 +555,7 @@ const q = query.trim().toLowerCase();  const matches = q    ? PLANNER_DESTINATIO
           tabIndex={-1}
           className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E2022] focus:outline-none leading-tight"
         >
-          {copy.pre} <span className="text-saffron-gradient">{copy.em}</span>
+          {copy.pre} <span className={`text-saffron-gradient ${step === 0 ? 'italic pr-1' : ''}`}>{copy.em}</span>
         </h1>
         <p className="mt-2 text-sm sm:text-base text-[#6B7280] max-w-xl">{copy.sub}</p>
       </div>
@@ -423,8 +565,8 @@ const q = query.trim().toLowerCase();  const matches = q    ? PLANNER_DESTINATIO
   // ---------- wizard ----------
   return (
     <section className="relative pt-6 lg:pt-8 pb-32">
-      <Aurora reduced={reduced} />
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <DestinationScene dest={getDestination(hoverId ?? draft.destinationId)} mark={step === 0 ? previewDest : getDestination(draft.destinationId)} reduced={reduced} />
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top row: Back · progress tab · chosen place (the spot the picked card flies into) */}
         <div className="grid grid-cols-[auto_1fr_auto] sm:grid-cols-[1fr_auto_1fr] items-center gap-3">
           <button
@@ -439,44 +581,46 @@ const q = query.trim().toLowerCase();  const matches = q    ? PLANNER_DESTINATIO
             <span className="hidden sm:inline">{step === 0 ? 'Home' : 'Back'}</span>
           </button>
 
-          <nav aria-label="Trip setup progress" className="justify-self-center flex items-center gap-3 sm:gap-4">
-            <span className="text-sm font-bold tabular-nums tracking-wide text-[#1E2022]">
-              {String(step + 1).padStart(2, '0')} / {String(STEP_LABELS.length).padStart(2, '0')}
-            </span>
-            <ol className="flex items-center">
-              {STEP_LABELS.map((label, i) => {
-                const done = i < step;
-                const active = i === step;
-                return (
-                  <React.Fragment key={label}>
-                    <li aria-current={active ? 'step' : undefined}>
-                      <button
-                        type="button"
-                        disabled={i > maxStep}
-                        onClick={() => goTo(i)}
-                        aria-label={label}
-                        title={label}
-                        className="p-1.5 -m-1.5 cursor-pointer disabled:cursor-default"
-                      >
-                        <motion.span
-                          className={`block rounded-full transition-colors ${
-                            active ? 'bg-[#1E2022]' : done ? 'bg-[#1E2022]/45' : 'bg-[#1E2022]/15'
-                          }`}
-                          animate={{ width: active ? 10 : 7, height: active ? 10 : 7 }}
-                          transition={{ duration: reduced ? 0 : 0.25 }}
-                        />
-                      </button>
-                    </li>
-                    {i < STEP_LABELS.length - 1 && (
-                      <span
-                        aria-hidden
-                        className={`h-px w-6 sm:w-9 ${done ? 'bg-[#1E2022]/35' : 'bg-[#1E2022]/12'}`}
-                      />
-                    )}
-                  </React.Fragment>
-                );
-              })}
-            </ol>
+          <nav aria-label="Trip setup progress" className="justify-self-center min-w-0">
+            <div
+              className="flex items-center gap-3 h-12 pl-2 pr-5 rounded-full bg-white border border-[#1E2022]/10 shadow-sm"
+              role="group"
+              aria-label={`Step ${step + 1} of ${STEP_LABELS.length}: ${STEP_LABELS[step]}`}
+            >
+              <span className="relative w-8 h-8 shrink-0" aria-hidden>
+                <svg viewBox="0 0 32 32" className="absolute inset-0 -rotate-90">
+                  <circle cx="16" cy="16" r="13" fill="none" stroke="rgba(30,32,34,0.1)" strokeWidth="3" />
+                  <motion.circle
+                    cx="16"
+                    cy="16"
+                    r="13"
+                    fill="none"
+                    stroke="#E5501A"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    initial={false}
+                    animate={{ pathLength: (step + 1) / STEP_LABELS.length }}
+                    transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 120, damping: 20 }}
+                  />
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-[11px] font-extrabold tabular-nums text-[#1E2022]">{step + 1}</span>
+              </span>
+              <span className="relative block h-9 w-20 sm:w-24 overflow-hidden">
+                <AnimatePresence mode="popLayout" initial={false}>
+                  <motion.span
+                    key={step}
+                    initial={{ y: reduced ? 0 : direction * 16, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: reduced ? 0 : direction * -16, opacity: 0 }}
+                    transition={{ duration: 0.22 }}
+                    className="absolute inset-0 flex flex-col justify-center leading-tight"
+                  >
+                    <span className="text-sm font-extrabold text-[#1E2022]">{STEP_LABELS[step]}</span>
+                    <span className="text-[11px] text-[#9CA3AF]">of {STEP_LABELS.length}</span>
+                  </motion.span>
+                </AnimatePresence>
+              </span>
+            </div>
           </nav>
 
           <button
@@ -486,7 +630,6 @@ const q = query.trim().toLowerCase();  const matches = q    ? PLANNER_DESTINATIO
             aria-label="Change destination"
           >
             <div
-              ref={slotRef}
               className="w-9 h-9 rounded-full overflow-hidden border-2 border-dashed border-[#1E2022]/20 bg-[#FAF8F5] flex items-center justify-center shrink-0"
             >
               {dest ? (
@@ -521,9 +664,16 @@ const q = query.trim().toLowerCase();  const matches = q    ? PLANNER_DESTINATIO
               {heading}
 
               {step === 0 && (
-                <div>
-                  <div className="mt-6 flex items-center justify-between gap-4">
-                    <div className="relative flex-1 max-w-xl">
+                <div className="mt-7 grid lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_380px] gap-8 xl:gap-14 items-start">
+                  {/* ---- left: filter + editorial index ---- */}
+                  <div className="min-w-0">
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        if (q && matches[0]) chooseDestination(matches[0].id);
+                      }}
+                      className="relative max-w-2xl"
+                    >
                       <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9CA3AF] pointer-events-none" />
                       <input
                         type="text"
@@ -531,12 +681,12 @@ const q = query.trim().toLowerCase();  const matches = q    ? PLANNER_DESTINATIO
                         onChange={(e) => setQuery(e.target.value)}
                         aria-label="Search destinations"
                         autoComplete="off"
-                        className="w-full pl-14 pr-12 py-4 rounded-full bg-white border border-[#1E2022]/10 shadow-sm text-base font-semibold text-[#1E2022] focus:outline-none focus:border-[#F7931E] focus:ring-4 focus:ring-[#F7931E]/20 transition"
+                        className="w-full h-14 sm:h-16 pl-14 pr-28 rounded-full bg-white border border-[#1E2022]/8 shadow-[0_10px_35px_-15px_rgba(30,32,34,0.3)] text-base font-semibold text-[#1E2022] focus:outline-none focus:border-[#F7931E] focus:ring-4 focus:ring-[#F7931E]/20 transition"
                       />
                       {/* Static lead-in + place names that roll upward */}
                       {!query && (
                         <div
-                          className="absolute left-14 right-12 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-base pointer-events-none overflow-hidden h-7"
+                          className="absolute left-14 right-28 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-base pointer-events-none overflow-hidden h-7"
                           aria-hidden
                         >
                           <span className="font-medium leading-7 text-[#9CA3AF] whitespace-nowrap">Search destination</span>
@@ -565,62 +715,193 @@ const q = query.trim().toLowerCase();  const matches = q    ? PLANNER_DESTINATIO
                             exit={{ scale: 0 }}
                             onClick={() => setQuery('')}
                             aria-label="Clear search"
-                            className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#1E2022]/8 hover:bg-[#1E2022]/15 flex items-center justify-center cursor-pointer"
+                            className="absolute right-16 sm:right-[4.5rem] top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#1E2022]/8 hover:bg-[#1E2022]/15 flex items-center justify-center cursor-pointer"
                           >
                             <X className="w-4 h-4" />
                           </motion.button>
                         )}
                       </AnimatePresence>
-                    </div>
-                    <div className="hidden md:flex items-center gap-2 shrink-0">
-                      <button type="button" onClick={() => scrollRow(-1)} disabled={edge.start} className={stepperBtn} aria-label="Scroll destinations left">
-                        <ChevronLeft className="w-4 h-4" />
-                      </button>
-                      <button type="button" onClick={() => scrollRow(1)} disabled={edge.end} className={stepperBtn} aria-label="Scroll destinations right">
-                        <ChevronRight className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div
-                    ref={rowRef}
-                    onScroll={updateEdge}
-                    className="mt-2 flex gap-5 overflow-x-auto -mr-4 sm:-mr-6 lg:-mr-8 pr-4 sm:pr-6 lg:pr-8 pl-1 pt-4 pb-10 snap-x snap-mandatory scroll-smooth scroll-pl-1"
-                    style={{ scrollbarWidth: 'none' }}
-                  >
-                    <AnimatePresence mode="popLayout">
-                      {matches.map((d, i) => (
-                        <DestCard
-                          key={d.id}
-                          index={i}
-                          reduced={reduced}
-                          selected={draft.destinationId === d.id}
-                          dimmed={flyer?.id === d.id}
-                          name={d.name}
-                          country={d.country}
-                          image={d.image}
-                          tagline={tagline(d.id)}
-                          onPick={(el) => chooseDestination(d.id, el)}
-                        />
-                      ))}
-                    </AnimatePresence>
-                  </div>
-
-                  {matches.length === 0 && (
-                    <div className="py-14 text-center">
-                      <div className="mx-auto w-14 h-14 rounded-full bg-white border border-[#1E2022]/10 shadow-sm flex items-center justify-center text-[#9CA3AF]">
-                        <Search className="w-6 h-6" />
-                      </div>
-                      <p className="mt-4 text-lg font-extrabold text-[#1E2022]">No places match “{query.trim()}”</p>
                       <button
-                        type="button"
-                        onClick={() => setQuery('')}
-                        className="mt-3 text-sm font-bold text-[#C2571A] hover:underline cursor-pointer"
+                        type="submit"
+                        aria-label="Choose destination"
+                        className={`absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-full ${brandGrad} text-white flex items-center justify-center shadow-md hover:brightness-110 active:scale-95 transition cursor-pointer`}
                       >
-                        Show all destinations
+                        <ArrowRight className="w-5 h-5" />
                       </button>
+                    </form>
+
+                    {/* mood filters */}
+                    <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Filter by mood">
+                      {MOODS.map((m) => {
+                        const on = mood === m.label;
+                        return (
+                          <button
+                            key={m.label}
+                            type="button"
+                            onClick={() => setMood(m.label)}
+                            aria-pressed={on}
+                            className="relative px-4 py-1.5 rounded-full text-xs font-bold cursor-pointer"
+                          >
+                            {on && (
+                              <motion.span
+                                layoutId="mood-pill"
+                                className="absolute inset-0 rounded-full bg-[#1E2022]"
+                                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                              />
+                            )}
+                            <span className={`relative transition-colors ${on ? 'text-white' : 'text-[#4B4F55] hover:text-[#1E2022]'}`}>{m.label}</span>
+                          </button>
+                        );
+                      })}
                     </div>
-                  )}
+
+                    {/* the index */}
+                    <ol className="mt-5 border-t border-[#1E2022]/10">
+                      <AnimatePresence mode="popLayout" initial={false}>
+                        {matches.map((d, i) => {
+                          const selected = draft.destinationId === d.id;
+                          const active = previewId === d.id;
+                          return (
+                            <motion.li
+                              key={d.id}
+                              layout
+                              initial={{ opacity: 0, x: reduced ? 0 : -24 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, x: reduced ? 0 : 24 }}
+                              transition={{ delay: i * 0.05, type: 'spring', stiffness: 260, damping: 26 }}
+                              className="border-b border-[#1E2022]/10"
+                            >
+                              <button
+                                type="button"
+                                onClick={() => chooseDestination(d.id)}
+                                onMouseEnter={() => setHoverId(d.id)}
+                                onMouseLeave={() => setHoverId(null)}
+                                onFocus={() => setHoverId(d.id)}
+                                onBlur={() => setHoverId(null)}
+                                aria-pressed={selected}
+                                className="group relative w-full flex items-center gap-4 sm:gap-6 py-4 sm:py-5 text-left cursor-pointer"
+                              >
+                                {/* highlight */}
+                                <span
+                                  aria-hidden
+                                  className={`absolute inset-y-0 -inset-x-3 rounded-2xl transition-colors duration-300 ${selected ? 'bg-[#F7931E]/10' : active ? 'bg-[#1E2022]/[0.04]' : 'bg-transparent'}`}
+                                />
+                                <span className="relative w-8 text-sm font-bold tabular-nums text-[#9CA3AF]">{String(i + 1).padStart(2, '0')}</span>
+                                <img
+                                  src={d.image}
+                                  alt=""
+                                  loading="lazy"
+                                  referrerPolicy="no-referrer"
+                                  className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover shrink-0 transition-all duration-500 lg:w-0 lg:opacity-0 lg:-mr-6 ${
+                                    active ? 'lg:!w-16 lg:!opacity-100 lg:!mr-0' : ''
+                                  }`}
+                                />
+                                <span className="relative flex-1 min-w-0">
+                                  <span
+                                    className={`block text-3xl sm:text-4xl font-extrabold tracking-tight leading-none transition-all duration-300 ${
+                                      selected ? 'text-saffron-gradient' : active ? 'text-[#1E2022] translate-x-2' : 'text-[#1E2022]/80 lg:text-[#1E2022]/35'
+                                    }`}
+                                  >
+                                    {d.name}
+                                  </span>
+                                  <span className="mt-1.5 block text-xs sm:text-sm text-[#6B7280] truncate">
+                                    {d.country} · {tagline(d.id)}
+                                  </span>
+                                </span>
+                                <span className="relative shrink-0">
+                                  {selected ? (
+                                    <motion.span
+                                      initial={{ scale: 0, rotate: -90 }}
+                                      animate={{ scale: 1, rotate: 0 }}
+                                      transition={{ type: 'spring', stiffness: 400, damping: 16 }}
+                                      className={`flex w-9 h-9 rounded-full ${brandGrad} text-white items-center justify-center shadow-md`}
+                                    >
+                                      <Check className="w-5 h-5" />
+                                    </motion.span>
+                                  ) : (
+                                    <span className="flex w-9 h-9 rounded-full border border-[#1E2022]/15 items-center justify-center text-[#1E2022] opacity-40 lg:opacity-0 group-hover:opacity-100 group-hover:bg-[#1E2022] group-hover:text-white group-hover:border-[#1E2022] group-hover:-rotate-45 transition-all duration-300">
+                                      <ArrowRight className="w-4 h-4" />
+                                    </span>
+                                  )}
+                                </span>
+                              </button>
+                            </motion.li>
+                          );
+                        })}
+                      </AnimatePresence>
+                    </ol>
+
+                    {matches.length === 0 && (
+                      <div className="py-14 text-center">
+                        <div className="mx-auto w-14 h-14 rounded-full bg-white border border-[#1E2022]/10 shadow-sm flex items-center justify-center text-[#9CA3AF]">
+                          <Search className="w-6 h-6" />
+                        </div>
+                        <p className="mt-4 text-lg font-extrabold text-[#1E2022]">Nothing matches that yet</p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setQuery('');
+                            setMood(MOODS[0].label);
+                          }}
+                          className="mt-3 text-sm font-bold text-[#C2571A] hover:underline cursor-pointer"
+                        >
+                          Show all destinations
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ---- right: postcard preview ---- */}
+                  <div aria-hidden className="hidden lg:block sticky top-8 pt-4">
+                    <motion.div
+                      animate={{ rotate: reduced ? 0 : previewDest ? 2 : -2 }}
+                      transition={{ type: 'spring', stiffness: 80, damping: 12 }}
+                      className="relative p-3 pb-5 rounded-[1.75rem] bg-white shadow-[0_35px_70px_-25px_rgba(30,32,34,0.55)] border border-[#1E2022]/6"
+                    >
+                      {/* tape */}
+                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 rotate-[-3deg] bg-[#FFC94D]/70 backdrop-blur-sm rounded-sm shadow-sm" />
+                      <div className="relative aspect-[4/5] rounded-[1.25rem] overflow-hidden bg-gradient-to-br from-[#FFE9CC] to-[#FFD2B8]">
+                        <AnimatePresence initial={false}>
+                          <motion.img
+                            key={previewDest.id}
+                            src={previewDest.image}
+                            alt=""
+                            className="absolute inset-0 w-full h-full object-cover"
+                            initial={{ opacity: 0, scale: 1.15, clipPath: 'inset(0 0 100% 0)' }}
+                            animate={{ opacity: 1, scale: 1, clipPath: 'inset(0 0 0% 0)' }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                          />
+                        </AnimatePresence>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+                        {previewDest && (
+                          <>
+                            <div className="absolute top-3 right-3 px-2.5 py-2 rounded-md bg-white/95 text-[#1E2022] text-center shadow-md border-2 border-dashed border-[#E5501A]/40">
+                              <MapPin className="w-4 h-4 mx-auto text-[#E5501A]" />
+                              <span className="block text-[9px] font-extrabold uppercase tracking-widest">{previewDest.country}</span>
+                            </div>
+                            {showcasing && (
+                              <span className="absolute top-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/35 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider text-white">
+                                <Sparkles className="w-3 h-3 text-[#FFC94D]" /> Popular pick
+                              </span>
+                            )}
+                            <div className="absolute bottom-4 left-4 right-4 text-white">
+                              <p className="text-3xl font-extrabold tracking-tight leading-none">{previewDest.name}</p>
+                              <p className="mt-1.5 text-xs text-white/85">{tagline(previewDest.id)}</p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                      {previewDest && (
+                        <div className="mt-4 px-2">
+                          <div>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Experiences</p>
+                            <p className="text-base font-extrabold text-[#1E2022]">{previewDest.activities.length}<span className="text-xs font-semibold text-[#6B7280]"> to choose</span></p>
+                          </div>
+                        </div>
+                      )}
+                    </motion.div>
+                  </div>
                 </div>
               )}
 
@@ -1008,45 +1289,85 @@ const q = query.trim().toLowerCase();  const matches = q    ? PLANNER_DESTINATIO
         </div>
       </div>
 
-      {/* Sticky action bar */}
+      {/* Floating trip tray */}
       <AnimatePresence>
         {(step > 0 || canContinue) && (
           <motion.div
-            initial={{ y: 40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 40, opacity: 0 }}
+            initial={{ y: 60, opacity: 0, scale: 0.96 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: 60, opacity: 0, scale: 0.96 }}
             transition={{ type: 'spring', stiffness: 300, damping: 26 }}
-            className="sticky bottom-4 z-30 mt-6 max-w-3xl mx-auto px-4"
+            className="sticky bottom-4 z-30 mt-2 px-4 sm:px-6 flex justify-center"
           >
-            <div className="flex items-center justify-between gap-3 p-2.5 pl-5 rounded-full bg-white/80 backdrop-blur-xl border border-white shadow-[0_25px_60px_-15px_rgba(30,32,34,0.45)]">
-              <div className="flex items-center gap-1.5" aria-hidden>
-                {STEP_LABELS.map((_, i) => (
+            <div className="flex items-center gap-2 sm:gap-3 p-2 pr-2 max-w-full rounded-full bg-white/90 backdrop-blur-xl border border-[#1E2022]/8 shadow-[0_24px_60px_-18px_rgba(30,32,34,0.45)]">
+              {/* place */}
+              <div className="flex items-center gap-2.5 pl-1 pr-3 sm:pr-4 min-w-0">
+                <span className="relative w-11 h-11 rounded-full overflow-hidden bg-[#1E2022]/6 flex items-center justify-center shrink-0 ring-2 ring-white shadow">
+                  <AnimatePresence mode="popLayout" initial={false}>
+                    {dest ? (
+                      <motion.img
+                        key={dest.id}
+                        src={dest.image}
+                        alt=""
+                        initial={{ scale: 0.3, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.3, opacity: 0 }}
+                        transition={{ type: 'spring', stiffness: 320, damping: 20 }}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    ) : (
+                      <MapPin className="w-5 h-5 text-[#9CA3AF]" />
+                    )}
+                  </AnimatePresence>
+                </span>
+                <span className="hidden sm:block min-w-0 leading-tight">
+                  <span className="block text-sm font-extrabold text-[#1E2022] truncate">{dest ? dest.name : 'Pick a place'}</span>
+                  <span className="block text-[11px] text-[#9CA3AF] truncate">{dest ? dest.country : 'Nothing chosen yet'}</span>
+                </span>
+              </div>
+
+              {/* trip details: dashed = still to fill, solid = done */}
+              <div className="hidden md:flex items-center gap-2">
+                {summaryItems.map((it) => (
                   <motion.span
-                    key={i}
-                    animate={{ width: i === step ? 22 : 8 }}
-                    className={`h-2 rounded-full ${i <= step ? brandGrad : 'bg-[#1E2022]/15'}`}
-                  />
+                    key={it.sub}
+                    layout
+                    className={`inline-flex items-center gap-2 h-11 px-4 rounded-full text-sm font-bold max-w-[15rem] transition-colors ${
+                      it.filled
+                        ? 'bg-[#F7931E]/12 text-[#1E2022] border border-[#F7931E]/30'
+                        : 'border border-dashed border-[#1E2022]/25 text-[#9CA3AF]'
+                    }`}
+                  >
+                    <span className={`shrink-0 ${it.filled ? 'text-[#C2571A]' : ''}`}>{it.icon}</span>
+                    <span className="truncate">{it.main}</span>
+                  </motion.span>
                 ))}
               </div>
+
+              {/* action */}
               {step < 3 ? (
                 <button
                   type="button"
                   disabled={!canContinue}
                   onClick={() => goTo(step + 1)}
-                  className="group relative overflow-hidden inline-flex items-center gap-2 px-7 py-3 rounded-full bg-[#1E2022] hover:bg-[#C2571A] text-white text-sm font-bold shadow-lg disabled:opacity-40 disabled:hover:bg-[#1E2022] transition-colors cursor-pointer"
+                  aria-label="Continue"
+                  className={`group ml-1 h-12 rounded-full ${brandGrad} text-white text-sm font-bold inline-flex items-center justify-center gap-2 pl-6 pr-4 shadow-[0_10px_30px_-8px_rgba(229,80,26,0.6)] hover:brightness-110 disabled:opacity-40 disabled:hover:brightness-100 cursor-pointer transition-all`}
                 >
-                  
-                  <span className="relative">Continue</span>
-                  <ArrowRight className="relative w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  Continue
+                  <span className="w-8 h-8 rounded-full bg-white/25 flex items-center justify-center">
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                  </span>
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={finish}
-                  className={`group relative overflow-hidden inline-flex items-center gap-2 px-7 py-3 rounded-full ${brandGrad} hover:brightness-110 text-white text-sm font-bold shadow-[0_10px_30px_-8px_rgba(229,80,26,0.7)] transition-all cursor-pointer`}
+                  className={`group ml-1 h-12 rounded-full ${brandGrad} text-white text-sm font-bold inline-flex items-center justify-center gap-2 pl-6 pr-4 shadow-[0_10px_30px_-8px_rgba(229,80,26,0.7)] hover:brightness-110 cursor-pointer transition-all`}
                 >
-                  <Sparkles className="relative w-4 h-4 group-hover:rotate-12 transition-transform" />
-                  <span className="relative">Build my trip</span>
+                  Build my trip
+                  <span className="w-8 h-8 rounded-full bg-white/25 flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                  </span>
                 </button>
               )}
             </div>
@@ -1054,45 +1375,6 @@ const q = query.trim().toLowerCase();  const matches = q    ? PLANNER_DESTINATIO
         )}
       </AnimatePresence>
 
-      {/* Flying card: the tapped place travels into the trip trail */}
-      {flyer && (
-        <motion.img
-          src={flyer.src}
-          alt=""
-          aria-hidden
-          style={{
-            position: 'fixed',
-            left: 0,
-            top: 0,
-            width: flyer.from.width,
-            height: flyer.from.height,
-            transformOrigin: '0 0',
-            objectFit: 'cover',
-            borderRadius: 28,
-            zIndex: 60,
-            pointerEvents: 'none',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.35)',
-          }}
-          initial={{ x: flyer.from.left, y: flyer.from.top, scaleX: 1, scaleY: 1, opacity: 1 }}
-          animate={{
-            x: flyer.to.left,
-            y: [flyer.from.top, Math.min(flyer.from.top, flyer.to.top) - 80, flyer.to.top],
-            scaleX: flyer.to.width / flyer.from.width,
-            scaleY: flyer.to.height / flyer.from.height,
-            opacity: [1, 1, 0.85],
-          }}
-          transition={{
-            duration: 0.8,
-            ease: [0.5, 0, 0.2, 1],
-            y: { duration: 0.8, times: [0, 0.4, 1], ease: 'easeInOut' },
-          }}
-          onAnimationComplete={() => {
-            const id = flyer.id;
-            setFlyer(null);
-            commitDestination(id);
-          }}
-        />
-      )}
     </section>
   );
 };
