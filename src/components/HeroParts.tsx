@@ -77,7 +77,7 @@ export const SpinBadge: React.FC<{ className?: string }> = ({ className = '' }) 
       <defs>
         <path id="badgeCircle" d="M60 60 m-44 0 a44 44 0 1 1 88 0 a44 44 0 1 1 -88 0" />
       </defs>
-      <text fontSize="10" fontWeight="700" fill="#1E2022" fontFamily="Manrope, sans-serif">
+      <text fontSize="10" fontWeight="700" fill="#1E2022" fontFamily="Jost, sans-serif">
         <textPath href="#badgeCircle" textLength="270" lengthAdjust="spacing">NAIKINGS · TOURS &amp; TRAVELS · </textPath>
       </text>
     </motion.svg>
@@ -94,20 +94,18 @@ export const SpinBadge: React.FC<{ className?: string }> = ({ className = '' }) 
 export const Marquee: React.FC<{ items: string[] }> = ({ items }) => {
   const row = [...items, ...items];
   return (
-    <div className="relative overflow-hidden border-y border-[#1E2022]/8 bg-white/60 backdrop-blur-sm py-3">
+    <div className="relative overflow-hidden border-t border-white/20 bg-transparent py-3 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
       <div className="flex w-max animate-marquee gap-10 whitespace-nowrap">
         {row.map((t, idx) => (
           <span
             key={idx}
-            className="flex items-center gap-10 text-xs font-bold uppercase tracking-[0.28em] text-[#1E2022]/70"
+            className="flex items-center gap-10 text-[14px] font-semibold uppercase tracking-normal text-white/90 drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]"
           >
             {t}
-            <span className="w-1.5 h-1.5 rotate-45 bg-[#C2571A]" />
+            <span className="w-1.5 h-1.5 rotate-45 bg-[#FFB27A]" />
           </span>
         ))}
       </div>
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white to-transparent" />
     </div>
   );
 };

@@ -1096,7 +1096,10 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                             { key: 'adults', label: 'Adults', sub: 'Age 12+', min: 1, max: 12 },
                             { key: 'children', label: 'Children', sub: 'Age 0–11', min: 0, max: 8 },
                           ] as const
-                        ).map((row) => (
+                        )
+                          // Solo and friends trips are adults-only, so there is no children row
+                          .filter((row) => row.key !== 'children' || !['solo', 'friends'].includes(draft.travellerType))
+                          .map((row) => (
                           <div key={row.key} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
                             <div>
                               <p className="text-base font-extrabold text-[#1E2022]">{row.label}</p>
@@ -1144,7 +1147,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                             <Users className="w-5 h-5" />
                           </span>
                           <p className="mt-3 text-sm font-bold text-[#1E2022]">Pick a group above</p>
-                          <p className="mt-1 text-xs text-[#6B7280]">Then adjust adults and children here.</p>
+                          <p className="mt-1 text-xs text-[#6B7280]">Then adjust the numbers here.</p>
                         </div>
                       )}
                     </div>

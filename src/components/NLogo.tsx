@@ -182,7 +182,7 @@ export const NLogo: React.FC<NLogoProps> = ({
         <motion.span
           className="uppercase whitespace-nowrap"
           style={{
-            fontFamily: 'Manrope, sans-serif',
+            fontFamily: 'Jost, sans-serif',
             fontWeight: 600,
             fontSize: '0.27em',
             letterSpacing: '0.34em',

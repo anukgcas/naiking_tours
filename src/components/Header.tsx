@@ -20,6 +20,10 @@ export const Header: React.FC<HeaderProps> = ({
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNarrow, setIsNarrow] = useState(false);
+  // Transparent over the hero photo at the top of the home page, so the links switch to light text there
+  const overHero = !isScrolled && activeTab === 'home';
+  const linkIdle = overHero ? 'text-white/80 hover:text-white' : 'text-[#6B7280] hover:text-[#1E2022]';
+  const linkActive = overHero ? 'text-white' : 'text-[#1E2022]';
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 639px)');
@@ -42,7 +46,7 @@ export const Header: React.FC<HeaderProps> = ({
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         isScrolled
           ? 'bg-white/90 backdrop-blur-md border-b border-[#1E2022]/8 shadow-xs'
-          : 'bg-white border-b border-[#1E2022]/10 shadow-sm'
+          : 'bg-transparent border-b border-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -59,25 +63,23 @@ export const Header: React.FC<HeaderProps> = ({
           <nav className="hidden md:flex items-center gap-8">
             <button
               onClick={() => onNavigate('home')}
-              className={`text-sm font-medium tracking-wide transition-colors relative py-1 ${
-                activeTab === 'home'
-                  ? 'text-[#1E2022]'
-                  : 'text-[#6B7280] hover:text-[#1E2022]'
+              className={`text-[15px] font-medium transition-colors relative py-1 ${
+                activeTab === 'home' ? linkActive : linkIdle
               }`}
             >
               Home
               {activeTab === 'home' && (
-                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#C2571A] rounded-full" />
+                <span className={`absolute bottom-0 left-0 right-0 h-[2px] rounded-full transition-colors duration-300 ${overHero ? 'bg-gradient-to-r from-transparent via-white to-transparent' : 'bg-[#C2571A]'}`} />
               )}
             </button>
 
             <button
               onClick={onOpenMyTrips}
-              className="text-sm font-medium tracking-wide text-[#6B7280] hover:text-[#1E2022] transition-colors relative py-1 flex items-center gap-1.5"
+              className={`text-[15px] font-medium ${linkIdle} transition-colors relative py-1 flex items-center gap-1.5`}
             >
               My Trips
               {bookedTripsCount > 0 && (
-                <span className="inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold rounded-full bg-[#1E2022] text-white">
+                <span className={`inline-flex items-center justify-center w-5 h-5 text-[12px] font-bold rounded-full ${overHero ? 'bg-white text-[#1E2022]' : 'bg-[#1E2022] text-white'}`}>
                   {bookedTripsCount}
                 </span>
               )}
@@ -85,15 +87,13 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               onClick={() => onNavigate('why')}
-              className={`text-sm font-medium tracking-wide transition-colors relative py-1 ${
-                activeTab === 'why'
-                  ? 'text-[#1E2022]'
-                  : 'text-[#6B7280] hover:text-[#1E2022]'
+              className={`text-[15px] font-medium transition-colors relative py-1 ${
+                activeTab === 'why' ? linkActive : linkIdle
               }`}
             >
               Why Naiking
               {activeTab === 'why' && (
-                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#C2571A] rounded-full" />
+                <span className={`absolute bottom-0 left-0 right-0 h-[2px] rounded-full transition-colors duration-300 ${overHero ? 'bg-gradient-to-r from-transparent via-white to-transparent' : 'bg-[#C2571A]'}`} />
               )}
             </button>
           </nav>
@@ -103,7 +103,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Plan a Trip Primary CTA */}
             <button
               onClick={onOpenPlanner}
-              className="inline-flex items-center gap-2 whitespace-nowrap px-4 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold text-white bg-[#1E2022] hover:bg-[#C2571A] transition-all duration-300 shadow-xs active:scale-98 cursor-pointer"
+              className="inline-flex items-center gap-2 whitespace-nowrap px-4 py-2 sm:px-5 sm:py-2.5 rounded-full text-[15px] sm:text-[15px] font-medium text-white bg-[#1E2022] hover:bg-[#C2571A] transition-all duration-300 shadow-xs active:scale-98 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#FAF8F5]/80" />
               <span>Plan a Trip</span>
@@ -112,7 +112,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Mobile Menu Toggle Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 text-[#1E2022] rounded-lg hover:bg-black/5"
+              className={`md:hidden p-2 rounded-lg hover:bg-black/5 ${overHero ? 'text-white' : 'text-[#1E2022]'}`}
               aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
