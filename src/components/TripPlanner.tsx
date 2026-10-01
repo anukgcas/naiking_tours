@@ -536,15 +536,6 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
               {guests === 1 ? '' : 's'} · {TIER_LABEL[draft.stayTier]} stays. Drag ideas onto a day, or tap “Add”.
             </p>
           </div>
-          <div className="w-full md:w-80 shrink-0 rounded-xl border border-[#1E2022]/10 bg-white px-3.5 py-3">
-            <div className="flex items-end justify-between gap-2">
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Your package so far</p>
-                <p className="text-xl font-extrabold text-[#1E2022] leading-tight">{formatINR(costs.total)}</p>
-              </div>
-              <p className="text-[11px] text-[#6B7280] text-right pb-0.5">≈ {formatINR(costs.perPerson)} / guest</p>
-            </div>
-          </div>
         </div>
 
         {/* AI assistant */}
@@ -615,7 +606,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
           <aside
             onDragOver={(e) => allowDrop(e, 'ideas')}
             onDrop={(e) => dropOn(e, 'ideas')}
-            className={`order-2 xl:order-1 xl:sticky xl:top-24 flex flex-col rounded-2xl border bg-white p-3.5 max-h-[70vh] xl:max-h-[calc(100vh-7rem)] ${
+            className={`order-2 xl:order-1 rounded-2xl border bg-white p-3.5 ${
               overColumn === 'ideas' && drag?.from !== 'ideas' ? 'border-[#C2571A] bg-[#C2571A]/5' : 'border-[#1E2022]/10'
             }`}
           >
@@ -652,7 +643,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
               />
             </div>
 
-            <div className="mt-3 -mr-1.5 pr-1.5 flex-1 min-h-0 overflow-y-auto overscroll-contain space-y-2.5">
+            <div className="mt-3 space-y-2.5">
               {ideas.length === 0 && (
                 <p className="text-xs text-[#6B7280] py-6 text-center">
                   {search.trim()
