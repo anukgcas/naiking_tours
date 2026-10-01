@@ -64,12 +64,6 @@ interface DragInfo {
   from: Column;
 }
 
-const SLOT_ICON: Record<DaySlot, React.ReactNode> = {
-  Morning: <Sunrise className="w-3 h-3" />,
-  Afternoon: <Sun className="w-3 h-3" />,
-  Evening: <Moon className="w-3 h-3" />,
-};
-
 const CategoryChip: React.FC<{ category: ActivityCategory }> = ({ category }) => {
   const c = CATEGORY_STYLES[category];
   return (
@@ -107,19 +101,6 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
   const [aiDay, setAiDay] = useState(0);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiNote, setAiNote] = useState<string | null>(null);
-  // Review bar: hidden by default, eases in while scrolling down, hides again on scroll up
-  const [showBar, setShowBar] = useState(false);
-  useEffect(() => {
-    let lastY = window.scrollY;
-    const onScroll = () => {
-      const y = window.scrollY;
-      if (Math.abs(y - lastY) < 6) return;
-      setShowBar(y > lastY && y > 80);
-      lastY = y;
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
   const [activeDay, setActiveDay] = useState(0);
   // Which days are expanded — collapsing only hides a day, the plan data is untouched
   const [expanded, setExpanded] = useState<Set<number>>(() => new Set([0]));
@@ -132,6 +113,23 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
       return next;
     });
   };
+
+  // Review bar: hidden by default, eases in while scrolling down, hides again on scroll up
+  const [showBar, setShowBar] = useState(false);
+  useEffect(() => {
+    let lastY = window.scrollY;
+    // A page too short to scroll can never reveal the bar, so keep it visible there
+    const fits = () => document.documentElement.scrollHeight <= window.innerHeight + 80;
+    if (fits()) setShowBar(true);
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (Math.abs(y - lastY) < 6) return;
+      setShowBar(y > lastY && y > 80 ? true : fits());
+      lastY = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [expanded, plan]);
 
   const map = useMemo(() => activityMap(plan), [plan]);
   const planned = useMemo(() => plannedActivities(plan), [plan]);
@@ -611,7 +609,6 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
           </div>
         </div>
 
-        {/* 3-column dashboard */}
         {/* 3-column dashboard */}
         <div className="mt-6 grid grid-cols-1 xl:grid-cols-[21rem_minmax(0,1fr)_20rem] gap-5 items-start">
           {/* LEFT: Ideas browser (all ideas listed, page scrolls naturally) */}
