@@ -200,11 +200,14 @@ export default function App() {
 
       {view !== 'start' && (
         <>
-          <Footer
-            onNavigate={handleNavigate}
-            onOpenPlanner={handlePlanCTA}
-            onOpenMyTrips={() => setIsMyTripsOpen(true)}
-          />
+          {/* The planner locks the page on wide screens, so its footer would only force a page scroll */}
+          <div className={view === 'plan' ? 'xl:hidden' : undefined}>
+            <Footer
+              onNavigate={handleNavigate}
+              onOpenPlanner={handlePlanCTA}
+              onOpenMyTrips={() => setIsMyTripsOpen(true)}
+            />
+          </div>
 
           <MobileBottomNav
             currentTab={navTab}
