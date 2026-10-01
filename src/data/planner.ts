@@ -196,6 +196,9 @@ export const formatDate = (iso: string) =>
 export interface City {
   id: string;
   name: string;
+  /** Approximate centre of the area, used to place it on the route map. */
+  lat: number;
+  lng: number;
   blurb: string;
   /** Catalogue activities that belong to this city. */
   activityIds: string[];
@@ -205,52 +208,52 @@ const CITY_DATA: Record<string, { transfer: string; cities: City[] }> = {
   bali: {
     transfer: 'Private car transfer',
     cities: [
-      { id: 'ubud', name: 'Ubud', blurb: 'Rice terraces, temples, art and jungle wellness', activityIds: ['bali-tegallalang', 'bali-tirta', 'bali-coffee', 'bali-ubud-walk', 'bali-swing', 'bali-yoga', 'bali-cooking', 'bali-batur'] },
-      { id: 'uluwatu', name: 'Uluwatu & Jimbaran', blurb: 'Clifftop temples, surf coves and seafood on the sand', activityIds: ['bali-uluwatu', 'bali-jimbaran'] },
-      { id: 'seminyak', name: 'Seminyak', blurb: 'Beach clubs, sunsets, spas and nightlife', activityIds: ['bali-sunset', 'bali-spa'] },
-      { id: 'nusa', name: 'Nusa Penida', blurb: 'Dramatic cliffs, manta rays and quiet island days', activityIds: ['bali-nusa'] },
+      { id: 'ubud', lat: -8.5069, lng: 115.2625, name: 'Ubud', blurb: 'Rice terraces, temples, art and jungle wellness', activityIds: ['bali-tegallalang', 'bali-tirta', 'bali-coffee', 'bali-ubud-walk', 'bali-swing', 'bali-yoga', 'bali-cooking', 'bali-batur'] },
+      { id: 'uluwatu', lat: -8.815, lng: 115.1, name: 'Uluwatu & Jimbaran', blurb: 'Clifftop temples, surf coves and seafood on the sand', activityIds: ['bali-uluwatu', 'bali-jimbaran'] },
+      { id: 'seminyak', lat: -8.6913, lng: 115.1683, name: 'Seminyak', blurb: 'Beach clubs, sunsets, spas and nightlife', activityIds: ['bali-sunset', 'bali-spa'] },
+      { id: 'nusa', lat: -8.7275, lng: 115.5444, name: 'Nusa Penida', blurb: 'Dramatic cliffs, manta rays and quiet island days', activityIds: ['bali-nusa'] },
     ],
   },
   maldives: {
     transfer: 'Speedboat transfer',
     cities: [
-      { id: 'north-male', name: 'North Malé Atoll', blurb: 'Local islands, dolphin cruises and easy resort days', activityIds: ['mv-island', 'mv-dolphin', 'mv-breakfast', 'mv-kayak', 'mv-sound'] },
-      { id: 'baa', name: 'Baa Atoll', blurb: 'A UNESCO reserve for reef, diving and night skies', activityIds: ['mv-snorkel', 'mv-dive', 'mv-bio', 'mv-nightfish'] },
-      { id: 'ari', name: 'Ari Atoll', blurb: 'Sandbanks, overwater spas and lantern-lit dinners', activityIds: ['mv-sandbank', 'mv-spa', 'mv-lobster', 'mv-cinema'] },
+      { id: 'north-male', lat: 4.4167, lng: 73.5, name: 'North Malé Atoll', blurb: 'Local islands, dolphin cruises and easy resort days', activityIds: ['mv-island', 'mv-dolphin', 'mv-breakfast', 'mv-kayak', 'mv-sound'] },
+      { id: 'baa', lat: 5.1, lng: 73.0, name: 'Baa Atoll', blurb: 'A UNESCO reserve for reef, diving and night skies', activityIds: ['mv-snorkel', 'mv-dive', 'mv-bio', 'mv-nightfish'] },
+      { id: 'ari', lat: 3.85, lng: 72.85, name: 'Ari Atoll', blurb: 'Sandbanks, overwater spas and lantern-lit dinners', activityIds: ['mv-sandbank', 'mv-spa', 'mv-lobster', 'mv-cinema'] },
     ],
   },
   dubai: {
     transfer: 'Private car transfer',
     cities: [
-      { id: 'downtown', name: 'Downtown Dubai', blurb: 'Burj Khalifa, fountains, malls and brunch', activityIds: ['dxb-burj', 'dxb-museum', 'dxb-fountain', 'dxb-brunch'] },
-      { id: 'old-dubai', name: 'Old Dubai', blurb: 'Souks, the creek and heritage lanes', activityIds: ['dxb-oldtown', 'dxb-frame'] },
-      { id: 'marina-palm', name: 'Marina & Palm', blurb: 'Yacht dinners, waterparks and spa time', activityIds: ['dxb-marina', 'dxb-palm', 'dxb-spa'] },
-      { id: 'desert', name: 'Desert & Abu Dhabi', blurb: 'Dunes, balloons and the Grand Mosque', activityIds: ['dxb-desert', 'dxb-balloon', 'dxb-mosque'] },
+      { id: 'downtown', lat: 25.1972, lng: 55.2744, name: 'Downtown Dubai', blurb: 'Burj Khalifa, fountains, malls and brunch', activityIds: ['dxb-burj', 'dxb-museum', 'dxb-fountain', 'dxb-brunch'] },
+      { id: 'old-dubai', lat: 25.2637, lng: 55.2972, name: 'Old Dubai', blurb: 'Souks, the creek and heritage lanes', activityIds: ['dxb-oldtown', 'dxb-frame'] },
+      { id: 'marina-palm', lat: 25.09, lng: 55.14, name: 'Marina & Palm', blurb: 'Yacht dinners, waterparks and spa time', activityIds: ['dxb-marina', 'dxb-palm', 'dxb-spa'] },
+      { id: 'desert', lat: 24.4539, lng: 54.3773, name: 'Desert & Abu Dhabi', blurb: 'Dunes, balloons and the Grand Mosque', activityIds: ['dxb-desert', 'dxb-balloon', 'dxb-mosque'] },
     ],
   },
   manali: {
     transfer: 'Scenic drive',
     cities: [
-      { id: 'manali-town', name: 'Manali Town', blurb: 'Cedar temples, cafes, hot springs and bonfires', activityIds: ['mnl-hadimba', 'mnl-old', 'mnl-vashisht', 'mnl-massage', 'mnl-bonfire'] },
-      { id: 'solang', name: 'Solang & Rohtang', blurb: 'Snow activities, high passes and starry meadows', activityIds: ['mnl-solang', 'mnl-paraglide', 'mnl-atal', 'mnl-rohtang', 'mnl-camp'] },
-      { id: 'naggar', name: 'Naggar & Kullu', blurb: 'Castle heritage and river rafting', activityIds: ['mnl-naggar', 'mnl-rafting'] },
+      { id: 'manali-town', lat: 32.2396, lng: 77.1887, name: 'Manali Town', blurb: 'Cedar temples, cafes, hot springs and bonfires', activityIds: ['mnl-hadimba', 'mnl-old', 'mnl-vashisht', 'mnl-massage', 'mnl-bonfire'] },
+      { id: 'solang', lat: 32.3163, lng: 77.1565, name: 'Solang & Rohtang', blurb: 'Snow activities, high passes and starry meadows', activityIds: ['mnl-solang', 'mnl-paraglide', 'mnl-atal', 'mnl-rohtang', 'mnl-camp'] },
+      { id: 'naggar', lat: 32.1127, lng: 77.1717, name: 'Naggar & Kullu', blurb: 'Castle heritage and river rafting', activityIds: ['mnl-naggar', 'mnl-rafting'] },
     ],
   },
   goa: {
     transfer: 'Private car transfer',
     cities: [
-      { id: 'north-goa', name: 'North Goa', blurb: 'Fort sunsets, water sports, flea markets and seafood', activityIds: ['goa-sunset', 'goa-water', 'goa-market', 'goa-seafood'] },
-      { id: 'panjim', name: 'Panjim & Old Goa', blurb: 'Latin quarter, UNESCO churches and river cruises', activityIds: ['goa-fontainhas', 'goa-churches', 'goa-cruise', 'goa-cooking'] },
-      { id: 'south-goa', name: 'South Goa', blurb: 'Quiet coves, spice farms, spas and waterfalls', activityIds: ['goa-south', 'goa-spa', 'goa-spice', 'goa-dudhsagar'] },
+      { id: 'north-goa', lat: 15.5439, lng: 73.7553, name: 'North Goa', blurb: 'Fort sunsets, water sports, flea markets and seafood', activityIds: ['goa-sunset', 'goa-water', 'goa-market', 'goa-seafood'] },
+      { id: 'panjim', lat: 15.4909, lng: 73.8278, name: 'Panjim & Old Goa', blurb: 'Latin quarter, UNESCO churches and river cruises', activityIds: ['goa-fontainhas', 'goa-churches', 'goa-cruise', 'goa-cooking'] },
+      { id: 'south-goa', lat: 15.276, lng: 73.9226, name: 'South Goa', blurb: 'Quiet coves, spice farms, spas and waterfalls', activityIds: ['goa-south', 'goa-spa', 'goa-spice', 'goa-dudhsagar'] },
     ],
   },
   singapore: {
     transfer: 'Private car transfer',
     cities: [
-      { id: 'marina-bay', name: 'Marina Bay', blurb: 'Skyline, Gardens by the Bay and river cruises', activityIds: ['sg-gardens', 'sg-lightshow', 'sg-marina', 'sg-river', 'sg-museum'] },
-      { id: 'heritage', name: 'Chinatown & Heritage', blurb: 'Hawker feasts, shophouses and three cultures', activityIds: ['sg-chinatown', 'sg-hawker', 'sg-brunch'] },
-      { id: 'orchard', name: 'Orchard & Gardens', blurb: 'Orchids, spas, shopping and the night safari', activityIds: ['sg-botanic', 'sg-spa', 'sg-zoo'] },
-      { id: 'sentosa', name: 'Sentosa', blurb: 'Beaches, rides and resort island fun', activityIds: ['sg-sentosa'] },
+      { id: 'marina-bay', lat: 1.2816, lng: 103.8636, name: 'Marina Bay', blurb: 'Skyline, Gardens by the Bay and river cruises', activityIds: ['sg-gardens', 'sg-lightshow', 'sg-marina', 'sg-river', 'sg-museum'] },
+      { id: 'heritage', lat: 1.2833, lng: 103.8443, name: 'Chinatown & Heritage', blurb: 'Hawker feasts, shophouses and three cultures', activityIds: ['sg-chinatown', 'sg-hawker', 'sg-brunch'] },
+      { id: 'orchard', lat: 1.3048, lng: 103.8318, name: 'Orchard & Gardens', blurb: 'Orchids, spas, shopping and the night safari', activityIds: ['sg-botanic', 'sg-spa', 'sg-zoo'] },
+      { id: 'sentosa', lat: 1.2494, lng: 103.8303, name: 'Sentosa', blurb: 'Beaches, rides and resort island fun', activityIds: ['sg-sentosa'] },
     ],
   },
 };

@@ -1,21 +1,26 @@
 import React, { useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import {
   ArrowLeft,
   Bed,
   Calendar,
   Car,
   CheckCircle2,
+  ChevronDown,
   Clock,
+  MapPin,
   Moon,
   Sparkles,
   Sun,
   Sunrise,
   Users,
 } from 'lucide-react';
-import { DaySlot, PlanState, TripBooking, TripDraft } from '../types';
+import { Activity, DaySlot, PlanState, TripBooking, TripDraft } from '../types';
 import {
   CATEGORY_STYLES,
   TIER_LABEL,
+  cityOfActivity,
+  cityForDay,
   computeCosts,
   dayDate,
   formatDate,
@@ -55,6 +60,207 @@ const PRICE_ROWS: { key: 'stay' | 'transfers' | 'activities' | 'service'; label:
   { key: 'service', label: 'Concierge service (5%)' },
 ];
 
+const SLOT_ORDER: DaySlot[] = ['Morning', 'Afternoon', 'Evening'];
+
+/** Activity thumbnail: uses the activity's own image when the data has one, else a category-tinted tile. */
+const ActivityThumb: React.FC<{ activity: Activity }> = ({ activity }) => {
+  const [failed, setFailed] = useState(false);
+  const style = CATEGORY_STYLES[activity.category];
+  if (activity.image && !failed) {
+    return (
+      <img
+        src={activity.image}
+        alt={activity.name}
+        referrerPolicy="no-referrer"
+        loading="lazy"
+        onError={() => setFailed(true)}
+        className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover shrink-0"
+      />
+    );
+  }
+  return (
+    <div
+      aria-hidden
+      className={`w-16 h-16 sm:w-20 sm:h-20 rounded-xl shrink-0 flex items-center justify-center ${style.bg}`}
+    >
+      <span className={`w-3 h-3 rounded-full ${style.dot}`} />
+    </div>
+  );
+};
+
+interface DayCardProps {
+  index: number;
+  date: string;
+  items: Activity[];
+  cityName?: string;
+  destId: string;
+  destName: string;
+  coverImage: string;
+  open: boolean;
+  onToggle: () => void;
+  onAdd: () => void;
+}
+
+const DayCard: React.FC<DayCardProps> = ({
+  index,
+  date,
+  items,
+  cityName,
+  destId,
+  destName,
+  coverImage,
+  open,
+  onToggle,
+  onAdd,
+}) => {
+  const [coverFailed, setCoverFailed] = useState(false);
+  const slots = SLOT_ORDER.filter((sl) => items.some((a) => a.slot === sl));
+  const slotRange =
+    slots.length === 0 ? '' : slots.length === 1 ? slots[0] : `${slots[0]} – ${slots[slots.length - 1]}`;
+  const fullDay = slots.length === SLOT_ORDER.length;
+  const stops = `${items.length} stop${items.length === 1 ? '' : 's'}`;
+  const chip =
+    'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FAF8F5] border border-[#1E2022]/8 text-[11px] font-medium text-[#4B4F55]';
+
+  return (
+    <li className="rounded-2xl bg-white border border-[#1E2022]/8 shadow-xs overflow-hidden">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        aria-controls={`ov-day-${index}`}
+        className="w-full flex items-start gap-3 px-4 sm:px-5 py-4 text-left cursor-pointer"
+      >
+        <span className="shrink-0 w-9 h-9 rounded-full bg-[#C2571A] text-white flex items-center justify-center text-sm font-extrabold">
+          {index + 1}
+        </span>
+        <span className="flex-1 min-w-0">
+          <span className="block text-sm sm:text-base font-bold text-[#1E2022]">
+            Day {index + 1}
+            {cityName ? ` — ${cityName}` : ''}
+          </span>
+          <span className="mt-2 flex flex-wrap gap-1.5">
+            <span className={chip}>
+              <Calendar className="w-3 h-3" /> {date}
+            </span>
+            {slotRange && (
+              <span className={chip}>
+                <Clock className="w-3 h-3" /> {slotRange}
+              </span>
+            )}
+            {fullDay && <span className={chip}>Full Day</span>}
+            <span className={chip}>
+              <MapPin className="w-3 h-3" /> {stops}
+            </span>
+          </span>
+        </span>
+        <ChevronDown
+          aria-hidden
+          className={`mt-2 w-4 h-4 shrink-0 text-[#6B7280] transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            id={`ov-day-${index}`}
+            key="panel"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="overflow-hidden"
+          >
+            <div className="px-4 sm:px-5 pb-5 pt-4 border-t border-[#1E2022]/8">
+              {/* Cover */}
+              <div className="relative h-40 sm:h-52 rounded-2xl overflow-hidden bg-gradient-to-br from-[#1E2022] to-[#4B4F55]">
+                {coverImage && !coverFailed && (
+                  <img
+                    src={coverImage}
+                    alt={`${destName} — day ${index + 1}`}
+                    referrerPolicy="no-referrer"
+                    loading="lazy"
+                    onError={() => setCoverFailed(true)}
+                    style={{ objectPosition: `${(index * 37) % 100}% 50%` }}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 text-white">
+                  <span className="inline-flex items-center gap-2 text-sm font-bold">
+                    <span className="w-5 h-5 rounded-full bg-[#C2571A] flex items-center justify-center text-[10px] font-extrabold">
+                      {index + 1}
+                    </span>
+                    Day {index + 1} Highlights
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-white/20 border border-white/30 backdrop-blur-sm text-[11px] font-semibold">
+                    {items.length} {items.length === 1 ? 'Activity' : 'Activities'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Activities */}
+              {items.length === 0 ? (
+                <p className="mt-4 text-sm text-[#6B7280]">
+                  Free day — unwind at your stay, or{' '}
+                  <button type="button" onClick={onAdd} className="font-semibold text-[#C2571A] hover:underline cursor-pointer">
+                    add something
+                  </button>
+                  .
+                </p>
+              ) : (
+                <>
+                  <h4 className="mt-5 flex items-center gap-1.5 text-sm font-semibold text-[#1E2022]">
+                    <Clock className="w-3.5 h-3.5 text-[#9CA3AF]" /> Activities ({items.length})
+                  </h4>
+                  <ul className="relative mt-3 pl-6 space-y-3">
+                    <span aria-hidden className="absolute left-[5px] top-3 bottom-3 w-px bg-[#1E2022]/12" />
+                    {items.map((a) => {
+                      const city = cityOfActivity(destId, a.id);
+                      const style = CATEGORY_STYLES[a.category];
+                      return (
+                        <li key={a.id} className="relative">
+                          <span aria-hidden className="absolute -left-6 top-6 w-[11px] h-[11px] rounded-full bg-[#1E2022]/15 ring-2 ring-white" />
+                          <div className="flex gap-3 sm:gap-4 p-3 rounded-2xl bg-[#FAF8F5]/70 border border-[#1E2022]/8">
+                            <ActivityThumb activity={a} />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                <p className="text-sm font-bold text-[#1E2022]">{a.name}</p>
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white border border-[#1E2022]/10 text-[11px] font-semibold text-[#4B4F55]">
+                                  <Clock className="w-3 h-3" /> {a.hours}h
+                                </span>
+                              </div>
+                              {a.description && <p className="mt-1 text-xs text-[#6B7280]">{a.description}</p>}
+                              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[#6B7280]">
+                                {city && (
+                                  <span className="inline-flex items-center gap-1">
+                                    <MapPin className="w-3 h-3" /> {city.name}
+                                  </span>
+                                )}
+                                <span className="inline-flex items-center gap-1">
+                                  {SLOT_ICON[a.slot]} {a.slot}
+                                </span>
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full font-bold ${style.bg} ${style.text}`}>
+                                  {a.category}
+                                </span>
+                                <span>{a.cost === 0 ? 'Free' : `${formatINR(a.cost)} pp`}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </li>
+  );
+};
+
 export const TripOverview: React.FC<TripOverviewProps> = ({
   draft,
   plan,
@@ -77,6 +283,13 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
   const [contact, setContact] = useState<ContactDetails>({ name: '', phone: '', email: '' });
   const [errors, setErrors] = useState<Partial<Record<keyof ContactDetails, string>>>({});
   const [confirmed, setConfirmed] = useState<TripBooking | null>(null);
+  const [openDays, setOpenDays] = useState<Set<number>>(() => new Set([0]));
+  const toggleDay = (i: number) =>
+    setOpenDays((prev) => {
+      const next = new Set(prev);
+      if (!next.delete(i)) next.add(i);
+      return next;
+    });
 
   const validate = () => {
     const e: typeof errors = {};
@@ -199,46 +412,21 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
               </div>
             </div>
 
-            <ol className="mt-6 space-y-5">
+            <ol className="mt-6 space-y-4">
               {planned.map((items, i) => (
-                <li key={i} className="rounded-2xl bg-white border border-[#1E2022]/8 overflow-hidden">
-                  <div className="px-5 py-3 bg-[#1E2022]/[0.03] border-b border-[#1E2022]/8 flex items-center justify-between">
-                    <h3 className="text-sm font-extrabold text-[#1E2022]">Day {i + 1}</h3>
-                    <span className="text-xs text-[#6B7280]">{dayDate(draft.checkIn, i)}</span>
-                  </div>
-                  {items.length === 0 ? (
-                    <p className="px-5 py-5 text-sm text-[#6B7280]">
-                      Free day — unwind at your stay, or{' '}
-                      <button type="button" onClick={onEditPlan} className="font-semibold text-[#C2571A] hover:underline cursor-pointer">
-                        add something
-                      </button>
-                      .
-                    </p>
-                  ) : (
-                    <ul className="divide-y divide-[#1E2022]/6">
-                      {items.map((a) => (
-                        <li key={a.id} className="px-5 py-3.5 flex gap-4">
-                          <div className="w-24 shrink-0 pt-0.5 text-xs font-semibold text-[#6B7280] flex items-start gap-1.5">
-                            {SLOT_ICON[a.slot]} {a.slot}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-[#1E2022]">{a.name}</p>
-                            <p className="mt-0.5 text-xs text-[#6B7280]">{a.description}</p>
-                            <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px] text-[#6B7280]">
-                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-bold ${CATEGORY_STYLES[a.category].bg} ${CATEGORY_STYLES[a.category].text}`}>
-                                {a.category}
-                              </span>
-                              <span className="inline-flex items-center gap-1">
-                                <Clock className="w-3 h-3" /> {a.hours}h
-                              </span>
-                              <span>{a.cost === 0 ? 'Free' : `${formatINR(a.cost)} pp`}</span>
-                            </div>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
+                <DayCard
+                  key={i}
+                  index={i}
+                  date={dayDate(draft.checkIn, i)}
+                  items={items}
+                  cityName={cityForDay(draft, i)?.name}
+                  destId={dest.id}
+                  destName={dest.name}
+                  coverImage={dest.image}
+                  open={openDays.has(i)}
+                  onToggle={() => toggleDay(i)}
+                  onAdd={onEditPlan}
+                />
               ))}
             </ol>
 

@@ -35,6 +35,8 @@ export interface Activity {
   cost: number;
   hours: number;
   description: string;
+  /** Optional photo; shown as the thumbnail when present. */
+  image?: string;
   /** True when suggested live by the AI rather than from the curated catalogue. */
   aiGenerated?: boolean;
 }
