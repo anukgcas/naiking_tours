@@ -61,14 +61,17 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const offset = direction === 'left' ? -340 : 340;
-      scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' });
-    }
+    const el = scrollRef.current;
+    if (!el) return;
+    // Move exactly one destination card (card width + gap) per click
+    const card = el.firstElementChild as HTMLElement | null;
+    const gap = parseFloat(getComputedStyle(el).columnGap) || 0;
+    const step = card ? card.offsetWidth + gap : 340;
+    el.scrollBy({ left: direction === 'left' ? -step : step, behavior: 'smooth' });
   };
 
   return (
-    <section className="py-12 lg:py-16">
+    <section className="py-12 md:pb-8 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Block: Left Title & Small Subtext, Right "View All Packages →" */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
@@ -113,7 +116,7 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
         {/* Destination cards: five across on desktop, swipeable row on smaller screens */}
         <div
           ref={scrollRef}
-          className="flex lg:grid lg:grid-cols-5 gap-4 lg:gap-5 overflow-x-auto lg:overflow-visible pb-4 pt-1 scroll-smooth snap-x snap-mandatory"
+          className="flex lg:grid lg:grid-cols-5 gap-4 lg:gap-5 overflow-x-auto lg:overflow-visible md:-mr-6 md:pr-6 lg:mr-0 lg:pr-0 pb-4 pt-1 scroll-smooth snap-x snap-mandatory"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {ordered.map((dest) => {
@@ -124,7 +127,7 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
                 onClick={() => onSelectDestination(dest.name)}
                 onPointerMove={tiltImage}
                 onPointerLeave={resetImage}
-                className="group relative flex-none w-[68%] sm:w-[42%] md:w-[30%] lg:w-auto aspect-[3/4] rounded-[1.75rem] cursor-pointer hover:z-20 select-none bg-[#EAE6DF] snap-start shadow-md hover:shadow-[0_22px_40px_-18px_rgba(30,32,34,0.45)] hover:-translate-y-1 transition-[transform,box-shadow] duration-300 ease-out"
+                className="group relative flex-none w-[68%] sm:w-[42%] md:w-[calc((100%-76px)/3)] lg:w-auto aspect-[3/4] rounded-[1.75rem] cursor-pointer hover:z-20 select-none bg-[#EAE6DF] snap-start shadow-md hover:shadow-[0_22px_40px_-18px_rgba(30,32,34,0.45)] hover:-translate-y-1 transition-[transform,box-shadow] duration-300 ease-out"
               >
                 {/* Clip layer: keeps the image strictly inside THIS card */}
                 <div className="absolute inset-0 overflow-hidden rounded-[1.75rem] [contain:paint] [transform:translateZ(0)]">

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Sparkles, Menu, X } from 'lucide-react';
 import { NLogo } from './NLogo';
 
 interface HeaderProps {
@@ -18,7 +17,6 @@ export const Header: React.FC<HeaderProps> = ({
   bookedTripsCount,
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNarrow, setIsNarrow] = useState(false);
   // Transparent over the hero photo at the top of the home page, so the links switch to light text there
   const overHero = !isScrolled && activeTab === 'home';
@@ -57,7 +55,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Left: [N logo] Naiking Tours */}
           <button
             onClick={() => onNavigate('home')}
-            className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] rounded-lg transition-transform active:scale-98"
+            className="flex items-center gap-3 group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] rounded-lg transition-transform active:scale-98"
           >
             <span
               className={`block origin-left transition-transform duration-500 ease-out ${
@@ -72,7 +70,7 @@ export const Header: React.FC<HeaderProps> = ({
           <nav className="hidden md:flex items-center gap-8">
             <button
               onClick={() => onNavigate('home')}
-              className={`text-[15px] font-medium transition-colors duration-500 ease-out relative py-1 ${
+              className={`text-[15px] font-medium transition-colors duration-500 ease-out relative py-1 cursor-pointer ${
                 activeTab === 'home' ? linkActive : linkIdle
               }`}
             >
@@ -84,7 +82,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               onClick={onOpenMyTrips}
-              className={`text-[15px] font-medium ${linkIdle} transition-colors duration-500 ease-out relative py-1 flex items-center gap-1.5`}
+              className={`text-[15px] font-medium ${linkIdle} transition-colors duration-500 ease-out relative py-1 flex items-center gap-1.5 cursor-pointer`}
             >
               My Trips
               {bookedTripsCount > 0 && (
@@ -96,7 +94,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               onClick={() => onNavigate('why')}
-              className={`text-[15px] font-medium transition-colors duration-500 ease-out relative py-1 ${
+              className={`text-[15px] font-medium transition-colors duration-500 ease-out relative py-1 cursor-pointer ${
                 activeTab === 'why' ? linkActive : linkIdle
               }`}
             >
@@ -117,55 +115,8 @@ export const Header: React.FC<HeaderProps> = ({
               {/* <Sparkles className="w-3.5 h-3.5 text-[#FAF8F5]/80" /> */}
               <span>Plan a Trip</span>
             </button>
-
-            {/* Mobile Menu Toggle Button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={`md:hidden p-2 rounded-lg hover:bg-black/5 ${overHero ? 'text-white' : 'text-[#1E2022]'}`}
-              aria-label="Toggle menu"
-            >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
           </div>
         </div>
-
-        {/* Mobile Dropdown Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden mt-2 mb-3 p-4 bg-white rounded-2xl border border-[#1E2022]/10 shadow-lg flex flex-col gap-3">
-            <button
-              onClick={() => {
-                onNavigate('home');
-                setIsMobileMenuOpen(false);
-              }}
-              className="text-left text-sm font-medium py-2 px-3 rounded-lg hover:bg-[#FAF8F5]"
-            >
-              Home
-            </button>
-            <button
-              onClick={() => {
-                onOpenMyTrips();
-                setIsMobileMenuOpen(false);
-              }}
-              className="text-left text-sm font-medium py-2 px-3 rounded-lg hover:bg-[#FAF8F5] flex items-center justify-between"
-            >
-              <span>My Trips</span>
-              {bookedTripsCount > 0 && (
-                <span className="text-xs px-2 py-0.5 rounded-full bg-[#1E2022] text-white">
-                  {bookedTripsCount}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => {
-                onNavigate('why');
-                setIsMobileMenuOpen(false);
-              }}
-              className="text-left text-sm font-medium py-2 px-3 rounded-lg hover:bg-[#FAF8F5]"
-            >
-              Why Naiking
-            </button>
-          </div>
-        )}
       </div>
     </header>
   );

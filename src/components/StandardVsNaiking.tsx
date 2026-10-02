@@ -85,7 +85,7 @@ export const StandardVsNaiking: React.FC = () => {
 
                       <div className="flex-1 min-w-0">
                         <h3
-                          className={`text-base sm:text-lg uppercase tracking-[0.12em] transition-[transform,color] duration-500 ease-out motion-reduce:transition-none ${
+                          className={`text-base sm:text-lg transition-[transform,color] duration-500 ease-out motion-reduce:transition-none ${
                             isActive
                               ? 'font-semibold text-[#1E2022] translate-x-1.5 motion-reduce:translate-x-0'
                               : 'font-medium text-[#1E2022]/70'
@@ -109,8 +109,8 @@ export const StandardVsNaiking: React.FC = () => {
                                 isActive ? 'translate-y-0' : 'translate-y-2 motion-reduce:translate-y-0'
                               }`}
                             >
-                              <p className="max-w-md text-sm sm:text-[15px] leading-relaxed text-[#6B7280]">{p.body}</p>
-                              <p className="mt-3 text-sm font-medium text-[#1E2022]">{p.phrase}</p>
+                              <p className="max-w-md text-sm sm:text-[16px] leading-relaxed text-[#6B7280]">{p.body}</p>
+                              <p className="mt-3 text-sm sm:text-[16px] leading-relaxed text-[#6B7280]">{p.phrase}</p>
                             </div>
                           </div>
                         </div>
