@@ -17,20 +17,37 @@ const CARD_META: Record<string, { country: string; tag: string }> = {
   goa: { country: 'India', tag: 'Heritage & Coast' },
 };
 
-const tiltMove = (e: React.MouseEvent<HTMLDivElement>) => {
-  const el = e.currentTarget;
-  const r = el.getBoundingClientRect();
+const TILT_MAX = 12; // degrees
+const TILT_SCALE = 1.15; // enough overscan that no edge shows at max tilt
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** Tilts the image inside a card toward the cursor. Writes straight to the DOM (rAF-throttled) so React never re-renders. */
+const tiltImage = (e: React.PointerEvent<HTMLDivElement>) => {
+  if (e.pointerType !== 'mouse' || prefersReducedMotion()) return;
+  const card = e.currentTarget;
+  const img = card.querySelector<HTMLImageElement>('[data-tilt-img]');
+  if (!img) return;
+  const r = card.getBoundingClientRect();
   const x = (e.clientX - r.left) / r.width;
   const y = (e.clientY - r.top) / r.height;
-  el.style.setProperty('--rx', `${((0.5 - y) * 10).toFixed(2)}deg`);
-  el.style.setProperty('--ry', `${((x - 0.5) * 12).toFixed(2)}deg`);
-  el.style.setProperty('--mx', `${(x * 100).toFixed(1)}%`);
-  el.style.setProperty('--my', `${(y * 100).toFixed(1)}%`);
+  const rx = (0.5 - y) * 2 * TILT_MAX;
+  const ry = (x - 0.5) * 2 * TILT_MAX;
+  const prev = (img as any)._raf as number | undefined;
+  if (prev) cancelAnimationFrame(prev);
+  (img as any)._raf = requestAnimationFrame(() => {
+    // short transition while tracking = smooth, spring-like follow
+    img.style.transition = 'transform 160ms ease-out';
+    img.style.transform = `perspective(500px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) scale(${TILT_SCALE})`;
+  });
 };
-const tiltLeave = (e: React.MouseEvent<HTMLDivElement>) => {
-  const el = e.currentTarget;
-  el.style.setProperty('--rx', '0deg');
-  el.style.setProperty('--ry', '0deg');
+const resetImage = (e: React.PointerEvent<HTMLDivElement>) => {
+  const img = e.currentTarget.querySelector<HTMLImageElement>('[data-tilt-img]');
+  if (!img) return;
+  const prev = (img as any)._raf as number | undefined;
+  if (prev) cancelAnimationFrame(prev);
+  img.style.transition = 'transform 400ms ease-out';
+  img.style.transform = 'perspective(500px) rotateX(0deg) rotateY(0deg) scale(1)';
 };
 
 export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
@@ -56,11 +73,11 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
         {/* Header Block: Left Title & Small Subtext, Right "View All Packages →" */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#1E2022]">
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1E2022]">
               Signature Destinations
             </h2>
-            <p className="mt-1 text-sm sm:text-base text-[#6B7280]">
-              Pick a place, then shape every day of it your way.
+            <p className="mt-2 text-sm font-medium sm:text-base text-[#6B7280]">
+              Pick a place, then shape every day of it your way
             </p>
           </div>
 
@@ -85,10 +102,10 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
 
             <button
               onClick={onStartCustomising}
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1E2022] hover:text-[#C2571A] transition-colors group cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-white border border-[#1E2022]/10 text-[14px] sm:text-[14px] font-semibold text-[#000000] hover:border-[#1E2022]/25 hover:bg-[#1E2022]/[0.025] transition-colors duration-200 group cursor-pointer"
             >
               <span>Start Customising</span>
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 ease-out group-hover:translate-x-1" />
             </button>
           </div>
         </div>
@@ -105,43 +122,32 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
               <div
                 key={dest.id}
                 onClick={() => onSelectDestination(dest.name)}
-                onMouseMove={tiltMove}
-                onMouseLeave={tiltLeave}
-                style={{ transform: 'perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))', transition: 'transform 0.25s ease-out, box-shadow 0.3s' }}
-                className="group relative flex-none w-[68%] sm:w-[42%] md:w-[30%] lg:w-auto aspect-[3/4] rounded-[1.75rem] cursor-pointer hover:z-20 select-none bg-[#EAE6DF] snap-start shadow-md hover:shadow-2xl"
+                onPointerMove={tiltImage}
+                onPointerLeave={resetImage}
+                className="group relative flex-none w-[68%] sm:w-[42%] md:w-[30%] lg:w-auto aspect-[3/4] rounded-[1.75rem] cursor-pointer hover:z-20 select-none bg-[#EAE6DF] snap-start shadow-md hover:shadow-[0_22px_40px_-18px_rgba(30,32,34,0.45)] hover:-translate-y-1 transition-[transform,box-shadow] duration-300 ease-out"
               >
-                {/* Clip layer: keeps image, glare and shimmer strictly inside THIS card */}
+                {/* Clip layer: keeps the image strictly inside THIS card */}
                 <div className="absolute inset-0 overflow-hidden rounded-[1.75rem] [contain:paint] [transform:translateZ(0)]">
                 <img
                   src={dest.image}
                   alt={`${dest.name}, ${dest.country}`}
                   referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  data-tilt-img
+                  className="w-full h-full object-cover [transform-origin:center] will-change-transform"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
-
-                {/* Cursor-following glare */}
-                <div
-                  className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ background: 'radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.22), transparent 45%)' }}
-                />
-                {/* Shimmer sweep */}
-                <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                  <div className="absolute top-0 left-0 h-full w-1/2 -translate-x-[160%] group-hover:translate-x-[320%] -skew-x-12 bg-gradient-to-r from-transparent via-white/35 to-transparent transition-transform duration-[900ms] ease-in-out" />
-                </div>
-                <div className="absolute inset-0 rounded-[1.75rem] ring-1 ring-inset ring-white/0 group-hover:ring-white/40 transition-all duration-300 pointer-events-none" />
 
                 </div>
 
                 <div className="absolute bottom-6 left-6 right-6 z-10 text-white">
-                  <p className="text-xs font-bold uppercase tracking-wider text-white/85">
+                  <p className="text-xs font-medium uppercase tracking-wider text-white/85">
                     {meta?.country ?? dest.country}
                   </p>
-                  <h3 className="mt-0.5 text-2xl font-extrabold leading-tight">{dest.name}</h3>
+                  <h3 className="mt-0.5 text-2xl font-semibold leading-tight">{dest.name}</h3>
                   <p className="mt-1 text-sm text-white/85">{meta?.tag ?? dest.tagline}</p>
                   <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[#F28A55]">
                     Plan This Trip
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 ease-out group-hover:translate-x-1" />
                   </span>
                 </div>
               </div>

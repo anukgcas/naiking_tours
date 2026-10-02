@@ -43,39 +43,48 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-        isScrolled
-          ? 'bg-white/90 backdrop-blur-md border-b border-[#1E2022]/8 shadow-xs'
-          : 'bg-transparent border-b border-transparent'
-      }`}
+      className="fixed top-0 left-0 right-0 z-40"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-[72px] lg:h-[88px]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 lg:pt-4">
+        {/* Floating rounded pill navbar */}
+        <div
+          className={`relative flex items-center justify-between h-[64px] lg:h-[76px] px-5 lg:px-8 rounded-full border backdrop-blur-md transition-all duration-700 ease-in-out ${
+            overHero
+              ? 'bg-white/0 border-white/0 shadow-none'
+              : 'bg-white/90 border-white/90 shadow-md'
+          }`}
+        >
           {/* Left: [N logo] Naiking Tours */}
           <button
             onClick={() => onNavigate('home')}
             className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] rounded-lg transition-transform active:scale-98"
           >
-            <NLogo fontSize={isNarrow ? 19 : isScrolled ? 24 : 28} className="transition-all duration-300 group-hover:scale-[1.03]" />
+            <span
+              className={`block origin-left transition-transform duration-500 ease-out ${
+                !isNarrow && isScrolled ? 'scale-[0.857]' : 'scale-100'
+              }`}
+            >
+              <NLogo fontSize={isNarrow ? 19 : 28} className="transition-all duration-300 group-hover:scale-[1.03]" />
+            </span>
           </button>
 
           {/* Center: Clean typography navigation links */}
           <nav className="hidden md:flex items-center gap-8">
             <button
               onClick={() => onNavigate('home')}
-              className={`text-[15px] font-medium transition-colors relative py-1 ${
+              className={`text-[15px] font-medium transition-colors duration-500 ease-out relative py-1 ${
                 activeTab === 'home' ? linkActive : linkIdle
               }`}
             >
               Home
               {activeTab === 'home' && (
-                <span className={`absolute bottom-0 left-0 right-0 h-[2px] rounded-full transition-colors duration-300 ${overHero ? 'bg-gradient-to-r from-transparent via-white to-transparent' : 'bg-[#C2571A]'}`} />
+                <span key={String(overHero)} className={`absolute bottom-0 left-0 right-0 h-[2px] rounded-full origin-left animate-underline-draw ${overHero ? 'bg-white' : 'bg-[#C2571A]'}`} />
               )}
             </button>
 
             <button
               onClick={onOpenMyTrips}
-              className={`text-[15px] font-medium ${linkIdle} transition-colors relative py-1 flex items-center gap-1.5`}
+              className={`text-[15px] font-medium ${linkIdle} transition-colors duration-500 ease-out relative py-1 flex items-center gap-1.5`}
             >
               My Trips
               {bookedTripsCount > 0 && (
@@ -87,13 +96,13 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               onClick={() => onNavigate('why')}
-              className={`text-[15px] font-medium transition-colors relative py-1 ${
+              className={`text-[15px] font-medium transition-colors duration-500 ease-out relative py-1 ${
                 activeTab === 'why' ? linkActive : linkIdle
               }`}
             >
               Why Naiking
               {activeTab === 'why' && (
-                <span className={`absolute bottom-0 left-0 right-0 h-[2px] rounded-full transition-colors duration-300 ${overHero ? 'bg-gradient-to-r from-transparent via-white to-transparent' : 'bg-[#C2571A]'}`} />
+                <span key={String(overHero)} className={`absolute bottom-0 left-0 right-0 h-[2px] rounded-full origin-left animate-underline-draw ${overHero ? 'bg-white' : 'bg-[#C2571A]'}`} />
               )}
             </button>
           </nav>
@@ -105,7 +114,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={onOpenPlanner}
               className="inline-flex items-center gap-2 whitespace-nowrap px-4 py-2 sm:px-5 sm:py-2.5 rounded-full text-[15px] sm:text-[15px] font-medium text-white bg-[#1E2022] hover:bg-[#C2571A] transition-all duration-300 shadow-xs active:scale-98 cursor-pointer"
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#FAF8F5]/80" />
+              {/* <Sparkles className="w-3.5 h-3.5 text-[#FAF8F5]/80" /> */}
               <span>Plan a Trip</span>
             </button>
 
@@ -122,7 +131,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Mobile Dropdown Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden mb-3 p-4 bg-white rounded-2xl border border-[#1E2022]/10 shadow-lg flex flex-col gap-3">
+          <div className="md:hidden mt-2 mb-3 p-4 bg-white rounded-2xl border border-[#1E2022]/10 shadow-lg flex flex-col gap-3">
             <button
               onClick={() => {
                 onNavigate('home');

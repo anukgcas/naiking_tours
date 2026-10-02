@@ -94,12 +94,12 @@ export const SpinBadge: React.FC<{ className?: string }> = ({ className = '' }) 
 export const Marquee: React.FC<{ items: string[] }> = ({ items }) => {
   const row = [...items, ...items];
   return (
-    <div className="relative overflow-hidden border-t border-white/20 bg-transparent py-3 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+    <div className="relative overflow-hidden bg-transparent py-3 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
       <div className="flex w-max animate-marquee gap-10 whitespace-nowrap">
         {row.map((t, idx) => (
           <span
             key={idx}
-            className="flex items-center gap-10 text-[14px] font-semibold uppercase tracking-normal text-white/90 drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]"
+            className="flex items-center gap-10 text-[14px] font-medium uppercase tracking-normal text-white/90 drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]"
           >
             {t}
             <span className="w-1.5 h-1.5 rotate-45 bg-[#FFB27A]" />

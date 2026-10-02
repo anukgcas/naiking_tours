@@ -9,6 +9,7 @@
   --color-charcoal: #1E2022;
   --color-cream: #FAF8F5;
   --font-display: 'Cinzel', 'Times New Roman', serif;
+  --animate-underline-draw: underline-draw 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   --animate-marquee: marquee 38s linear infinite;
   --animate-float: float 7s ease-in-out infinite;
   --animate-kenburns: kenburns 14s ease-out forwards;
@@ -28,6 +29,10 @@
   }
 }
 
+@keyframes underline-draw {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
 @keyframes marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }

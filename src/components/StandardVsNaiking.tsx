@@ -1,139 +1,140 @@
 import React, { useState } from 'react';
-import { Check, X, Shield, Sparkles } from 'lucide-react';
+import { ArrowRight, Minus } from 'lucide-react';
+
+/**
+ * The Naiking Standard — an editorial index of four principles.
+ * Hover (desktop) or tap (touch) a row to open it; the last opened row stays open.
+ */
+const PRINCIPLES = [
+  {
+    title: 'Chauffeured Transit',
+    body: 'Private luxury SUV, personal chauffeur, chilled bottles and custom stops.',
+    phrase: 'Your journey moves at your pace.',
+  },
+  {
+    title: 'Boutique Sanctuaries',
+    body: 'Private villas, heritage estates and overwater stays.',
+    phrase: 'Stay somewhere that becomes part of the journey.',
+  },
+  {
+    title: 'Daily Pacing & Privacy',
+    body: 'Unhurried mornings, flexible schedules and peaceful private experiences.',
+    phrase: 'Nothing rushed. Nothing imposed.',
+  },
+  {
+    title: 'Artisan Gastronomy',
+    body: 'Curated chef dining, organic stays and private culinary experiences.',
+    phrase: 'Food becomes part of the story.',
+  },
+];
 
 export const StandardVsNaiking: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'all' | 'transit' | 'stays' | 'dining'>('all');
-
-  const comparisons = [
-    {
-      category: 'transit',
-      label: 'Chauffeured Transit',
-      mass: '45-passenger tourist bus, rigid scheduled stops, crowded boarding queues.',
-      naiking: 'Dedicated private luxury SUV with private chauffeur, on-board chilled bottles & custom departures.',
-    },
-    {
-      category: 'stays',
-      label: 'Boutique Sanctuaries',
-      mass: 'Generic commercial high-rise hotels in noisy tourist districts.',
-      naiking: 'Private pool villas, 400-year heritage estates, and overwater atoll bungalows with butler service.',
-    },
-    {
-      category: 'pacing',
-      label: 'Daily Pacing & Privacy',
-      mass: 'Rushed 6:00 AM alarm calls, megaphone tour guides, and mandatory gift-shop detours.',
-      naiking: 'Unhurried mornings, dawn temple visits before crowds arrive, and zero commercial stops.',
-    },
-    {
-      category: 'dining',
-      label: 'Artisan Gastronomy',
-      mass: 'Pre-set banquet buffets in noisy group dining halls.',
-      naiking: 'Curated candlelit chef dinners, organic treehouse dining, and private champagne picnics.',
-    },
-  ];
-
-  const filtered =
-    activeTab === 'all'
-      ? comparisons
-      : comparisons.filter((c) => c.category === activeTab);
+  const [active, setActive] = useState<number | null>(null);
 
   return (
-    <section className="py-16 sm:py-24 bg-white border-y border-[#1E2022]/8">
+    <section className="pt-16 pb-[54px] sm:pt-24 sm:pb-[86px] lg:pt-28 lg:pb-[102px]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C2571A]/10 text-xs font-bold text-[#C2571A] mb-2 uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>The Naiking Standard</span>
+        <div className="grid lg:grid-cols-[2fr_3fr] gap-10 lg:gap-20 items-start">
+          {/* Left: editorial introduction */}
+          <div className="lg:sticky lg:top-32">
+            <span className="text-md font-medium text-[#C2571A]">
+              The Naiking Standard
+            </span>
+            <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight leading-[1.1] text-[#1E2022] text-balance">
+              Why discerning travellers choose quiet luxury
+            </h2>
+            <p className="mt-5 max-w-md text-sm sm:text-base leading-relaxed text-[#6B7280]">
+              The difference between checking off a tourist checklist and feeling truly renewed
+            </p>
           </div>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#1E2022]">
-            Why discerning travellers choose quiet luxury.
-          </h2>
-          <p className="mt-2 text-sm sm:text-base text-[#6B7280]">
-            The difference between checking off a tourist checklist and feeling truly renewed.
-          </p>
-        </div>
 
-        {/* Comparison Table / Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
-          {/* Left Column: Standard Mass Tourism */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-[#FAF8F5] border border-black/5 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-2 mb-6 pb-4 border-b border-[#1E2022]/8">
-                <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold text-xs">
-                  ✕
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-gray-700">Mass Group Tourism</h3>
-                  <span className="text-xs text-gray-500">The conventional route</span>
-                </div>
-              </div>
-
-              <div className="space-y-5">
-                {comparisons.map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0 mt-0.5">
-                      <X className="w-3 h-3" />
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-gray-700 block uppercase tracking-wider">
-                        {item.label}
+          {/* Right: interactive index */}
+          <ol className="border-t border-[#1E2022]/12 lg:min-h-[440px]" onMouseLeave={() => setActive(null)}>
+            {PRINCIPLES.map((p, i) => {
+              const isActive = active === i;
+              return (
+                <li key={p.title} className="border-b border-[#1E2022]/12">
+                  <button
+                    type="button"
+                    id={`principle-${i}`}
+                    aria-expanded={isActive}
+                    aria-controls={`principle-panel-${i}`}
+                    onMouseEnter={() => setActive(i)}
+                    onFocus={() => setActive(i)}
+                    onBlur={() => setActive(null)}
+                    onClick={() => setActive(i)}
+                    className={`group relative w-full text-left cursor-pointer overflow-hidden px-4 sm:px-6 py-6 sm:py-7 transition-colors duration-500 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C2571A] motion-reduce:transition-none ${
+                      isActive ? 'bg-[#F3EDE4]/70' : 'bg-transparent'
+                    }`}
+                  >
+                    {/* Orange accent rule */}
+                    <span
+                      aria-hidden="true"
+                      className={`absolute left-0 top-0 bottom-0 w-[2px] bg-[#C2571A] origin-top transition-transform duration-500 ease-out motion-reduce:transition-none ${
+                        isActive ? 'scale-y-100' : 'scale-y-0'
+                      }`}
+                    />
+                    <div className="relative flex items-start gap-4 sm:gap-8">
+                      <span
+                        className={`w-7 shrink-0 pt-1 text-xs font-semibold tracking-widest tabular-nums transition-[transform,color] duration-500 ease-out motion-reduce:transition-none ${
+                          isActive ? 'text-[#C2571A] translate-x-1 motion-reduce:translate-x-0' : 'text-[#9CA3AF]'
+                        }`}
+                      >
+                        0{i + 1}
                       </span>
-                      <p className="text-xs text-gray-600 mt-0.5 leading-relaxed">
-                        {item.mass}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
 
-            <div className="mt-8 pt-4 border-t border-black/5 text-center text-xs text-gray-500">
-              High crowd density · Little individual attention
-            </div>
-          </div>
+                      <div className="flex-1 min-w-0">
+                        <h3
+                          className={`text-base sm:text-lg uppercase tracking-[0.12em] transition-[transform,color] duration-500 ease-out motion-reduce:transition-none ${
+                            isActive
+                              ? 'font-semibold text-[#1E2022] translate-x-1.5 motion-reduce:translate-x-0'
+                              : 'font-medium text-[#1E2022]/70'
+                          }`}
+                        >
+                          {p.title}
+                        </h3>
 
-          {/* Right Column: Naiking Private Sanctuary */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-[#1E2022] text-white border border-[#1E2022] shadow-2xl flex flex-col justify-between relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-[#C2571A]/10 rounded-full blur-3xl pointer-events-none" />
+                        {/* Expanding content */}
+                        <div
+                          id={`principle-panel-${i}`}
+                          role="region"
+                          aria-labelledby={`principle-${i}`}
+                          className={`grid transition-[grid-template-rows,opacity] duration-500 ease-out motion-reduce:transition-opacity ${
+                            isActive ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                          }`}
+                        >
+                          <div className="overflow-hidden">
+                            <div
+                              className={`pt-4 pr-12 sm:pr-20 transition-transform duration-500 ease-out motion-reduce:transition-none ${
+                                isActive ? 'translate-y-0' : 'translate-y-2 motion-reduce:translate-y-0'
+                              }`}
+                            >
+                              <p className="max-w-md text-sm sm:text-[15px] leading-relaxed text-[#6B7280]">{p.body}</p>
+                              <p className="mt-3 text-sm font-medium text-[#1E2022]">{p.phrase}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-[#C2571A] text-white flex items-center justify-center font-bold text-xs shadow-md">
-                    ✓
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-white">Naiking Tours</h3>
-                    <span className="text-xs text-[#C2571A] font-semibold">Quiet Luxury Standard</span>
-                  </div>
-                </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded-full border border-emerald-500/20">
-                  100% Private
-                </span>
-              </div>
-
-              <div className="space-y-5">
-                {comparisons.map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-[#C2571A] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
-                      <Check className="w-3 h-3" />
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-white block uppercase tracking-wider">
-                        {item.label}
+                      {/* Arrow ⇄ minus indicator */}
+                      <span className="relative mt-1 w-5 h-5 shrink-0 text-[#1E2022]/60" aria-hidden="true">
+                        <ArrowRight
+                          className={`absolute inset-0 w-5 h-5 transition-[transform,opacity] duration-500 ease-out group-hover:translate-x-1.5 motion-reduce:transition-opacity motion-reduce:group-hover:translate-x-0 ${
+                            isActive ? 'opacity-0' : 'opacity-100'
+                          }`}
+                        />
+                        <Minus
+                          className={`absolute inset-0 w-5 h-5 text-[#C2571A] transition-opacity duration-500 ease-out ${
+                            isActive ? 'opacity-100' : 'opacity-0'
+                          }`}
+                        />
                       </span>
-                      <p className="text-xs text-gray-300 mt-0.5 leading-relaxed">
-                        {item.naiking}
-                      </p>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-8 pt-4 border-t border-white/10 text-center text-xs text-gray-400 relative z-10">
-              ✨ Pure privacy · Fluid custom schedules · Verified local historians
-            </div>
-          </div>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
         </div>
       </div>
     </section>

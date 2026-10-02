@@ -71,6 +71,8 @@ const DESTINATION_REELS: DestinationReel[] = [
 ];
 
 const REEL_INTERVAL_MS = 6500;
+// Only these destinations are shown in the strip, so the loop cycles through just them
+const FEATURED_REELS = DESTINATION_REELS.slice(0, 4);
 
 const MARQUEE_ITEMS = [
   'Private Chauffeured Transit',
@@ -187,12 +189,12 @@ const WanderingPlane: React.FC = () => {
 export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination }) => {
   const [activeReelIndex, setActiveReelIndex] = useState(0);
 
-  const currentReel = DESTINATION_REELS[activeReelIndex];
+  const currentReel = FEATURED_REELS[activeReelIndex];
 
   // Auto-advance the scenic image; hovering a card restarts the timer
   useEffect(() => {
     const id = setTimeout(() => {
-      setActiveReelIndex((activeReelIndex + 1) % DESTINATION_REELS.length);
+      setActiveReelIndex((activeReelIndex + 1) % FEATURED_REELS.length);
     }, REEL_INTERVAL_MS);
     return () => clearTimeout(id);
   }, [activeReelIndex]);
@@ -310,7 +312,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
               </div>
 
               <div className="mt-3 -mx-4 px-4 sm:mx-0 sm:px-0 flex items-stretch gap-3 h-[190px] sm:h-[210px] overflow-x-auto lg:overflow-visible snap-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {DESTINATION_REELS.slice(0, 4).map((reel, idx) => {
+                {FEATURED_REELS.map((reel, idx) => {
                   const active = activeReelIndex === idx;
                   return (
                     <motion.button

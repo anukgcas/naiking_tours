@@ -46,7 +46,7 @@ const ReviewCard: React.FC<(typeof REVIEWS)[number]> = ({ quote, guest, trip }) 
     .map((w) => w[0])
     .join('');
   return (
-    <figure className="w-[300px] sm:w-[360px] shrink-0 mr-5 rounded-3xl bg-[#FAF8F5] border border-[#1E2022]/8 p-6 flex flex-col justify-between">
+    <figure className="w-[300px] sm:w-[360px] shrink-0 mr-5 rounded-3xl bg-[#FAF8F5] border border-[#1E2022]/8 p-6 flex flex-col justify-between cursor-pointer">
       <div>
         <div className="flex gap-0.5 text-[#C2571A]" aria-label="5 out of 5 stars">
           {[0, 1, 2, 3, 4].map((i) => (
@@ -70,10 +70,10 @@ const ReviewCard: React.FC<(typeof REVIEWS)[number]> = ({ quote, guest, trip }) 
 
 export const WhyNaiking: React.FC = () => {
   return (
-    <section id="why-naiking" className="py-16 lg:py-24 bg-white border-y border-[#1E2022]/6 overflow-hidden">
+    <section id="why-naiking" className="py-16 lg:py-12 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto text-center mb-10 lg:mb-14">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#C2571A]">
+          <span className="text-md font-semibold text-[#C2571A]">
             The Naiking Distinction
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#1E2022] mt-2 text-balance">
