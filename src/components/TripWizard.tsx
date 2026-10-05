@@ -74,10 +74,10 @@ const TRAVELLER_TYPES: {
 ];
 
 const TRAVELLER_CAPTIONS: Record<TravellerType, string> = {
-  solo: 'Just you — total freedom to roam.',
-  couple: 'Two of you — cosy, romantic pacing.',
-  family: 'Family fun — kid-friendly picks first.',
-  friends: 'A group getaway — shared adventures.',
+  solo: 'Just you — total freedom to roam',
+  couple: 'Two of you — cosy, romantic pacing',
+  family: 'Family fun — kid-friendly picks first',
+  friends: 'A group getaway — shared adventures',
 };
 
 const pad2 = (n: number) => String(n).padStart(2, '0');
@@ -106,11 +106,11 @@ const BUILD_MESSAGES = [
 ];
 
 const STEP_COPY = [
-  { pre: 'Where are you', em: 'going?', sub: 'Tell us your dream destination and we’ll craft the perfect trip for you.' },
-  { pre: 'Who’s', em: 'travelling?', sub: 'One tap — you can fine-tune the numbers below.' },
-  { pre: 'What are you', em: 'into?', sub: 'Pick as many as you like. We’ll show these first.' },
-  { pre: 'Which cities do you', em: 'want to see?', sub: 'Pick the places you’d like to stay — or let AI plan the route for you.' },
-  { pre: 'When and', em: 'for how long?', sub: 'We’ve pre-filled a sensible plan — change anything you like.' },
+  { pre: 'Where are you', em: 'going?', sub: 'Tell us your dream destination and we’ll craft the perfect trip for you' },
+  { pre: 'Who’s', em: 'travelling?', sub: 'Choose who you’re travelling with, then fine tune your group' },
+  { pre: 'What are you', em: 'into?', sub: 'Pick as many as you like. We’ll show these first' },
+  { pre: 'Which cities do you', em: 'want to see?', sub: 'Pick the places you’d like to stay or let AI plan the route for you' },
+  { pre: 'When and', em: 'for how long?', sub: 'We’ve pre-filled a sensible plan change anything you like' },
 ];
 
 const MOODS: { label: string; keys: string[] }[] = [
@@ -186,8 +186,36 @@ const SCENE_GLOW: Record<SceneTheme, [string, string]> = {
 const pr = (i: number, k: number) => ((i * 9301 + k * 49297) % 233280) / 233280;
 const CITY_BARS = [38, 62, 46, 84, 56, 100, 70, 48, 92, 60, 76, 42, 88, 54, 66, 96, 50, 72];
 
+/** Thin, slow ripples that drift outward and fade (replaces the rising ring bubbles on the "Who" step) */
+const RIPPLES = [
+  { rot: -8, w: 'w-[30rem] h-[26rem] md:w-[44rem] md:h-[38rem]', show: '' },
+  { rot: 6, w: 'w-[30rem] h-[27rem] md:w-[46rem] md:h-[40rem]', show: '' },
+  { rot: -3, w: 'w-[44rem] h-[38rem]', show: 'hidden md:block' },
+  { rot: 10, w: 'w-[48rem] h-[42rem]', show: 'hidden lg:block' },
+];
+
+const Ripples: React.FC<{ still: boolean }> = ({ still }) => (
+  <div className="absolute inset-0 overflow-hidden">
+    {RIPPLES.map((rp, i) => (
+      <div key={i} className={`absolute left-[62%] top-[34%] w-0 h-0 flex items-center justify-center ${still && i > 1 ? 'hidden' : rp.show}`}>
+      <motion.div
+        className={`shrink-0 will-change-transform ${rp.w}`}
+        style={{ rotate: rp.rot }}
+        initial={{ scale: still ? 0.7 + i * 0.35 : 0.55, opacity: still ? 0.07 - i * 0.015 : 0 }}
+        animate={still ? undefined : { scale: [0.55, 1.4], opacity: [0, 0.075, 0], x: [0, 14, -8], y: [0, -8, 6] }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'easeOut', delay: -i * 3 }}
+      >
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full" fill="none">
+          <ellipse cx="50" cy="50" rx="49" ry="46" stroke="#FB923C" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+        </svg>
+      </motion.div>
+      </div>
+    ))}
+  </div>
+);
+
 /** Ambient, destination-themed scenery that fills the empty page space and changes with the place you hover or pick */
-const DestinationScene: React.FC<{ dest?: { id: string; name: string }; mark?: { id: string; name: string }; reduced: boolean | null }> = ({ dest, mark, reduced }) => {
+const DestinationScene: React.FC<{ dest?: { id: string; name: string }; mark?: { id: string; name: string }; reduced: boolean | null; ripples?: boolean; dimMark?: boolean }> = ({ dest, mark, reduced, ripples, dimMark }) => {
   const theme = dest ? sceneThemeOf(tagline(dest.id)) : 'sky';
   const [g1, g2] = SCENE_GLOW[theme];
   const still = Boolean(reduced);
@@ -206,6 +234,8 @@ const DestinationScene: React.FC<{ dest?: { id: string; name: string }; mark?: {
         transition={{ backgroundColor: { duration: 1 }, x: { duration: 19, repeat: Infinity, ease: 'easeInOut' }, y: { duration: 19, repeat: Infinity, ease: 'easeInOut' } }}
       />
 
+      {ripples && <Ripples still={still} />}
+
       {/* giant outlined place name */}
       <AnimatePresence mode="popLayout">
         {mark && (
@@ -216,7 +246,7 @@ const DestinationScene: React.FC<{ dest?: { id: string; name: string }; mark?: {
             exit={{ opacity: 0, y: -70, filter: 'blur(8px)' }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="absolute right-3 sm:right-8 top-28 sm:top-24 text-[22vw] sm:text-[12vw] font-black leading-none tracking-tighter whitespace-nowrap select-none text-transparent"
-            style={{ WebkitTextStroke: '2px rgba(194,87,26,0.08)' }}
+            style={{ WebkitTextStroke: `2px rgba(194,87,26,${dimMark ? 0.04 : 0.055})` }}
           >
             {mark.name}
           </motion.span>
@@ -257,6 +287,7 @@ const DestinationScene: React.FC<{ dest?: { id: string; name: string }; mark?: {
             const dur = 7 + pr(i, 3) * 8;
             const delay = -pr(i, 4) * dur;
             if (still) return null;
+            if (ripples && theme === 'sea') return null;
             if (theme === 'snow')
               return (
                 <motion.span
@@ -475,19 +506,21 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
   const showcasing = !chosenPreview;
   const totalTravellers = draft.adults + draft.children;
   const cityNames = draft.cityIds.map((id) => getCities(draft.destinationId).find((c) => c.id === id)?.name).filter(Boolean) as string[];
-  const summaryItems: { icon: React.ReactNode; main: string; sub: string; filled: boolean; only?: number; min?: number }[] = [
+  const summaryItems: { icon: React.ReactNode; main: string; sub: string; filled: boolean; only?: number; min?: number; quiet?: boolean; forStep?: number }[] = [
     {
       icon: <Calendar className="w-5 h-5" />,
       main: maxStep >= 4 ? `${nights + 1} days` : 'Pick your dates',
       sub: maxStep >= 4 ? '(planned)' : '(when & how long)',
       filled: maxStep >= 4,
       only: 4,
+      forStep: 4,
     },
     {
       icon: <Users className="w-5 h-5" />,
       main: draft.travellerType ? `${totalTravellers} traveller${totalTravellers === 1 ? '' : 's'}` : 'Who’s going?',
       sub: draft.travellerType ? `(${draft.travellerType})` : '(solo / couple / friends etc.)',
       filled: Boolean(draft.travellerType),
+      forStep: 1,
     },
     {
       icon: <Flower2 className="w-5 h-5" />,
@@ -500,6 +533,8 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
         : 'Add interests',
       sub: draft.aiPlan || draft.interests.length || maxStep >= 4 ? '(interests)' : '(beach, food, culture…)',
       filled: draft.aiPlan || draft.interests.length > 0 || maxStep >= 4,
+      quiet: true,
+      forStep: 2,
     },
     {
       icon: <MapPin className="w-5 h-5" />,
@@ -507,8 +542,12 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
       sub: '(cities)',
       filled: cityNames.length > 0,
       min: 3,
+      quiet: true,
+      forStep: 3,
     },
   ];
+  // On the interests step, Continue stays quiet until something is picked (it still works)
+  const softContinue = step === 2 && draft.interests.length === 0 && !draft.aiPlan;
   const canContinue = step === 0 ? Boolean(dest) : step === 1 ? draft.travellerType !== '' : step === 3 ? draft.cityIds.length > 0 : true;
 
   const startDate = new Date(draft.checkIn + 'T00:00:00');
@@ -601,11 +640,11 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
         <h1
           ref={headingRef}
           tabIndex={-1}
-          className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E2022] focus:outline-none leading-tight"
+          className={`text-3xl sm:text-4xl tracking-tight text-[#1E2022] focus:outline-none leading-tight ${step === 1 ? 'font-bold' : 'font-semibold'}`}
         >
-          {copy.pre} <span className={`text-saffron-gradient ${step === 0 ? 'italic pr-1' : ''}`}>{copy.em}</span>
+          {copy.pre} <span className={`text-saffron-gradient ${step === 0 ? '' : ''}`}>{copy.em}</span>
         </h1>
-        <p className="mt-2 text-sm sm:text-base text-[#6B7280] max-w-xl">{copy.sub}</p>
+        <p className={`font-medium text-[#6B7280] max-w-xl ${step === 1 ? 'mt-1.5 text-[15px]' : 'mt-2 text-md'}`}>{copy.sub}</p>
       </div>
     </div>
   );
@@ -613,14 +652,14 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
   // ---------- wizard ----------
   return (
     <section className="relative pt-6 lg:pt-8 pb-32">
-      <DestinationScene dest={getDestination(hoverId ?? draft.destinationId)} mark={step === 0 ? previewDest : getDestination(draft.destinationId)} reduced={reduced} />
+      <DestinationScene dest={getDestination(hoverId ?? draft.destinationId)} mark={step === 0 ? previewDest : getDestination(draft.destinationId)} reduced={reduced} ripples={step === 1 || step === 2} dimMark={step === 1 || step === 2} />
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top row: Back · progress tab · chosen place (the spot the picked card flies into) */}
         <div className="grid grid-cols-[auto_1fr_auto] sm:grid-cols-[1fr_auto_1fr] items-center gap-3">
           <button
             type="button"
             onClick={() => (step === 0 ? onExit() : goTo(step - 1))}
-            className="group justify-self-start inline-flex items-center gap-2 p-1.5 sm:pr-4 rounded-full bg-white border border-[#1E2022]/10 shadow-sm text-sm font-semibold text-[#1E2022] hover:border-[#C2571A]/40 cursor-pointer transition-colors"
+            className="group justify-self-start inline-flex items-center gap-2 p-1.5 sm:pr-4 rounded-full bg-white border border-[#1E2022]/10 shadow-sm text-[17px] font-medium text-[#1E2022] hover:border-[#C2571A]/40 cursor-pointer transition-colors"
             aria-label={step === 0 ? 'Home' : 'Back'}
           >
             <span className="w-8 h-8 rounded-full bg-[#1E2022]/6 group-hover:bg-[#C2571A] group-hover:text-white flex items-center justify-center transition-colors">
@@ -663,7 +702,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                     transition={{ duration: 0.22 }}
                     className="absolute inset-0 flex flex-col justify-center leading-tight"
                   >
-                    <span className="text-sm font-extrabold text-[#1E2022]">{STEP_LABELS[step]}</span>
+                    <span className="text-[17px] font-medium text-[#1E2022]">{STEP_LABELS[step]}</span>
                     <span className="text-[11px] text-[#9CA3AF]">of {STEP_LABELS.length}</span>
                   </motion.span>
                 </AnimatePresence>
@@ -674,7 +713,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
           <button
             type="button"
             onClick={() => goTo(0)}
-            className="justify-self-end flex items-center gap-2 p-1 sm:pr-4 rounded-full bg-white border border-[#1E2022]/10 shadow-sm hover:border-[#C2571A]/50 cursor-pointer transition-colors"
+            className="justify-self-end flex items-center gap-2 p-1 sm:pr-4 rounded-full bg-white border border-[#1E2022]/25 shadow-sm hover:border-[#C2571A]/50 cursor-pointer transition-colors"
             aria-label="Change destination"
           >
             <div
@@ -694,7 +733,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                 <MapPin className="w-4 h-4 text-[#9CA3AF]" />
               )}
             </div>
-            <span className="hidden sm:inline text-sm font-bold text-[#1E2022]">{dest ? dest.name : 'Destination'}</span>
+            <span className="hidden sm:inline text-[17px] font-medium text-[#1E2022]">{dest ? dest.name : 'Destination'}</span>
           </button>
         </div>
 
@@ -729,15 +768,15 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                         onChange={(e) => setQuery(e.target.value)}
                         aria-label="Search destinations"
                         autoComplete="off"
-                        className="w-full h-14 sm:h-16 pl-14 pr-28 rounded-full bg-white border border-[#1E2022]/8 shadow-[0_10px_35px_-15px_rgba(30,32,34,0.3)] text-base font-semibold text-[#1E2022] focus:outline-none focus:border-[#F7931E] focus:ring-4 focus:ring-[#F7931E]/20 transition"
+                        className="w-full h-14 sm:h-16 pl-14 pr-28 rounded-full bg-white border border-[#1E2022]/8 shadow-[0_10px_35px_-15px_rgba(30,32,34,0.3)] text-base font-medium text-[#1E2022] focus:outline-none focus:border-[#F7931E] focus:ring-4 focus:ring-[#F7931E]/20 transition"
                       />
                       {/* Static lead-in + place names that roll upward */}
                       {!query && (
                         <div
-                          className="absolute left-14 right-28 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-base pointer-events-none overflow-hidden h-7"
+                          className="absolute left-14 right-28 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-[17px] pointer-events-none overflow-hidden h-7"
                           aria-hidden
                         >
-                          <span className="font-medium leading-7 text-[#9CA3AF] whitespace-nowrap">Search destination</span>
+                          <span className="font-Regular leading-7 text-[#9CA3AF] whitespace-nowrap">Search destination</span>
                           <span className="relative flex-1 h-7 overflow-hidden">
                             <AnimatePresence mode="popLayout" initial={false}>
                               <motion.span
@@ -746,7 +785,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                                 animate={{ y: 0, opacity: 1 }}
                                 exit={{ y: '-100%', opacity: 0 }}
                                 transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                                className="absolute inset-0 leading-7 font-bold text-[#C2571A] whitespace-nowrap"
+                                className="absolute inset-0 leading-7 font-medium text-[#C2571A] whitespace-nowrap"
                               >
                                 {PLANNER_DESTINATIONS[hintIdx % PLANNER_DESTINATIONS.length].name}
                               </motion.span>
@@ -788,7 +827,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                             type="button"
                             onClick={() => setMood(m.label)}
                             aria-pressed={on}
-                            className="relative px-4 py-1.5 rounded-full text-xs font-bold cursor-pointer"
+                            className="relative px-4 py-1.5 rounded-full text-[15px] font-medium cursor-pointer"
                           >
                             {on && (
                               <motion.span
@@ -804,7 +843,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                     </div>
 
                     {/* the index */}
-                    <ol className="mt-5 border-t border-[#1E2022]/10">
+                    <ol className="mt-3 border-t border-[#1E2022]/10">
                       <AnimatePresence mode="popLayout" initial={false}>
                         {matches.map((d, i) => {
                           const selected = draft.destinationId === d.id;
@@ -834,7 +873,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                                   aria-hidden
                                   className={`absolute inset-y-0 -inset-x-3 rounded-2xl transition-colors duration-300 ${selected ? 'bg-[#F7931E]/10' : active ? 'bg-[#1E2022]/[0.04]' : 'bg-transparent'}`}
                                 />
-                                <span className="relative w-8 text-sm font-bold tabular-nums text-[#9CA3AF]">{String(i + 1).padStart(2, '0')}</span>
+                                <span className="relative w-8 text-md font-semibold tabular-nums text-[#9CA3AF]">{String(i + 1).padStart(2, '0')}</span>
                                 <img
                                   src={d.image}
                                   alt=""
@@ -846,13 +885,13 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                                 />
                                 <span className="relative flex-1 min-w-0">
                                   <span
-                                    className={`block text-3xl sm:text-4xl font-extrabold tracking-tight leading-none transition-all duration-300 ${
-                                      selected ? 'text-saffron-gradient' : active ? 'text-[#1E2022] translate-x-2' : 'text-[#1E2022]/80 lg:text-[#1E2022]/35'
+                                    className={`block text-3xl sm:text-4xl font-bold tracking-tight leading-none transition-all duration-[400ms] ease-out motion-reduce:transition-none ${
+                                      selected ? 'text-saffron-gradient' : active ? 'text-[#1E2022] translate-x-1 motion-reduce:translate-x-0' : 'text-[#1E2022]/80 lg:text-[#1E2022]/60'
                                     }`}
                                   >
                                     {d.name}
                                   </span>
-                                  <span className="mt-1.5 block text-xs sm:text-sm text-[#6B7280] truncate">
+                                  <span className="mt-1.5 block text-[15px] sm:text-[15px] text-[#6B7280] truncate">
                                     {d.country} · {tagline(d.id)}
                                   </span>
                                 </span>
@@ -900,7 +939,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                   </div>
 
                   {/* ---- right: postcard preview ---- */}
-                  <div aria-hidden className="hidden lg:block sticky top-8 pt-4">
+                  <div aria-hidden className="hidden lg:block sticky top-8 pt-4 lg:-translate-x-6">
                     <motion.div
                       animate={{ rotate: reduced ? 0 : previewDest ? 2 : -2 }}
                       transition={{ type: 'spring', stiffness: 80, damping: 12 }}
@@ -926,7 +965,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                           <>
                             <div className="absolute top-3 right-3 px-2.5 py-2 rounded-md bg-white/95 text-[#1E2022] text-center shadow-md border-2 border-dashed border-[#E5501A]/40">
                               <MapPin className="w-4 h-4 mx-auto text-[#E5501A]" />
-                              <span className="block text-[9px] font-extrabold uppercase tracking-widest">{previewDest.country}</span>
+                              <span className="block text-[12px] font-bold uppercase">{previewDest.country}</span>
                             </div>
                             {showcasing && (
                               <span className="absolute top-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/35 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider text-white">
@@ -934,8 +973,8 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                               </span>
                             )}
                             <div className="absolute bottom-4 left-4 right-4 text-white">
-                              <p className="text-3xl font-extrabold tracking-tight leading-none">{previewDest.name}</p>
-                              <p className="mt-1.5 text-xs text-white/85">{tagline(previewDest.id)}</p>
+                              <p className="text-3xl font-bold tracking-tight leading-none">{previewDest.name}</p>
+                              <p className="mt-1.5 text-[14px] font-medium tracking-wide text-white/85">{tagline(previewDest.id)}</p>
                             </div>
                           </>
                         )}
@@ -943,7 +982,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                       {previewDest && (
                         <div className="mt-4 px-2">
                           <div>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Experiences</p>
+                            <p className="text-[15px] font-semibold text-[#00000]">Experiences</p>
                             <p className="text-base font-extrabold text-[#1E2022]">{previewDest.activities.length}<span className="text-xs font-semibold text-[#6B7280]"> to choose</span></p>
                           </div>
                         </div>
@@ -954,7 +993,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
               )}
 
               {step === 1 && (
-                <div className="mt-8">
+                <div className="mt-6">
                   {/* segmented picker with a sliding highlight */}
                   <div role="radiogroup" aria-label="Who is travelling" className="inline-flex max-w-full overflow-x-auto p-1.5 rounded-full bg-white border border-[#1E2022]/10 shadow-[0_10px_30px_-18px_rgba(30,32,34,0.35)]" style={{ scrollbarWidth: 'none' }}>
                     {TRAVELLER_TYPES.map((t) => {
@@ -966,25 +1005,25 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                           role="radio"
                           aria-checked={selected}
                           onClick={() => chooseTraveller(t)}
-                          className="relative flex items-center gap-2.5 h-14 pl-2.5 pr-5 sm:pr-7 rounded-full cursor-pointer shrink-0"
+                          className={`group relative flex items-center gap-2.5 h-14 pl-2.5 pr-5 sm:pr-7 rounded-full cursor-pointer shrink-0 transition-colors duration-200 ease-out ${selected ? '' : 'hover:bg-[#1E2022]/[0.04]'}`}
                         >
                           {selected && (
                             <motion.span
                               layoutId="who-pill"
-                              className={`absolute inset-0 rounded-full ${brandGrad} shadow-[0_10px_25px_-8px_rgba(229,80,26,0.65)]`}
-                              transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 32 }}
+                              className="absolute inset-0 rounded-full bg-[#F7931E]/10 border border-[#F7931E]/40"
+                              transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 36 }}
                             />
                           )}
                           <motion.span
-                            className={`relative w-10 h-10 rounded-full flex items-center justify-center [&>svg]:w-5 [&>svg]:h-5 transition-colors ${
-                              selected ? 'bg-white text-[#E5501A]' : 'bg-[#1E2022]/6 text-[#1E2022]'
+                            className={`relative w-10 h-10 rounded-full flex items-center justify-center [&>svg]:w-5 [&>svg]:h-5 transition-[background-color,color,transform] duration-200 ease-out ${
+                              selected ? 'bg-[#F7931E]/20 text-[#E5501A]' : 'bg-[#1E2022]/6 text-[#1E2022] group-hover:bg-[#F7931E]/12 group-hover:text-[#C2571A] group-hover:-translate-y-px'
                             }`}
-                            animate={selected && !reduced ? { rotate: [0, -14, 14, 0], scale: [1, 1.15, 1] } : { rotate: 0, scale: 1 }}
-                            transition={{ duration: 0.5 }}
+                            animate={selected && !reduced ? { scale: [1, 1.08, 1] } : { scale: 1 }}
+                            transition={{ duration: 0.22, ease: 'easeOut' }}
                           >
                             {t.icon}
                           </motion.span>
-                          <span className={`relative text-base font-extrabold transition-colors ${selected ? 'text-white' : 'text-[#1E2022]'}`}>{t.label}</span>
+                          <span className={`relative text-[16px] transition-colors duration-200 ${selected ? 'font-bold text-[#1E2022]' : 'font-medium text-[#4B4F55] group-hover:text-[#1E2022]'}`}>{t.label}</span>
                         </button>
                       );
                     })}
@@ -1000,7 +1039,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                       />
                       <div className="relative flex items-start justify-between gap-4">
                         <div className="min-w-0">
-                          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#C2571A]">Your crew</p>
+                          <p className="text-[17px] font-semibold text-[#C2571A]">Your crew</p>
                           <AnimatePresence mode="wait" initial={false}>
                             <motion.p
                               key={draft.travellerType || 'none'}
@@ -1008,9 +1047,9 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: -8 }}
                               transition={{ duration: 0.2 }}
-                              className="mt-1.5 text-lg sm:text-xl font-extrabold text-[#1E2022] leading-snug max-w-sm"
+                              className={`mt-1.5 text-lg sm:text-xl text-[#1E2022] leading-snug max-w-sm ${draft.travellerType ? 'font-medium' : 'font-semibold'}`}
                             >
-                              {draft.travellerType ? TRAVELLER_CAPTIONS[draft.travellerType] : 'Choose who’s travelling to build your crew.'}
+                              {draft.travellerType ? TRAVELLER_CAPTIONS[draft.travellerType] : 'Choose who’s travelling to build your crew'}
                             </motion.p>
                           </AnimatePresence>
                         </div>
@@ -1024,13 +1063,13 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                                   animate={{ y: 0, opacity: 1 }}
                                   exit={{ y: '-80%', opacity: 0 }}
                                   transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                                  className="text-5xl font-extrabold leading-[3.5rem] text-saffron-gradient tabular-nums"
+                                  className="text-5xl font-semibold leading-[3.5rem] text-saffron-gradient tabular-nums"
                                 >
                                   {totalTravellers}
                                 </motion.span>
                               </AnimatePresence>
                             </span>
-                            <p className="-mt-1 text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">{totalTravellers === 1 ? 'traveller' : 'travellers'}</p>
+                            <p className="-mt-1 text-[17px] font-medium text-[#9CA3AF]">{totalTravellers === 1 ? 'Traveller' : 'Travellers'}</p>
                           </div>
                         )}
                       </div>
@@ -1043,13 +1082,10 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                                 <motion.span
                                   key={`a${i}`}
                                   layout
-                                  initial={{ scale: 0, y: 24 }}
-                                  animate={reduced ? { scale: 1, y: 0 } : { scale: 1, y: [0, -5, 0] }}
-                                  exit={{ scale: 0, y: -20 }}
-                                  transition={{
-                                    scale: { type: 'spring', stiffness: 420, damping: 16 },
-                                    y: { delay: 0.5 + i * 0.15, duration: 2.6, repeat: Infinity, ease: 'easeInOut' },
-                                  }}
+                                  initial={{ opacity: 0, scale: reduced ? 1 : 0.85 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: reduced ? 1 : 0.85 }}
+                                  transition={{ duration: 0.22, ease: 'easeOut', delay: reduced ? 0 : i * 0.06 }}
                                   className={`w-12 h-12 rounded-full ${brandGrad} text-white flex items-center justify-center shadow-[0_8px_18px_-6px_rgba(229,80,26,0.6)]`}
                                 >
                                   <User className="w-5 h-5" />
@@ -1059,13 +1095,10 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                                 <motion.span
                                   key={`c${i}`}
                                   layout
-                                  initial={{ scale: 0, y: 24 }}
-                                  animate={reduced ? { scale: 1, y: 0 } : { scale: 1, y: [0, -4, 0] }}
-                                  exit={{ scale: 0, y: -20 }}
-                                  transition={{
-                                    scale: { type: 'spring', stiffness: 420, damping: 16 },
-                                    y: { delay: 0.7 + i * 0.15, duration: 2.2, repeat: Infinity, ease: 'easeInOut' },
-                                  }}
+                                  initial={{ opacity: 0, scale: reduced ? 1 : 0.85 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: reduced ? 1 : 0.85 }}
+                                  transition={{ duration: 0.22, ease: 'easeOut', delay: reduced ? 0 : (draft.adults + i) * 0.06 }}
                                   className="w-9 h-9 rounded-full bg-white border-2 border-[#F7931E] text-[#C2571A] flex items-center justify-center shadow-sm"
                                 >
                                   <Baby className="w-4 h-4" />
@@ -1076,9 +1109,10 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                             [0, 1, 2, 3].map((i) => (
                               <motion.span
                                 key={i}
-                                animate={reduced ? undefined : { opacity: [0.35, 0.9, 0.35] }}
-                                transition={{ duration: 2.4, repeat: Infinity, delay: i * 0.3 }}
-                                className="w-12 h-12 rounded-full border-2 border-dashed border-[#C2571A]/40 flex items-center justify-center text-[#C2571A]/50"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.22, ease: 'easeOut', delay: reduced ? 0 : i * 0.06 }}
+                                className="w-12 h-12 rounded-full border-2 border-dashed border-[#C2571A]/35 bg-[#F7931E]/[0.06] flex items-center justify-center text-[#C2571A]/45"
                               >
                                 <User className="w-5 h-5" />
                               </motion.span>
@@ -1089,7 +1123,10 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                       </div>
                     </div>
 
-                    <div className="rounded-[2rem] bg-white border border-[#1E2022]/8 shadow-[0_15px_35px_-22px_rgba(30,32,34,0.4)] p-6 flex flex-col justify-center divide-y divide-[#1E2022]/8">
+                    <div
+                      style={draft.travellerType ? undefined : { backgroundImage: 'radial-gradient(circle at 50% 40%, rgba(247,147,30,0.09), transparent 65%)' }}
+                      className="rounded-[2rem] bg-white border border-[#1E2022]/8 shadow-[0_15px_35px_-22px_rgba(30,32,34,0.4)] p-6 flex flex-col justify-center divide-y divide-[#1E2022]/8"
+                    >
                       {draft.travellerType ? (
                         (
                           [
@@ -1097,13 +1134,13 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                             { key: 'children', label: 'Children', sub: 'Age 0–11', min: 0, max: 8 },
                           ] as const
                         )
-                          // Solo and friends trips are adults-only, so there is no children row
-                          .filter((row) => row.key !== 'children' || !['solo', 'friends'].includes(draft.travellerType))
+                          // Solo, couple and friends trips are adults-only, so there is no children row
+                          .filter((row) => row.key !== 'children' || !['solo', 'couple', 'friends'].includes(draft.travellerType))
                           .map((row) => (
                           <div key={row.key} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
                             <div>
-                              <p className="text-base font-extrabold text-[#1E2022]">{row.label}</p>
-                              <p className="text-xs text-[#9CA3AF]">{row.sub}</p>
+                              <p className="text-[18px] font-semibold text-[#1E2022]">{row.label}</p>
+                              <p className="text-md text-[#9CA3AF]">{row.sub}</p>
                             </div>
                             <div className="flex items-center gap-3">
                               <button
@@ -1123,7 +1160,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                                     animate={{ y: 0, opacity: 1 }}
                                     exit={{ y: -18, opacity: 0 }}
                                     transition={{ duration: 0.2 }}
-                                    className="absolute inset-0 text-2xl font-extrabold tabular-nums leading-8"
+                                    className="absolute inset-0 text-2xl font-semibold tabular-nums leading-8"
                                   >
                                     {draft[row.key]}
                                   </motion.span>
@@ -1143,11 +1180,11 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                         ))
                       ) : (
                         <div className="text-center py-6">
-                          <span className="mx-auto w-12 h-12 rounded-full bg-[#1E2022]/6 flex items-center justify-center text-[#9CA3AF]">
+                          <span className="mx-auto w-12 h-12 rounded-full bg-white border border-[#F7931E]/30 shadow-sm flex items-center justify-center text-[#C2571A]">
                             <Users className="w-5 h-5" />
                           </span>
-                          <p className="mt-3 text-sm font-bold text-[#1E2022]">Pick a group above</p>
-                          <p className="mt-1 text-xs text-[#6B7280]">Then adjust the numbers here.</p>
+                          <p className="mt-3 text-[18px] font-semibold text-[#1E2022]">Pick a group above</p>
+                          <p className="mt-1 text-[15px] text-[#6B7280]">Then adjust the numbers here</p>
                         </div>
                       )}
                     </div>
@@ -1158,7 +1195,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
               {step === 2 && (
                 <div className="mt-8">
                   {/* ---- numbered interest index (matches the destination step) ---- */}
-                  <ol className="grid md:grid-cols-2 md:gap-x-12 border-t border-[#1E2022]/10 max-w-4xl">
+                  <ol className="grid md:grid-cols-2 md:gap-x-12 border-t border-[#1E2022]/10 pt-3 max-w-4xl">
                     {INTERESTS.map((it, i) => {
                       const selected = draft.interests.includes(it.id);
                       return (
@@ -1177,46 +1214,47 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                           >
                             <span
                               aria-hidden
-                              className={`absolute inset-y-0 -inset-x-3 rounded-2xl transition-colors duration-300 ${selected ? 'bg-[#F7931E]/10' : 'bg-transparent group-hover:bg-[#1E2022]/[0.04]'}`}
+                              className={`absolute inset-y-0 -inset-x-3 rounded-2xl border transition-colors duration-200 ease-out ${selected ? 'bg-[#FFF6EC] border-[#F7931E]/40' : 'bg-transparent border-transparent group-hover:bg-[#1E2022]/[0.04]'}`}
                             />
-                            <span className="relative w-7 text-sm font-bold tabular-nums text-[#9CA3AF]">{String(i + 1).padStart(2, '0')}</span>
+                            <span className="relative w-7 text-md font-medium tabular-nums text-[#B4B8BF]">{String(i + 1).padStart(2, '0')}</span>
                             <span
-                              className={`relative w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-white bg-gradient-to-br ${it.grad} shadow-md transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105 ${selected ? 'scale-105' : ''}`}
+                              className={`relative w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-white bg-gradient-to-br ${it.grad} saturate-[.8] brightness-[.97] shadow-sm transition-transform duration-200 ease-out group-hover:-rotate-6 group-hover:scale-105 ${selected ? 'scale-105' : ''}`}
                             >
                               {it.icon}
                             </span>
                             <span className="relative flex-1 min-w-0">
                               <span
-                                className={`block text-xl sm:text-2xl font-extrabold tracking-tight leading-tight transition-all duration-300 ${
-                                  selected ? 'text-saffron-gradient' : 'text-[#1E2022]/85 group-hover:translate-x-1'
+                                className={`block text-xl sm:text-2xl tracking-tight leading-tight transition-all duration-200 ease-out ${
+                                  selected ? 'font-bold text-saffron-gradient' : 'font-semibold text-[#1E2022]/85 group-hover:translate-x-1 motion-reduce:group-hover:translate-x-0'
                                 }`}
                               >
                                 {it.label}
                               </span>
-                              <span className="mt-0.5 block text-xs sm:text-sm text-[#6B7280] truncate">{it.hint}</span>
+                              <span className="mt-0.5 block text-md sm:text-md text-[#6B7280] truncate">{it.hint}</span>
                             </span>
                             <span className="relative shrink-0">
                               <AnimatePresence mode="wait" initial={false}>
                                 {selected ? (
                                   <motion.span
                                     key="on"
-                                    initial={{ scale: 0, rotate: -90 }}
-                                    animate={{ scale: 1, rotate: 0 }}
-                                    exit={{ scale: 0 }}
-                                    transition={{ type: 'spring', stiffness: 420, damping: 16 }}
-                                    className={`flex w-9 h-9 rounded-full ${brandGrad} text-white items-center justify-center shadow-md`}
+                                    initial={{ opacity: 0, scale: reduced ? 1 : 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: reduced ? 1 : 0.9 }}
+                                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                                    className="flex w-8 h-8 rounded-full bg-[#F7931E]/15 border border-[#F7931E]/50 text-[#C2571A] items-center justify-center"
                                   >
-                                    <Check className="w-5 h-5" />
+                                    <Check className="w-4 h-4" />
                                   </motion.span>
                                 ) : (
                                   <motion.span
                                     key="off"
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    exit={{ scale: 0 }}
-                                    className="flex w-9 h-9 rounded-full border border-[#1E2022]/15 items-center justify-center text-[#1E2022] group-hover:bg-[#1E2022] group-hover:text-white group-hover:border-[#1E2022] transition-colors"
+                                    initial={{ opacity: 0, scale: reduced ? 1 : 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: reduced ? 1 : 0.9 }}
+                                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                                    className="flex w-8 h-8 rounded-full border border-[#1E2022]/12 items-center justify-center text-[#1E2022]/55 group-hover:bg-[#1E2022] group-hover:text-white group-hover:border-[#1E2022] transition-colors duration-200 ease-out"
                                   >
-                                    <Plus className="w-4 h-4" />
+                                    <Plus className="w-3.5 h-3.5" />
                                   </motion.span>
                                 )}
                               </AnimatePresence>
@@ -1227,13 +1265,13 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                     })}
                   </ol>
 
-                  <div className="mt-7 flex flex-wrap items-center gap-3">
+                  <div className="mt-7 mb-20 flex flex-wrap items-center gap-3">
                     <button
                       type="button"
                       onClick={letAiCustomise}
-                      className="group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full border-2 border-dashed border-[#C2571A]/45 bg-[#FFF6EC] hover:bg-[#FFEBD6] text-sm font-bold text-[#1E2022] cursor-pointer transition-colors"
+                      className="group inline-flex items-center gap-2.5 px-5 py-3 rounded-full border-2 border-dashed border-[#C2571A]/30 bg-transparent hover:bg-[#FFF6EC] text-[15px] font-medium text-[#4B4F55] cursor-pointer transition-colors duration-200 ease-out"
                     >
-                      <Sparkles className="w-4 h-4 text-[#C2571A] group-hover:rotate-12 group-hover:scale-125 transition-transform" />
+                      <Sparkles className="w-4 h-4 text-[#C2571A]/80 group-hover:rotate-12 transition-transform" />
                       No idea — let AI customise it for me
                       <ArrowRight className="w-4 h-4 text-[#C2571A] group-hover:translate-x-1 transition-transform" />
                     </button>
@@ -1243,7 +1281,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                           initial={{ opacity: 0, scale: 0.7 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.7 }}
-                          className="px-3.5 py-2 rounded-full bg-[#C2571A]/10 text-[#C2571A] text-sm font-bold"
+                          className="px-3.5 py-2 rounded-full bg-[#C2571A]/10 text-[#C2571A] text-md font-medium"
                         >
                           {draft.interests.length} selected
                         </motion.span>
@@ -1296,7 +1334,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                                   />
                                 )}
                                 <span className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />
-                                <span className="absolute bottom-3 left-4 right-14 text-lg font-extrabold text-white leading-tight drop-shadow">{c.name}</span>
+                                <span className="absolute bottom-3 left-4 right-14 text-xl font-regular text-white leading-tight drop-shadow">{c.name}</span>
                                 <AnimatePresence>
                                   {selected && (
                                     <motion.span
@@ -1313,14 +1351,14 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                                 </AnimatePresence>
                               </span>
                               <span className="block p-4">
-                                <span className="block text-sm text-[#6B7280] leading-snug">{c.blurb}</span>
+                                <span className="block text-md text-[#6B7280] leading-snug">{c.blurb}</span>
                                 <span className="mt-3 flex flex-wrap items-center gap-1.5">
                                   {cats.map((cat) => (
-                                    <span key={cat} className="px-2 py-0.5 rounded-full bg-[#1E2022]/6 text-[10px] font-bold text-[#4B4F55]">
+                                    <span key={cat} className="px-2 py-0.5 rounded-full bg-[#1E2022]/6 text-[16px] font-medium text-[#4B4F55]">
                                       {cat}
                                     </span>
-                                  ))}
-                                  <span className="text-[11px] font-semibold text-[#9CA3AF]">{acts.length} experiences</span>
+                                  ))} 
+                                  <span className="text-[16px] font-regular text-[#9CA3AF]">{acts.length} experiences</span>
                                 </span>
                               </span>
                             </motion.button>
@@ -1332,7 +1370,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                         <button
                           type="button"
                           onClick={askAiCities}
-                          className="group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full border-2 border-dashed border-[#C2571A]/45 bg-[#FFF6EC] hover:bg-[#FFEBD6] text-sm font-bold text-[#1E2022] cursor-pointer transition-colors"
+                          className="group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full border-2 border-dashed border-[#C2571A]/45 bg-[#FFF6EC] hover:bg-[#FFEBD6] text-md font-medium text-[#1E2022] cursor-pointer transition-colors"
                         >
                           <Sparkles className="w-4 h-4 text-[#C2571A] group-hover:rotate-12 group-hover:scale-125 transition-transform" />
                           No idea — ask AI to choose the cities
@@ -1356,21 +1394,21 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
 
                     {/* ---- your route ---- */}
                     <aside aria-label="Your route" className="rounded-[1.75rem] bg-white border border-[#1E2022]/10 shadow-[0_20px_45px_-25px_rgba(30,32,34,0.45)] p-5 lg:sticky lg:top-8">
-                      <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#C2571A]">Your route</p>
+                      <p className="text-[18px] font-semibold text-[#C2571A]">Your route</p>
                       <ol className="relative mt-4">
-                        <span aria-hidden className="absolute left-[0.95rem] top-3 bottom-3 border-l-2 border-dashed border-[#1E2022]/15" />
-                        <li className="relative flex items-center gap-3 pb-4">
-                          <span className="relative z-10 w-8 h-8 rounded-full bg-[#1E2022]/6 text-[#4B4F55] flex items-center justify-center shrink-0">
-                            <Plane className="w-4 h-4" />
+                        <span aria-hidden className="absolute left-[19.5px] top-3 bottom-3 border-l border-dashed border-[#1E2022]/15" />
+                        <li className="relative flex items-center gap-3 pb-7">
+                          <span className="relative z-10 w-10 h-10 rounded-full bg-[#F3F3F3] text-[#4B4F55] flex items-center justify-center shrink-0">
+                            <Plane className="w-6 h-6" />
                           </span>
-                          <span className="text-sm text-[#6B7280]">Arrive in {dest?.name}</span>
+                          <span className="text-md text-[#6B7280]">Arrive in {dest?.name}</span>
                         </li>
                         {stops.length === 0 && (
-                          <li className="relative flex items-center gap-3 pb-4">
-                            <span className="relative z-10 w-8 h-8 rounded-full border-2 border-dashed border-[#C2571A]/40 bg-white flex items-center justify-center shrink-0 text-[#C2571A]/50">
+                          <li className="relative flex items-center gap-3 pb-7">
+                            <span className="relative z-10 w-8 h-8 mx-1 rounded-full border-2 border-dashed border-[#C2571A]/40 bg-white flex items-center justify-center shrink-0 text-[#C2571A]/50">
                               <MapPin className="w-4 h-4" />
                             </span>
-                            <span className="text-sm font-semibold text-[#9CA3AF]">Pick at least one city</span>
+                            <span className="text-md font-medium text-[#9CA3AF]">Pick at least one city</span>
                           </li>
                         )}
                         <AnimatePresence initial={false}>
@@ -1384,15 +1422,15 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                               className="relative"
                             >
                               {i > 0 && (
-                                <div className="flex items-center gap-3 pb-3">
-                                  <span className="relative z-10 w-8 h-8 rounded-full bg-[#FFF6EC] text-[#C2571A] flex items-center justify-center shrink-0">
+                                <div className="flex items-center gap-3 pb-5">
+                                  <span className="relative z-10 w-8 h-8 mx-1 rounded-full bg-[#FFF6EC] text-[#C2571A] flex items-center justify-center shrink-0">
                                     <Car className="w-4 h-4" />
                                   </span>
-                                  <span className="text-xs text-[#6B7280]">{transferLabel(draft.destinationId, st.city.name)}</span>
+                                  <span className="text-[14px] text-[#6B7280]">{transferLabel(draft.destinationId, st.city.name)}</span>
                                 </div>
                               )}
-                              <div className="flex items-center gap-3 pb-4">
-                                <span className={`relative z-10 w-8 h-8 rounded-full ${brandGrad} text-white flex items-center justify-center shrink-0 text-xs font-extrabold`}>{i + 1}</span>
+                              <div className="flex items-center gap-3 pb-7">
+                                <span className={`relative z-10 w-8 h-8 mx-1 rounded-full ${brandGrad} text-white flex items-center justify-center shrink-0 text-xs font-extrabold`}>{i + 1}</span>
                                 <span className="min-w-0">
                                   <span className="block text-sm font-extrabold text-[#1E2022] truncate">{st.city.name}</span>
                                   <span className="block text-xs text-[#6B7280]">
@@ -1404,14 +1442,14 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                           ))}
                         </AnimatePresence>
                         <li className="relative flex items-center gap-3">
-                          <span className="relative z-10 w-8 h-8 rounded-full bg-[#1E2022]/6 text-[#4B4F55] flex items-center justify-center shrink-0">
-                            <Plane className="w-4 h-4 rotate-45" />
+                          <span className="relative z-10 w-10 h-10 rounded-full bg-[#F3F3F3] text-[#4B4F55] flex items-center justify-center shrink-0">
+                            <Plane className="w-6 h-6 rotate-45" />
                           </span>
-                          <span className="text-sm text-[#6B7280]">Departure</span>
+                          <span className="text-md text-[#6B7280]">Departure</span>
                         </li>
                       </ol>
-                      <p className="mt-4 pt-4 border-t border-[#1E2022]/8 text-xs text-[#9CA3AF]">
-                        Nights are shared across your cities — you can change them on the plan page.
+                      <p className="mt-4 pt-4 border-t border-[#1E2022]/8 text-md text-[#9CA3AF]">
+                        Nights are shared across your cities you can change them on the plan page.
                       </p>
                     </aside>
                   </div>
@@ -1436,7 +1474,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                       <div className="rounded-[2rem] bg-white border border-[#1E2022]/8 shadow-[0_20px_45px_-25px_rgba(30,32,34,0.45)] p-5 sm:p-7">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#C2571A]">Start date</p>
+                            <p className="text-[16px] font-semibold text-[#C2571A]">Start Date</p>
                             <AnimatePresence mode="wait" initial={false}>
                               <motion.h2
                                 key={title}
@@ -1444,7 +1482,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -8 }}
                                 transition={{ duration: 0.15 }}
-                                className="mt-0.5 text-xl font-extrabold text-[#1E2022]"
+                                className="mt-0.5 text-xl font-bold text-[#1E2022]"
                               >
                                 {title}
                               </motion.h2>
@@ -1460,7 +1498,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                           </div>
                         </div>
 
-                        <div className="mt-5 grid grid-cols-7 text-center text-[11px] font-bold uppercase tracking-wider text-[#9CA3AF]">
+                        <div className="mt-5 grid grid-cols-7 text-center text-[14px] font-medium  tracking-wider text-[#9CA3AF]">
                           {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((w, i) => (
                             <span key={i}>{w}</span>
                           ))}
@@ -1472,7 +1510,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: reduced ? 0 : -20 }}
                             transition={{ duration: 0.18 }}
-                            className="mt-2 grid grid-cols-7 gap-y-1"
+                            className="mt-2 grid grid-cols-7 gap-y-1.5"
                           >
                             {Array.from({ length: lead }).map((_, i) => (
                               <span key={`b${i}`} />
@@ -1487,8 +1525,8 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                               return (
                                 <div
                                   key={iso}
-                                  className={`flex justify-center ${between ? 'bg-[#F7931E]/12' : ''} ${isStart ? 'bg-gradient-to-r from-transparent to-[#F7931E]/12' : ''} ${
-                                    isEnd ? 'bg-gradient-to-l from-transparent to-[#F7931E]/12' : ''
+                                  className={`flex justify-center ${between ? 'bg-[#F7931E]/[0.16]' : ''} ${isStart ? 'bg-[linear-gradient(to_right,transparent_50%,rgba(247,147,30,0.16)_50%)]' : ''} ${
+                                    isEnd ? 'bg-[linear-gradient(to_left,transparent_50%,rgba(247,147,30,0.16)_50%)]' : ''
                                   }`}
                                 >
                                   <button
@@ -1497,11 +1535,11 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                                     onClick={() => setStart(iso)}
                                     aria-label={formatDate(iso)}
                                     aria-pressed={isStart}
-                                    className={`w-10 h-10 rounded-full text-sm font-semibold flex items-center justify-center transition cursor-pointer disabled:cursor-not-allowed ${
+                                    className={`w-10 h-10 rounded-full text-md font-semibold flex items-center justify-center transition cursor-pointer disabled:cursor-not-allowed ${
                                       isStart
-                                        ? `${brandGrad} text-white font-extrabold shadow-[0_8px_18px_-6px_rgba(229,80,26,0.7)]`
+                                        ? `${brandGrad} text-white font-bold shadow-[0_8px_18px_-6px_rgba(229,80,26,0.7)]`
                                         : isEnd
-                                        ? 'bg-[#1E2022] text-white font-extrabold'
+                                        ? 'bg-[#1E2022] text-white font-bold'
                                         : past
                                         ? 'text-[#1E2022]/20'
                                         : 'text-[#1E2022] hover:bg-[#1E2022]/8'
@@ -1515,7 +1553,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                           </motion.div>
                         </AnimatePresence>
 
-                        <div className="mt-5 flex flex-wrap gap-2">
+                        <div className="mt-6 flex flex-wrap gap-2">
                           {START_PRESETS.map((p) => {
                             const iso = addDaysISO(today, p.days);
                             const on = draft.checkIn === iso;
@@ -1525,7 +1563,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                                 type="button"
                                 onClick={() => setStart(iso)}
                                 aria-pressed={on}
-                                className={`px-4 py-2 rounded-full text-xs font-bold cursor-pointer transition ${on ? 'bg-[#1E2022] text-white' : 'bg-[#1E2022]/6 hover:bg-[#1E2022]/12'}`}
+                                className={`px-4 py-2 rounded-full text-[15px] font-semibold cursor-pointer transition ${on ? 'bg-[#1E2022] text-white' : 'bg-[#1E2022]/6 hover:bg-[#1E2022]/12'}`}
                               >
                                 {p.label}
                               </button>
@@ -1539,12 +1577,12 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                   <div className="flex flex-col gap-5 sm:gap-6">
                     {/* nights */}
                     <div className="rounded-[2rem] bg-white border border-[#1E2022]/8 shadow-[0_20px_45px_-25px_rgba(30,32,34,0.45)] p-6 sm:p-7">
-                      <label htmlFor="wiz-nights" className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#C2571A]">
+                      <label htmlFor="wiz-nights" className="text-[17px] font-semibold text-[#C2571A]">
                         How many nights?
                       </label>
                       <div className="mt-2 flex items-end justify-between gap-4">
-                        <p className="flex items-baseline gap-2">
-                          <span className="relative inline-flex h-[4.5rem] min-w-[4.5rem] overflow-hidden">
+                        <p className="flex items-baseline gap-1.5">
+                          <span className="relative inline-flex h-16 min-w-[2.75rem] overflow-hidden">
                             <AnimatePresence mode="popLayout" initial={false}>
                               <motion.span
                                 key={nights}
@@ -1552,19 +1590,19 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                                 animate={{ y: 0, opacity: 1 }}
                                 exit={{ y: '-80%', opacity: 0 }}
                                 transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                                className="text-7xl font-extrabold leading-[4.5rem] tabular-nums text-saffron-gradient"
+                                className="text-6xl font-bold leading-[4rem] tabular-nums text-saffron-gradient"
                               >
                                 {nights}
                               </motion.span>
                             </AnimatePresence>
                           </span>
-                          <span className="text-sm font-semibold text-[#6B7280]">{nights === 1 ? 'night' : 'nights'}</span>
+                          <span className="text-md font-medium text-[#6B7280]">{nights === 1 ? 'Night' : 'Nights'}</span>
                         </p>
                         <div className="flex gap-2 pb-2">
-                          <button type="button" onClick={() => setNights(nights - 1)} disabled={nights <= 1} className={stepperBtn} aria-label="Fewer nights">
+                          <button type="button" onClick={() => setNights(nights - 1)} disabled={nights <= 1} className={`${stepperBtn} !w-9 !h-9`} aria-label="Fewer nights">
                             <Minus className="w-4 h-4" />
                           </button>
-                          <button type="button" onClick={() => setNights(nights + 1)} disabled={nights >= MAX_TRIP_DAYS - 1} className={stepperBtn} aria-label="More nights">
+                          <button type="button" onClick={() => setNights(nights + 1)} disabled={nights >= MAX_TRIP_DAYS - 1} className={`${stepperBtn} !w-9 !h-9`} aria-label="More nights">
                             <Plus className="w-4 h-4" />
                           </button>
                         </div>
@@ -1576,7 +1614,14 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                         max={MAX_TRIP_DAYS - 1}
                         value={nights}
                         onChange={(e) => setNights(Number(e.target.value))}
-                        className="mt-3 w-full accent-[#E5501A] cursor-pointer"
+                        style={{ '--p': `${((nights - 1) / (MAX_TRIP_DAYS - 2)) * 100}%` } as React.CSSProperties}
+                        className="mt-3 w-full h-5 appearance-none bg-transparent cursor-pointer focus:outline-none
+                          [&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:border-0 [&::-webkit-slider-runnable-track]:bg-[linear-gradient(to_right,#E5501A_var(--p),rgba(30,32,34,0.1)_var(--p))]
+                          [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:-mt-1.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:bg-[#E5501A]
+                          [&::-moz-range-track]:h-2 [&::-moz-range-track]:rounded-full [&::-moz-range-track]:border-0 [&::-moz-range-track]:bg-[#1E2022]/10
+                          [&::-moz-range-progress]:h-2 [&::-moz-range-progress]:rounded-full [&::-moz-range-progress]:bg-[#E5501A]
+                          [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-[#E5501A]
+                          focus-visible:[&::-webkit-slider-thumb]:ring-4 focus-visible:[&::-webkit-slider-thumb]:ring-[#F7931E]/25"
                       />
                       <div className="mt-3 flex flex-wrap gap-2">
                         {NIGHT_PRESETS.map((n) => (
@@ -1585,7 +1630,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                             type="button"
                             onClick={() => setNights(n)}
                             aria-pressed={nights === n}
-                            className={`px-4 py-2 rounded-full text-xs font-bold cursor-pointer transition ${nights === n ? 'bg-[#1E2022] text-white' : 'bg-[#1E2022]/6 hover:bg-[#1E2022]/12'}`}
+                            className={`px-4 py-2 rounded-full text-md font-semibold cursor-pointer transition ${nights === n ? 'bg-[#1E2022] text-white' : 'bg-[#1E2022]/6 hover:bg-[#1E2022]/12'}`}
                           >
                             {n} nights
                           </button>
@@ -1600,7 +1645,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                       <div className="flex items-center gap-3">
                         <div>
                           <p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Depart</p>
-                          <p className="text-lg font-extrabold leading-tight">{formatDate(draft.checkIn)}</p>
+                          <p className="text-xl font-extrabold leading-tight">{formatDate(draft.checkIn)}</p>
                           <p className="text-xs text-white/60">{startWeekday}</p>
                         </div>
                         <div className="relative flex-1 h-8 flex items-center" aria-hidden>
@@ -1615,16 +1660,16 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                         </div>
                         <div className="text-right">
                           <p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Return</p>
-                          <p className="text-lg font-extrabold leading-tight">{formatDate(draft.checkOut)}</p>
-                          <p className="text-xs text-white/60">{nights + 1} days</p>
+                          <p className="text-xl font-extrabold leading-tight">{formatDate(draft.checkOut)}</p>
+                          <p className="mt-0.5 text-sm font-semibold text-white/90">{nights + 1} days</p>
                         </div>
                       </div>
-                      <div className="mt-6 pt-5 border-t-2 border-dashed border-white/15 flex items-center justify-between gap-3">
-                        <p className="flex items-center gap-2 text-sm font-bold">
+                      <div className="mt-6 pt-5 border-t-2 border-dashed border-white/15 flex items-center justify-between gap-4">
+                        <p className="flex items-center gap-2 text-[13px] font-medium text-white/75">
                           <MapPin className="w-4 h-4 text-[#FFC94D]" />
                           {dest ? `${dest.name}, ${dest.country}` : 'AI picks your destination'}
                         </p>
-                        <p className="text-xs font-semibold text-white/60">
+                        <p className="text-xs font-medium text-white/55">
                           {totalTravellers} traveller{totalTravellers === 1 ? '' : 's'}
                         </p>
                       </div>
@@ -1632,8 +1677,8 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
 
                     {/* AI toggle */}
                     <label
-                      className={`flex items-start gap-4 p-5 rounded-[1.75rem] border cursor-pointer transition-all ${
-                        draft.aiPlan ? 'bg-gradient-to-r from-[#FFF4E0] to-[#FFE3D2] border-[#F7931E]/50 shadow-md' : 'bg-white border-[#1E2022]/8 hover:border-[#C2571A]/40 shadow-sm'
+                      className={`flex items-start gap-4 p-4 rounded-[1.75rem] border cursor-pointer transition-all duration-200 ease-out ${
+                        draft.aiPlan ? 'bg-gradient-to-r from-[#FFF4E0] to-[#FFE3D2] border-[#F7931E]/50 shadow-md' : 'bg-transparent border-[#1E2022]/10 hover:border-[#C2571A]/40 shadow-none'
                       }`}
                     >
                       <input type="checkbox" checked={draft.aiPlan} onChange={(e) => patch({ aiPlan: e.target.checked })} className="sr-only peer" />
@@ -1644,10 +1689,10 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                         <motion.span layout transition={{ type: 'spring', stiffness: 500, damping: 30 }} className="w-5 h-5 rounded-full bg-white shadow" />
                       </span>
                       <span>
-                        <span className="flex items-center gap-1.5 text-sm font-extrabold text-[#1E2022]">
+                        <span className="flex items-center gap-1.5 text-[15px] font-semibold text-[#1E2022]">
                           <Sparkles className="w-4 h-4 text-[#C2571A]" /> Pre-fill my days with AI picks
                         </span>
-                        <span className="block mt-0.5 text-xs text-[#6B7280]">Start with a suggested plan, then swap anything on the next page.</span>
+                        <span className="block mt-0.5 text-sm text-[#6B7280]">Start with a suggested plan, then swap anything on the next page</span>
                       </span>
                     </label>
                   </div>
@@ -1666,9 +1711,9 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: 60, opacity: 0, scale: 0.96 }}
             transition={{ type: 'spring', stiffness: 300, damping: 26 }}
-            className="sticky bottom-4 z-30 mt-2 px-4 sm:px-6 flex justify-center"
+            className="sticky bottom-4 z-30 mt-8 px-4 sm:px-6 flex justify-center pointer-events-none"
           >
-            <div className="flex items-center gap-2 sm:gap-3 p-2 pr-2 max-w-full rounded-full bg-white/90 backdrop-blur-xl border border-[#1E2022]/8 shadow-[0_24px_60px_-18px_rgba(30,32,34,0.45)]">
+            <div className="pointer-events-auto flex items-center gap-2 sm:gap-3 p-2 pr-2 max-w-full rounded-full bg-white/90 backdrop-blur-xl border border-[#1E2022]/8 shadow-[0_24px_60px_-18px_rgba(30,32,34,0.45)]">
               {/* place */}
               <div className="flex items-center gap-2.5 pl-1 pr-3 sm:pr-4 min-w-0">
                 <span className="relative w-11 h-11 rounded-full overflow-hidden bg-[#1E2022]/6 flex items-center justify-center shrink-0 ring-2 ring-white shadow">
@@ -1690,22 +1735,28 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                   </AnimatePresence>
                 </span>
                 <span className="hidden sm:block min-w-0 leading-tight">
-                  <span className="block text-sm font-extrabold text-[#1E2022] truncate">{dest ? dest.name : 'Pick a place'}</span>
-                  <span className="block text-[11px] text-[#9CA3AF] truncate">{dest ? dest.country : 'Nothing chosen yet'}</span>
+                  <span className="block text-[17px] font-extrabold text-[#1E2022] truncate">{dest ? dest.name : 'Pick a place'}</span>
+                  <span className="block text-[14px] text-[#9CA3AF] truncate">{dest ? dest.country : 'Nothing chosen yet'}</span>
                 </span>
               </div>
 
               {/* trip details: dashed = still to fill, solid = done */}
-              <div className="hidden md:flex items-center gap-2">
+              <div className={`hidden md:flex items-center min-w-0 ${step === 4 ? 'gap-3' : 'gap-2'}`}>
                 {/* dates are only entered on the last step, so that chip only appears there */}
                 {summaryItems.filter((it) => (it.only === undefined || it.only === step) && (it.min === undefined || step >= it.min)).map((it) => (
                   <motion.span
                     key={it.sub}
                     layout
-                    className={`inline-flex items-center gap-2 h-11 px-4 rounded-full text-sm font-bold max-w-[15rem] transition-colors ${
+                    className={`inline-flex items-center gap-2 h-11 px-4 rounded-full min-w-0 transition-colors ${
+                      step === 4 && it.quiet ? 'text-[14px] font-medium max-w-[11rem]' : 'text-md font-medium max-w-[15rem]'
+                    } ${
                       it.filled
-                        ? 'bg-[#F7931E]/12 text-[#1E2022] border border-[#F7931E]/30'
-                        : 'border border-dashed border-[#1E2022]/25 text-[#9CA3AF]'
+                        ? step === 4 && it.quiet
+                          ? 'bg-[#1E2022]/[0.04] text-[#4B4F55] border border-[#1E2022]/10'
+                          : 'bg-[#F7931E]/12 text-[#1E2022] border border-[#F7931E]/30'
+                        : step === 1 && it.forStep === 1
+                        ? 'border border-dashed border-[#F7931E]/60 bg-[#F7931E]/[0.06] text-[#C2571A]'
+                        : 'border border-dashed border-[#1E2022]/15 text-[#9CA3AF]'
                     }`}
                   >
                     <span className={`shrink-0 ${it.filled ? 'text-[#C2571A]' : ''}`}>{it.icon}</span>
@@ -1721,22 +1772,22 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                   disabled={!canContinue}
                   onClick={() => goTo(step + 1)}
                   aria-label="Continue"
-                  className={`group ml-1 h-12 rounded-full ${brandGrad} text-white text-sm font-bold inline-flex items-center justify-center gap-2 pl-6 pr-4 shadow-[0_10px_30px_-8px_rgba(229,80,26,0.6)] hover:brightness-110 disabled:opacity-40 disabled:hover:brightness-100 cursor-pointer transition-all`}
+                  className={`group ml-1 h-12 rounded-full ${brandGrad} text-white text-md font-medium inline-flex items-center justify-center gap-2 pl-6 pr-4 shadow-[0_10px_30px_-8px_rgba(229,80,26,0.6)] hover:brightness-110 disabled:opacity-40 disabled:hover:brightness-100 cursor-pointer transition-all duration-300 ease-out ${softContinue ? 'opacity-60 grayscale-[.6] shadow-none' : ''}`}
                 >
                   Continue
                   <span className="w-8 h-8 rounded-full bg-white/25 flex items-center justify-center">
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight className="w-4 h-4 transition-transform duration-200 ease-out group-hover:translate-x-[3px] group-disabled:translate-x-0 motion-reduce:group-hover:translate-x-0" />
                   </span>
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={finish}
-                  className={`group ml-1 h-12 rounded-full ${brandGrad} text-white text-sm font-bold inline-flex items-center justify-center gap-2 pl-6 pr-4 shadow-[0_10px_30px_-8px_rgba(229,80,26,0.7)] hover:brightness-110 cursor-pointer transition-all`}
+                  className={`group ml-1 h-12 rounded-full ${brandGrad} text-white text-md font-medium inline-flex items-center justify-center gap-2 pl-6 pr-4 shadow-[0_10px_30px_-8px_rgba(229,80,26,0.7)] hover:brightness-110 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_-8px_rgba(229,80,26,0.8)] motion-reduce:hover:translate-y-0 cursor-pointer transition-all duration-200 ease-out`}
                 >
                   Build my trip
                   <span className="w-8 h-8 rounded-full bg-white/25 flex items-center justify-center">
-                    <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                    <Sparkles className="w-4 h-4 group-hover:rotate-12 group-hover:translate-x-[3px] motion-reduce:group-hover:rotate-0 motion-reduce:group-hover:translate-x-0 transition-transform duration-200 ease-out" />
                   </span>
                 </button>
               )}

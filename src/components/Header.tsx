@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { NLogo } from './NLogo';
 
 interface HeaderProps {
-  activeTab: 'home' | 'plan' | 'why';
+  /** null = no link is current (e.g. scrolled through the middle sections of the home page) */
+  activeTab: 'home' | 'plan' | 'why' | null;
   onNavigate: (tab: 'home' | 'plan' | 'why') => void;
   onOpenMyTrips: () => void;
   onOpenPlanner: () => void;
@@ -75,9 +76,10 @@ export const Header: React.FC<HeaderProps> = ({
               }`}
             >
               Home
-              {activeTab === 'home' && (
-                <span key={String(overHero)} className={`absolute bottom-0 left-0 right-0 h-[2px] rounded-full origin-left animate-underline-draw ${overHero ? 'bg-white' : 'bg-[#C2571A]'}`} />
-              )}
+              <span
+                aria-hidden
+                className={`absolute bottom-0 left-0 right-0 h-[2px] rounded-full origin-left transition-transform duration-500 ease-out motion-reduce:transition-none ${activeTab === 'home' ? 'scale-x-100' : 'scale-x-0'} ${overHero ? 'bg-white' : 'bg-[#C2571A]'}`}
+              />
             </button>
 
             <button
@@ -99,9 +101,10 @@ export const Header: React.FC<HeaderProps> = ({
               }`}
             >
               Why Naiking
-              {activeTab === 'why' && (
-                <span key={String(overHero)} className={`absolute bottom-0 left-0 right-0 h-[2px] rounded-full origin-left animate-underline-draw ${overHero ? 'bg-white' : 'bg-[#C2571A]'}`} />
-              )}
+              <span
+                aria-hidden
+                className={`absolute bottom-0 left-0 right-0 h-[2px] rounded-full origin-left transition-transform duration-500 ease-out motion-reduce:transition-none ${activeTab === 'why' ? 'scale-x-100' : 'scale-x-0'} ${overHero ? 'bg-white' : 'bg-[#C2571A]'}`}
+              />
             </button>
           </nav>
 

@@ -49,7 +49,7 @@ export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
 
         {/* Segmented Tab Controls */}
         <div className="px-5 sm:px-7 py-4 ">
-          <div className="flex p-1 bg-[#F3EDE4]/70 rounded-xl border border-[#1E2022]/8">
+          <div className="flex p-1 bg-[#F5F5F5]/60 rounded-xl border border-[#1E2022]/8">
             <button
               onClick={() => setActiveTab('upcoming')}
               className={`flex-1 py-2 text-[14px] font-medium rounded-lg transition-[background-color,color,box-shadow] duration-300 motion-reduce:transition-none cursor-pointer flex items-center justify-center gap-1.5 ${

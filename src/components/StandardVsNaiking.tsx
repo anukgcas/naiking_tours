@@ -32,7 +32,7 @@ export const StandardVsNaiking: React.FC = () => {
   const [active, setActive] = useState<number | null>(null);
 
   return (
-    <section className="pt-16 pb-[54px] sm:pt-24 sm:pb-[86px] lg:pt-28 lg:pb-[102px]">
+    <section id="naiking-standard" className="scroll-mt-20 pt-16 pb-[54px] sm:pt-24 sm:pb-[86px] lg:pt-28 lg:pb-[102px]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-[2fr_3fr] gap-10 lg:gap-20 items-start">
           {/* Left: editorial introduction */}

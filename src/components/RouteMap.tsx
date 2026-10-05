@@ -108,14 +108,14 @@ export const RouteMap: React.FC<RouteMapProps> = ({ stops }) => {
     const legs: L.Polyline[] = [];
     for (let i = 0; i < pts.length - 1; i++) {
       legs.push(
-        L.polyline([pts[i], pts[i + 1]], { color: '#C2571A', weight: 3, opacity: 0.8, dashArray: '2 8', lineCap: 'round' }).addTo(layer),
+        L.polyline([pts[i], pts[i + 1]], { color: '#C2571A', weight: 4, opacity: 0.9, dashArray: '2 8', lineCap: 'round' }).addTo(layer),
       );
     }
     pts.slice(0, -1).forEach((from, i) => {
       fetchRoad(from, pts[i + 1], ctrl.signal)
         .then((line) => {
           if (!line) return;
-          legs[i].setLatLngs(line).setStyle({ dashArray: undefined, weight: 4, opacity: 0.95 });
+          legs[i].setLatLngs(line).setStyle({ dashArray: undefined, weight: 5, opacity: 1 });
         })
         .catch(() => undefined);
     });
@@ -154,6 +154,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ stops }) => {
       <style>{`
         .route-map-label{background:rgba(255,255,255,.92);border:0;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.25);color:#1E2022;font-size:11px;font-weight:700;padding:1px 6px}
         .route-map-label:before{display:none}
+        .leaflet-tile-pane{filter:grayscale(.5) opacity(.75)}
       `}</style>
       <div ref={hostRef} className="absolute inset-0 z-0" />
       <button

@@ -188,19 +188,22 @@ const WanderingPlane: React.FC = () => {
 
 export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination }) => {
   const [activeReelIndex, setActiveReelIndex] = useState(0);
+  // Hovering the destination previews pauses the auto-advance so the chosen background stays put
+  const [reelsHovered, setReelsHovered] = useState(false);
 
   const currentReel = FEATURED_REELS[activeReelIndex];
 
   // Auto-advance the scenic image; hovering a card restarts the timer
   useEffect(() => {
+    if (reelsHovered) return;
     const id = setTimeout(() => {
       setActiveReelIndex((activeReelIndex + 1) % FEATURED_REELS.length);
     }, REEL_INTERVAL_MS);
     return () => clearTimeout(id);
-  }, [activeReelIndex]);
+  }, [activeReelIndex, reelsHovered]);
 
   return (
-    <section className="relative bg-[#1E2022]" style={{ fontFamily: "'Jost', sans-serif" }}>
+    <section id="hero" className="relative bg-[#1E2022]" style={{ fontFamily: "'Jost', sans-serif" }}>
       <div className="relative pt-[72px] lg:pt-[120px] overflow-hidden">
         {/* One unified scene: the featured destination photo fills the hero */}
         <div className="absolute inset-0">
@@ -230,7 +233,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
           {/* Title + trip-start action */}
           <div className="w-full max-w-[760px] mx-auto text-center">
             <motion.p
-              className="mb-3 text-[15px] sm:text-base font-semibold tracking-[0.18em] text-[#FFB27A]"
+              className="mb-3 text-[17px] sm:text-base font-semibold tracking-[0.18em] text-[#FFB27A]"
               style={{ fontFamily: "'Marcellus', serif" }}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -311,7 +314,11 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
                 </button>
               </div>
 
-              <div className="mt-3 -mx-4 px-4 sm:mx-0 sm:px-0 flex items-stretch gap-3 h-[190px] sm:h-[210px] overflow-x-auto lg:overflow-visible snap-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div
+                onMouseEnter={() => setReelsHovered(true)}
+                onMouseLeave={() => setReelsHovered(false)}
+                className="mt-3 -mx-4 px-4 sm:mx-0 sm:px-0 flex items-stretch gap-3 h-[190px] sm:h-[210px] overflow-x-auto lg:overflow-visible snap-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              >
                 {FEATURED_REELS.map((reel, idx) => {
                   const active = activeReelIndex === idx;
                   return (
@@ -321,6 +328,8 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
                       // The first tap features a destination; tapping the featured one opens the wizard with it chosen
                       onClick={() => (active ? onExploreDestination(reel.name) : setActiveReelIndex(idx))}
                       aria-label={active ? `Plan a trip to ${reel.name}` : `Feature ${reel.name}`}
+                      // Mouse only: on touch, the first tap still features a card and the second opens the wizard
+                      onPointerEnter={(e) => e.pointerType === 'mouse' && setActiveReelIndex(idx)}
                       whileHover={{ y: -4 }}
                       className={`group relative shrink-0 snap-start flex flex-col text-left cursor-pointer transition-[width] duration-500 ease-out ${
                         active ? 'w-[250px] sm:w-[300px]' : 'w-[84px] sm:w-[104px]'

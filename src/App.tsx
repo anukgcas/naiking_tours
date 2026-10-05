@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Loader } from './components/Loader';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
@@ -12,6 +12,7 @@ import { MyTripsDrawer } from './components/MyTripsDrawer';
 import { WhyNaiking } from './components/WhyNaiking';
 import { Footer } from './components/Footer';
 import { MobileBottomNav } from './components/MobileBottomNav';
+import { ScrollToTop } from './components/ScrollToTop';
 import { SIGNATURE_DESTINATIONS, INITIAL_BOOKED_TRIPS } from './data/mockData';
 import {
   PLANNER_DESTINATIONS,
@@ -33,6 +34,8 @@ type Tab = 'home' | 'why' | 'start' | 'plan' | 'overview';
 export default function App() {
   const [showLoader, setShowLoader] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>('home');
+  // Which part of the home page is on screen: the hero, the sections in between, or Naiking Standard onwards
+  const [homeSection, setHomeSection] = useState<'hero' | 'mid' | 'why'>('hero');
   const [isMyTripsOpen, setIsMyTripsOpen] = useState(false);
 
   // Customiser: wizard (draft) -> plan board -> overview
@@ -49,7 +52,17 @@ export default function App() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const scrollTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  // While a nav click is smooth-scrolling, the scroll spy below must not flip the highlighted link
+  const spyLock = useRef(0);
+  const lockSpy = () => {
+    spyLock.current = Date.now() + 2000;
+  };
+
+  const scrollTop = () => {
+    lockSpy();
+    setHomeSection('hero');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const goTo = (tab: Tab) => {
     setActiveTab(tab);
@@ -103,7 +116,9 @@ export default function App() {
     if (tab === 'plan') return handlePlanCTA();
     setActiveTab(tab);
     if (tab === 'why') {
-      setTimeout(() => document.getElementById('why-naiking')?.scrollIntoView({ behavior: 'smooth' }), 60);
+      lockSpy();
+      setHomeSection('why');
+      setTimeout(() => document.getElementById('naiking-standard')?.scrollIntoView({ behavior: 'smooth' }), 60);
     } else {
       scrollTop();
     }
@@ -136,9 +151,39 @@ export default function App() {
     goTo('home');
   };
 
+  // On the home page, highlight "Why Naiking" only while The Naiking Standard (and what follows) is on screen
+  const onHome = activeTab === 'home' || activeTab === 'why';
+  useEffect(() => {
+    if (!onHome) return;
+    const update = () => {
+      if (Date.now() < spyLock.current) return;
+      const standard = document.getElementById('naiking-standard');
+      const hero = document.getElementById('hero');
+      if (!standard || !hero) return;
+      const vh = window.innerHeight;
+      setHomeSection(
+        standard.getBoundingClientRect().top <= vh * 0.35 ? 'why' : hero.getBoundingClientRect().bottom > vh * 0.35 ? 'hero' : 'mid',
+      );
+    };
+    const onScrollEnd = () => {
+      spyLock.current = 0;
+      update();
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('scrollend', onScrollEnd);
+    return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('scrollend', onScrollEnd);
+    };
+  }, [onHome]);
+
   // Guard: the planner pages need a valid draft and a plan
   const view: Tab = (activeTab === 'plan' || activeTab === 'overview') && !canPlan ? 'home' : activeTab;
-  const navTab = view === 'overview' || view === 'start' ? 'plan' : view;
+  const onHomePage = view === 'home' || view === 'why';
+  const navTab = view === 'overview' || view === 'start' ? 'plan' : onHomePage ? (homeSection === 'why' ? 'why' : 'home') : view;
+  // The top bar shows no current link while scrolling through the middle of the home page
+  const headerTab = onHomePage && homeSection === 'mid' ? null : navTab;
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#1E2022] font-sans">
@@ -147,7 +192,7 @@ export default function App() {
       {/* The trip-setup page opens as its own full page: no site header, footer or tab bar */}
       {view !== 'start' && (
       <Header
-        activeTab={navTab}
+        activeTab={headerTab}
         onNavigate={handleNavigate}
         onOpenMyTrips={() => setIsMyTripsOpen(true)}
         onOpenPlanner={handlePlanCTA}
@@ -208,6 +253,8 @@ export default function App() {
               onOpenMyTrips={() => setIsMyTripsOpen(true)}
             />
           </div>
+
+          {onHomePage && <ScrollToTop onClick={scrollTop} />}
 
           <MobileBottomNav
             currentTab={navTab}

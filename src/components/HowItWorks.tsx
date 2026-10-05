@@ -28,7 +28,7 @@ export const HowItWorks: React.FC = () => (
   <section className="py-12 lg:py-16">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1E2022]">Your trip built your way</h2>
-      <p className="mt-1 text-sm font-medium sm:text-base text-[#6B7280]">No fixed packages. Four steps from idea to itinerary</p>
+      <p className="mt-1 text-sm font-medium sm:text-base text-[#6B7280]">No fixed packages Four steps from idea to itinerary</p>
       <ol className="mt-8 flex flex-col lg:flex-row lg:items-stretch">
         {STEPS.map((s, i) => (
           <React.Fragment key={s.title}>

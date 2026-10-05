@@ -9,14 +9,14 @@ interface StepIndicatorProps {
 }
 
 export const StepIndicator: React.FC<StepIndicatorProps> = ({ current }) => (
-  <ol className="flex items-center gap-2 sm:gap-3 text-xs font-semibold" aria-label="Trip planning progress">
+  <ol className="flex items-center gap-2 sm:gap-3 text-md font-medium" aria-label="Trip planning progress">
     {STEPS.map((label, i) => {
       const done = i < current;
       const active = i === current;
       return (
         <li key={label} className="flex items-center gap-2 sm:gap-3" aria-current={active ? 'step' : undefined}>
           <span
-            className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] shrink-0 ${
+            className={`w-6 h-6 rounded-full flex items-center justify-center text-[14px] shrink-0 ${
               done
                 ? 'bg-[#C2571A] text-white'
                 : active
