@@ -29,7 +29,7 @@ export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-black/40 backdrop-blur-xs flex justify-end animate-in fade-in duration-200">
-      <div className="w-full sm:max-w-md bg-[#FAF8F5] h-full shadow-2xl flex flex-col border-l border-[#1E2022]/10 animate-in slide-in-from-right duration-300">
+      <div className="w-full sm:max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-[#1E2022]/10 animate-in slide-in-from-right duration-300">
         {/* Header */}
         <div className="px-5 sm:px-7 pt-7 pb-6 border-b border-[#1E2022]/8 flex items-start justify-between gap-4 bg-white">
           <div>
@@ -48,7 +48,7 @@ export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
         </div>
 
         {/* Segmented Tab Controls */}
-        <div className="px-5 sm:px-7 py-4 bg-[#FAF8F5]">
+        <div className="px-5 sm:px-7 py-4 ">
           <div className="flex p-1 bg-[#F3EDE4]/70 rounded-xl border border-[#1E2022]/8">
             <button
               onClick={() => setActiveTab('upcoming')}

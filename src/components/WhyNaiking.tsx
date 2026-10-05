@@ -79,7 +79,7 @@ export const WhyNaiking: React.FC = () => {
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#1E2022] mt-2 text-balance">
             Designed for travellers who value serenity over speed
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-[#6B7280]">Hear it from those who travelled with us.</p>
+          <p className="mt-3 text-sm sm:text-base text-[#6B7280]">Hear it from those who travelled with us</p>
         </div>
       </div>
 
