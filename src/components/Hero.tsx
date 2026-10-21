@@ -2,12 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, ArrowRight, Search } from 'lucide-react';
 import { motion, AnimatePresence, animate, useMotionValue } from 'motion/react';
 import { Marquee } from './HeroParts';
+import { TripPlanningConsole } from './TripPlanningConsole';
+import { TripDraft } from '../types';
 
 interface HeroProps {
   /** Opens the "Where do you want to go?" trip wizard. */
   onStartWizard: () => void;
   /** Opens the wizard with this place already chosen. */
   onExploreDestination: (destName: string) => void;
+  /** Launches planning with user-configured draft parameters from the console */
+  onStartPlanningWithDraft?: (patch: Partial<TripDraft>, initialStep?: number) => void;
+  /** Directly navigates to planner with crafted active itinerary */
+  onCraftItinerary?: () => void;
 }
 
 interface DestinationReel {
@@ -71,7 +77,6 @@ const DESTINATION_REELS: DestinationReel[] = [
 ];
 
 const REEL_INTERVAL_MS = 6500;
-// Only these destinations are shown in the strip, so the loop cycles through just them
 const FEATURED_REELS = DESTINATION_REELS.slice(0, 4);
 
 const MARQUEE_ITEMS = [
@@ -94,7 +99,6 @@ const WanderingPlane: React.FC = () => {
   const flying = useRef(false);
   const [puffs, setPuffs] = useState<{ id: number; x: number; y: number; born: number }[]>([]);
 
-  // Drop a smoke puff behind the tail while the plane is moving
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     let id = 0;
@@ -120,7 +124,6 @@ const WanderingPlane: React.FC = () => {
     const SPEED = 55; // px per second
 
     const run = async () => {
-      // start off-canvas on the left, then wander
       let cx = -60;
       let cy = Math.random() * 300 + 100;
       x.set(cx);
@@ -137,7 +140,6 @@ const WanderingPlane: React.FC = () => {
         const dist = Math.hypot(dx, dy);
         if (dist < 80) continue;
 
-        // turn the shortest way toward the heading
         const target = (Math.atan2(dy, dx) * 180) / Math.PI;
         let delta = ((target - rot.get() + 540) % 360) - 180;
         await animate(rot, rot.get() + delta, { duration: 0.9, ease: 'easeInOut' });
@@ -160,7 +162,7 @@ const WanderingPlane: React.FC = () => {
   }, [x, y, rot]);
 
   return (
-    <div ref={box} className="absolute inset-0">
+    <div ref={box} className="absolute inset-0 pointer-events-none">
       {puffs.map((p) => (
         <motion.span
           key={p.id}
@@ -186,14 +188,19 @@ const WanderingPlane: React.FC = () => {
   );
 };
 
-export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination }) => {
+export const Hero: React.FC<HeroProps> = ({
+  onStartWizard,
+  onExploreDestination,
+  onStartPlanningWithDraft,
+  onCraftItinerary,
+}) => {
   const [activeReelIndex, setActiveReelIndex] = useState(0);
-  // Hovering the destination previews pauses the auto-advance so the chosen background stays put
   const [reelsHovered, setReelsHovered] = useState(false);
+  const [showQuickSearchFallback, setShowQuickSearchFallback] = useState(false);
 
   const currentReel = FEATURED_REELS[activeReelIndex];
 
-  // Auto-advance the scenic image; hovering a card restarts the timer
+  // Auto-advance scenic background; hovering preview strip pauses timer
   useEffect(() => {
     if (reelsHovered) return;
     const id = setTimeout(() => {
@@ -202,10 +209,22 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
     return () => clearTimeout(id);
   }, [activeReelIndex, reelsHovered]);
 
+  const handleScrollToDestinations = () => {
+    document.getElementById('signature-destinations')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handlePlanningAction = (draftPatch: Partial<TripDraft>, initialStep?: number) => {
+    if (onStartPlanningWithDraft) {
+      onStartPlanningWithDraft(draftPatch, initialStep);
+    } else {
+      onStartWizard();
+    }
+  };
+
   return (
     <section id="hero" className="relative bg-[#1E2022]" style={{ fontFamily: "'Jost', sans-serif" }}>
-      <div className="relative pt-[72px] lg:pt-[120px] overflow-hidden">
-        {/* One unified scene: the featured destination photo fills the hero */}
+      <div className="relative pt-[76px] lg:pt-[96px] overflow-hidden">
+        {/* Unified scenic background photo */}
         <div className="absolute inset-0">
           <AnimatePresence initial={false}>
             <motion.img
@@ -220,30 +239,30 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
               transition={{ duration: 1.2, ease: 'easeInOut' }}
             />
           </AnimatePresence>
-          {/* Readability: dark on the text side and at the bottom, clear in the middle of the scene */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#14110F]/55 via-[#14110F]/15 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#14110F]/80 via-transparent to-[#14110F]/25" />
+          {/* Readability gradients */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#14110F]/75 via-[#14110F]/35 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#14110F]/90 via-transparent to-[#14110F]/30" />
         </div>
 
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden motion-reduce:hidden">
           <WanderingPlane />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-16 lg:pb-20 flex flex-col">
-          {/* Title + trip-start action */}
-          <div className="w-full max-w-[760px] mx-auto text-center">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-16 lg:pb-20 flex flex-col z-20">
+          {/* Title + Branding Statement */}
+          <div className="w-full max-w-[800px] mx-auto text-center mb-6 sm:mb-8">
             <motion.p
-              className="mb-3 text-[17px] sm:text-base font-semibold tracking-[0.18em] text-[#FFB27A]"
+              className="mb-2 text-[15px] sm:text-base font-semibold tracking-[0.2em] text-[#FFB27A]"
               style={{ fontFamily: "'Marcellus', serif" }}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: EASE }}
             >
-              LET’S BUILD YOUR TRIP
+              BESPOKE LUXURY HOLIDAYS
             </motion.p>
 
             <motion.h1
-              className="text-[2.1rem] sm:text-5xl lg:text-[3.4rem] font-normal tracking-tight leading-[1.08] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)]"
+              className="text-[2.2rem] sm:text-5xl lg:text-[3.3rem] font-normal tracking-tight leading-[1.1] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.4)]"
               style={{ fontFamily: "'Marcellus', serif" }}
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
@@ -253,30 +272,59 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
               <br />
               Around You
             </motion.h1>
-
-            <motion.div
-              id="hero-search"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3, ease: EASE }}
-            >
-              <button
-                type="button"
-                onClick={onStartWizard}
-                aria-label="Where should we take you"
-                className="mt-7 mx-auto group relative w-full max-w-[560px] h-14 pl-12 pr-14 rounded-full bg-white/10 backdrop-blur-md border border-white/25 shadow-[0_18px_40px_-20px_rgba(0,0,0,0.6)] text-left text-base text-white/85 hover:bg-white/20 focus:outline-none focus-visible:ring-4 focus-visible:ring-white/40 active:scale-[0.99] transition cursor-pointer"
-              >
-                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-white" />
-                Where should we take you
-                <span className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#C2571A]/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)] group-hover:bg-[#C2571A] text-white flex items-center justify-center transition-colors">
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                </span>
-              </button>
-            </motion.div>
           </div>
 
-          {/* Featured destination story + floating destination previews */}
-          <div className="pt-[84px] flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 lg:gap-10">
+          {/* Primary Trip-Planning Entry Point (5-Field MakeMyTrip-Inspired Console) */}
+          <motion.div
+            id="hero-planner-console"
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.25, ease: EASE }}
+            className="w-full"
+          >
+            <TripPlanningConsole
+              onStartPlanning={handlePlanningAction}
+              onExploreDestination={onExploreDestination}
+              onCraftItinerary={onCraftItinerary}
+            />
+
+            {/* Quick alternative search fallback toggle */}
+            <div className="mt-3 text-center">
+              <button
+                type="button"
+                onClick={() => setShowQuickSearchFallback(!showQuickSearchFallback)}
+                className="text-xs text-white/60 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5"
+              >
+                <Search className="w-3.5 h-3.5" />
+                <span>
+                  {showQuickSearchFallback
+                    ? 'Hide simple search prompt'
+                    : 'Prefer simple search? Click here'}
+                </span>
+              </button>
+
+              {showQuickSearchFallback && (
+                <div className="mt-3 max-w-[500px] mx-auto animate-in fade-in duration-200">
+                  <button
+                    type="button"
+                    onClick={onStartWizard}
+                    aria-label="Where should we take you"
+                    className="group relative w-full h-12 pl-12 pr-12 rounded-full bg-white/10 backdrop-blur-md border border-white/25 text-left text-sm text-white/85 hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 active:scale-[0.99] transition cursor-pointer"
+                  >
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white" />
+                    <span>Where should we take you?</span>
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#C2571A] text-white flex items-center justify-center transition-colors">
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Featured destination story card + Popular Destinations strip */}
+          <div className="pt-10 sm:pt-14 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 lg:gap-10">
+            {/* Story Card */}
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={currentReel.id}
@@ -284,40 +332,48 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.45, ease: 'easeOut' }}
-                className="text-white p-5 sm:p-6 rounded-3xl bg-white/10 backdrop-blur-md border border-white/25 shadow-[0_18px_40px_-20px_rgba(0,0,0,0.6)] lg:w-[300px] shrink-0 lg:translate-y-6"
+                className="text-white p-5 sm:p-6 rounded-3xl bg-white/10 backdrop-blur-md border border-white/25 shadow-[0_18px_40px_-20px_rgba(0,0,0,0.6)] lg:w-[300px] shrink-0"
               >
-                <span className="text-[14px] font-regular text-white/90 block">
+                <span className="text-xs font-semibold text-[#FFB27A] uppercase tracking-wider block">
                   {currentReel.country}
                 </span>
-                <span className="mt-1 text-3xl sm:text-4xl font-medium block leading-tight">{currentReel.name}</span>
-                <span className="mt-2 text-[14px] leading-relaxed text-white/80 block">{currentReel.highlight}</span>
+                <span className="mt-1 text-2xl sm:text-3xl font-bold block leading-tight">
+                  {currentReel.name}
+                </span>
+                <span className="mt-2 text-xs sm:text-sm leading-relaxed text-white/80 block">
+                  {currentReel.highlight}
+                </span>
                 <button
                   type="button"
                   onClick={() => onExploreDestination(currentReel.name)}
-                  className="mt-4 inline-flex items-center gap-1 px-4 py-2 rounded-full border border-white/40 bg-white/10 hover:bg-white/20 text-sm cursor-pointer transition-colors"
+                  className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-white/40 bg-white/10 hover:bg-white/20 text-xs font-semibold cursor-pointer transition-colors"
                 >
-                  <MapPin className="w-3.5 h-3.5" /> Explore →
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>Explore {currentReel.name} →</span>
                 </button>
               </motion.div>
             </AnimatePresence>
 
-            <div className="min-w-0 lg:max-w-[640px] text-white lg:-translate-y-8">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-md font-medium leading-none tracking-wide">Popular Destinations</span>
+            {/* Popular Destinations Strip */}
+            <div className="min-w-0 lg:max-w-[640px] text-white">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <span className="text-sm font-semibold tracking-wide">
+                  Popular Destinations
+                </span>
                 <button
                   type="button"
-                  onClick={onStartWizard}
-                  className="group inline-flex items-center gap-1 text-md font-medium leading-none text-[#FFB27A] cursor-pointer"
+                  onClick={handleScrollToDestinations}
+                  className="group inline-flex items-center gap-1 text-xs font-medium text-[#FFB27A] hover:underline cursor-pointer"
                 >
-                  Explore destinations
-                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                  <span>View All 6 Destinations</span>
+                  <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
                 </button>
               </div>
 
               <div
                 onMouseEnter={() => setReelsHovered(true)}
                 onMouseLeave={() => setReelsHovered(false)}
-                className="mt-3 -mx-4 px-4 sm:mx-0 sm:px-0 flex items-stretch gap-3 h-[190px] sm:h-[210px] overflow-x-auto lg:overflow-visible snap-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="flex items-stretch gap-3 h-[180px] sm:h-[195px] overflow-x-auto lg:overflow-visible snap-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               >
                 {FEATURED_REELS.map((reel, idx) => {
                   const active = activeReelIndex === idx;
@@ -325,14 +381,12 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
                     <motion.button
                       key={reel.id}
                       type="button"
-                      // The first tap features a destination; tapping the featured one opens the wizard with it chosen
                       onClick={() => (active ? onExploreDestination(reel.name) : setActiveReelIndex(idx))}
                       aria-label={active ? `Plan a trip to ${reel.name}` : `Feature ${reel.name}`}
-                      // Mouse only: on touch, the first tap still features a card and the second opens the wizard
                       onPointerEnter={(e) => e.pointerType === 'mouse' && setActiveReelIndex(idx)}
                       whileHover={{ y: -4 }}
                       className={`group relative shrink-0 snap-start flex flex-col text-left cursor-pointer transition-[width] duration-500 ease-out ${
-                        active ? 'w-[250px] sm:w-[300px]' : 'w-[84px] sm:w-[104px]'
+                        active ? 'w-[240px] sm:w-[280px]' : 'w-[84px] sm:w-[100px]'
                       }`}
                     >
                       <span
@@ -358,9 +412,9 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
                         )}
                       </span>
                       {active && (
-                        <span className="block pt-2.5 text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.6)]">
-                          <span className="block text-sm font-medium leading-tight">{reel.name}</span>
-                          <span className="block mt-0.5 text-[13px] leading-snug text-white/85">{reel.tags}</span>
+                        <span className="block pt-2 text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.6)]">
+                          <span className="block text-sm font-semibold leading-tight">{reel.name}</span>
+                          <span className="block mt-0.5 text-xs text-white/80 truncate">{reel.tags}</span>
                         </span>
                       )}
                     </motion.button>
@@ -371,7 +425,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartWizard, onExploreDestination 
           </div>
         </div>
 
-        {/* Sits over the bottom of the photo, so it stays transparent */}
+        {/* Marquee Banner */}
         <Marquee items={MARQUEE_ITEMS} />
       </div>
     </section>

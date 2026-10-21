@@ -400,7 +400,7 @@ export const computeCosts = (draft: TripDraft, plan: PlanState): CostBreakdown =
   const dest = getDestination(draft.destinationId);
   const days = tripDays(draft);
   const nights = Math.max(1, days - 1);
-  const rooms = Math.max(1, Math.ceil(draft.adults / 2));
+  const rooms = draft.rooms && draft.rooms > 0 ? draft.rooms : Math.max(1, Math.ceil(draft.adults / 2));
   const payingGuests = draft.adults + draft.children * 0.5;
 
   const stay = dest ? dest.stayPerNight[draft.stayTier] * nights * rooms : 0;
@@ -533,6 +533,7 @@ export const newDraft = (): TripDraft => ({
   checkOut: '',
   adults: 2,
   children: 0,
+  rooms: 1,
   stayTier: 1,
 });
 
