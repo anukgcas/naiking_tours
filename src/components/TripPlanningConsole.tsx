@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   MapPin,
   Calendar,
+  CalendarCheck,
   Users,
-  SlidersHorizontal,
   ArrowRight,
   ChevronDown,
   ChevronLeft,
@@ -12,21 +12,15 @@ import {
   Plus,
   Minus,
   Sparkles,
-  Palmtree,
-  Camera,
-  Landmark,
-  Mountain,
-  UtensilsCrossed,
-  Flower2,
-  Clock,
   BedDouble,
-  RotateCcw,
 } from 'lucide-react';
-import { ActivityCategory, TravellerType, TripDraft } from '../types';
+import { TravellerType, TripDraft } from '../types';
 import {
   addDaysISO,
   todayISO,
   formatDate,
+  nightsBetween,
+  MAX_TRIP_DAYS,
 } from '../data/planner';
 import { useTrip } from '../context/TripContext';
 
@@ -45,93 +39,200 @@ const DESTINATION_OPTIONS = [
   { id: 'singapore', name: 'Singapore', country: 'Southeast Asia', tag: 'Skyline & Michelin Cuisine', image: '/images/dest_singapore_1790674346843.jpg' },
 ];
 
-const NIGHT_PRESETS = [
-  { nights: 3, label: '3 Nights', sub: 'Quick Escape' },
-  { nights: 5, label: '5 Nights', sub: 'Signature' },
-  { nights: 7, label: '7 Nights', sub: 'Grand Journey' },
-  { nights: 10, label: '10 Nights', sub: 'Immersive' },
-];
-
-const TIMING_PRESETS = [
-  { label: 'Upcoming Month', hint: 'Best seasonal weather' },
-  { label: 'Festive Season', hint: 'Special culinary & cultural events' },
-  { label: 'Serene Shoulder Season', hint: 'Unhurried and quieter sanctuaries' },
-];
-
-const INTEREST_OPTIONS: { id: ActivityCategory; label: string; icon: React.ReactNode }[] = [
-  { id: 'Leisure', label: 'Beach & Chill', icon: <Palmtree className="w-3.5 h-3.5" /> },
-  { id: 'Sightseeing', label: 'Iconic Sights', icon: <Camera className="w-3.5 h-3.5" /> },
-  { id: 'Culture', label: 'Heritage & Art', icon: <Landmark className="w-3.5 h-3.5" /> },
-  { id: 'Adventure', label: 'Outdoor Thrills', icon: <Mountain className="w-3.5 h-3.5" /> },
-  { id: 'Food', label: 'Gourmet Dining', icon: <UtensilsCrossed className="w-3.5 h-3.5" /> },
-  { id: 'Wellness', label: 'Spa & Wellness', icon: <Flower2 className="w-3.5 h-3.5" /> },
-];
-
-const STAY_TIER_OPTIONS: { tier: 0 | 1 | 2; label: string; desc: string }[] = [
-  { tier: 0, label: 'Comfort', desc: 'Curated 4★ boutique stays' },
-  { tier: 1, label: 'Signature', desc: '5★ luxury villas & beach resorts' },
-  { tier: 2, label: 'Ultra Luxury', desc: 'Private pool pavilions & butler service' },
-];
-
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 const DAY_LABELS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
+// Guest categories: adults 12+, children 6-12, infants under 6
+const MAX_ADULTS = 12;
+const MAX_CHILDREN = 8;
+const MAX_INFANTS = 4;
+
+/** Rooms follow the party: 2 adults per room, and no more than 4 guests (infants excluded) per room. */
+const roomsFor = (adults: number, children: number) =>
+  Math.max(1, Math.ceil(adults / 2), Math.ceil((adults + children) / 4));
+
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+
+// Shared glass styling
+const FIELD_IDLE =
+  'bg-white/45 backdrop-blur-md border-white/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] hover:bg-white/70 hover:border-white/90';
+const FIELD_OPEN = 'bg-white/80 border-[#0E7C86] shadow-[0_0_0_3px_rgba(14,124,134,0.18)]';
+const POPOVER =
+  'absolute top-[92px] bg-white/95 backdrop-blur-2xl backdrop-saturate-150 border border-white/70 ring-1 ring-inset ring-white/40 rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150';
+const STEP_BTN =
+  'w-7 h-7 rounded-full bg-[#16222E]/6 hover:bg-[#16222E]/8 disabled:opacity-30 flex items-center justify-center cursor-pointer';
+
+type Popup = 'dest' | 'start' | 'end' | 'guests' | null;
+type PickKey = 'dest' | 'start' | 'end' | 'guests';
+
+// ---------- calendar ----------
+
+interface CalendarProps {
+  month: number;
+  year: number;
+  onMonthChange: (month: number, year: number) => void;
+  /** Earliest month that can be navigated to (ISO date inside it). */
+  minIso: string;
+  isDisabled: (iso: string) => boolean;
+  selectedIso: string | null;
+  /** Optional highlighted span (exclusive) shown behind the selected day. */
+  rangeFrom?: string | null;
+  rangeTo?: string | null;
+  onSelect: (iso: string) => void;
+  footer?: React.ReactNode;
+}
+
+const CalendarGrid: React.FC<CalendarProps> = ({
+  month,
+  year,
+  onMonthChange,
+  minIso,
+  isDisabled,
+  selectedIso,
+  rangeFrom,
+  rangeTo,
+  onSelect,
+  footer,
+}) => {
+  const minDate = new Date(minIso + 'T00:00:00');
+  const atMin = year < minDate.getFullYear() || (year === minDate.getFullYear() && month <= minDate.getMonth());
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDow = new Date(year, month, 1).getDay();
+
+  const prev = () => {
+    if (atMin) return;
+    if (month === 0) onMonthChange(11, year - 1);
+    else onMonthChange(month - 1, year);
+  };
+  const next = () => {
+    if (month === 11) onMonthChange(0, year + 1);
+    else onMonthChange(month + 1, year);
+  };
+
+  return (
+    <>
+      <div className="flex items-center justify-between mb-3">
+        <button
+          type="button"
+          onClick={prev}
+          disabled={atMin}
+          className="p-1 rounded-lg hover:bg-[#16222E]/8 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer"
+          aria-label="Previous month"
+        >
+          <ChevronLeft className="w-4 h-4 text-[#16222E]" />
+        </button>
+        <span className="text-sm font-bold text-[#16222E]">
+          {MONTH_NAMES[month]} {year}
+        </span>
+        <button
+          type="button"
+          onClick={next}
+          className="p-1 rounded-lg hover:bg-[#16222E]/8 cursor-pointer"
+          aria-label="Next month"
+        >
+          <ChevronRight className="w-4 h-4 text-[#16222E]" />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-7 gap-1 text-center mb-1">
+        {DAY_LABELS.map((d) => (
+          <span key={d} className="text-[10px] font-semibold text-[#6B7280]">
+            {d}
+          </span>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-1 text-center">
+        {Array.from({ length: firstDow }).map((_, i) => (
+          <div key={`empty-${i}`} className="h-8" />
+        ))}
+        {Array.from({ length: daysInMonth }).map((_, i) => {
+          const day = i + 1;
+          const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          const disabled = isDisabled(iso);
+          const selected = selectedIso === iso;
+          const inRange = !!rangeFrom && !!rangeTo && iso > rangeFrom && iso < rangeTo;
+          return (
+            <button
+              key={day}
+              type="button"
+              disabled={disabled}
+              onClick={() => onSelect(iso)}
+              className={`h-8 w-8 mx-auto rounded-full text-xs font-medium flex items-center justify-center transition-colors cursor-pointer ${
+                selected
+                  ? 'bg-[#0B4A82] text-white font-bold shadow-sm'
+                  : disabled
+                  ? 'text-[#16222E]/25 cursor-not-allowed'
+                  : inRange
+                  ? 'bg-[#0E7C86]/15 text-[#16222E]'
+                  : 'text-[#16222E] hover:bg-[#16222E]/8'
+              }`}
+            >
+              {day}
+            </button>
+          );
+        })}
+      </div>
+      {footer}
+    </>
+  );
+};
+
+const monthOf = (iso: string) => {
+  const d = new Date(iso + 'T00:00:00');
+  return { month: d.getMonth(), year: d.getFullYear() };
+};
+
+// ---------- console ----------
+
 export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
   onStartPlanning,
-  onExploreDestination,
   onCraftItinerary,
 }) => {
   const today = todayISO();
   const {
     destinationId: selectedDestId,
     durationNights,
-    timingPreference,
     departureDate,
     rooms,
     adults,
     children,
-    interests: selectedInterests,
-    stayTier: selectedStayTier,
-    setDestinationId: setSelectedDestId,
+    interests,
+    stayTier,
+    setDestinationId,
     setDurationNights,
-    setTimingPreference,
     setDepartureDate,
-    setRooms,
-    setAdults,
-    setChildren,
-    setInterests: setSelectedInterests,
-    setStayTier: setSelectedStayTier,
+    setGuests,
     craftItinerary,
   } = useTrip();
 
-  // Calendar month/year navigation state
-  const departureDateObj = new Date(departureDate + 'T00:00:00');
-  const [calMonth, setCalMonth] = useState<number>(() =>
-    isNaN(departureDateObj.getTime()) ? new Date().getMonth() : departureDateObj.getMonth()
-  );
-  const [calYear, setCalYear] = useState<number>(() =>
-    isNaN(departureDateObj.getTime()) ? new Date().getFullYear() : departureDateObj.getFullYear()
-  );
+  // The console opens blank: a field only shows a value once the visitor has chosen it
+  // (the trip context still holds sensible defaults underneath).
+  const [picked, setPicked] = useState<Record<PickKey, boolean>>({
+    dest: false,
+    start: false,
+    end: false,
+    guests: false,
+  });
+  const markPicked = (key: PickKey) => setPicked((p) => (p[key] ? p : { ...p, [key]: true }));
+  const unpick = (key: PickKey) => setPicked((p) => (p[key] ? { ...p, [key]: false } : p));
 
-  useEffect(() => {
-    if (departureDate) {
-      const d = new Date(departureDate + 'T00:00:00');
-      if (!isNaN(d.getTime())) {
-        setCalMonth(d.getMonth());
-        setCalYear(d.getFullYear());
-      }
-    }
-  }, [departureDate]);
+  // Infants (under 6) travel free and don't change the plan, so they are tracked here only.
+  const [infants, setInfants] = useState(0);
+  // Rooms follow the party automatically until the visitor adjusts them by hand.
+  const [roomsManual, setRoomsManual] = useState(false);
 
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [activePopup, setActivePopup] = useState<Popup>(null);
 
-  // Active popup: 'dest' | 'duration' | 'departure' | 'guests' | 'filters' | null
-  const [activePopup, setActivePopup] = useState<
-    'dest' | 'duration' | 'departure' | 'guests' | 'filters' | null
-  >(null);
+  const endDate = addDaysISO(departureDate, durationNights);
+
+  // Calendar month/year for the start and end pickers
+  const [startCal, setStartCal] = useState(() => monthOf(departureDate));
+  const [endCal, setEndCal] = useState(() => monthOf(endDate));
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -155,89 +256,81 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
 
   const selectedDest = DESTINATION_OPTIONS.find((d) => d.id === selectedDestId) || DESTINATION_OPTIONS[0];
 
-  // Calendar helpers
-  const todayDateObj = new Date(today + 'T00:00:00');
-  const isPastMonth =
-    calYear < todayDateObj.getFullYear() ||
-    (calYear === todayDateObj.getFullYear() && calMonth <= todayDateObj.getMonth());
-
-  const handlePrevMonth = () => {
-    if (isPastMonth) return;
-    if (calMonth === 0) {
-      setCalMonth(11);
-      setCalYear((y) => y - 1);
-    } else {
-      setCalMonth((m) => m - 1);
-    }
+  const pickDest = (id: string) => {
+    markPicked('dest');
+    setDestinationId(id);
   };
 
-  const handleNextMonth = () => {
-    if (calMonth === 11) {
-      setCalMonth(0);
-      setCalYear((y) => y + 1);
-    } else {
-      setCalMonth((m) => m + 1);
-    }
+  const endFits = (startIso: string, endIso: string) => {
+    const nights = nightsBetween(startIso, endIso);
+    return nights >= 1 && nights + 1 <= MAX_TRIP_DAYS;
   };
 
-  const daysInCurrentMonth = new Date(calYear, calMonth + 1, 0).getDate();
-  const firstDayOfWeek = new Date(calYear, calMonth, 1).getDay();
-
-  const handleSelectDate = (day: number) => {
-    const mm = String(calMonth + 1).padStart(2, '0');
-    const dd = String(day).padStart(2, '0');
-    const iso = `${calYear}-${mm}-${dd}`;
+  const pickStart = (iso: string) => {
     if (iso < today) return;
+    markPicked('start');
     setDepartureDate(iso);
-    setActivePopup(null);
-  };
-
-  const handleSelectDeparturePreset = (daysAhead: number) => {
-    const targetIso = addDaysISO(today, daysAhead);
-    setDepartureDate(targetIso);
-    const d = new Date(targetIso + 'T00:00:00');
-    setCalMonth(d.getMonth());
-    setCalYear(d.getFullYear());
-    setActivePopup(null);
-  };
-
-
-  const toggleInterest = (category: ActivityCategory) => {
-    const next = selectedInterests.includes(category)
-      ? selectedInterests.filter((c) => c !== category)
-      : [...selectedInterests, category];
-    setSelectedInterests(next);
-  };
-
-  const clearFilters = () => {
-    setSelectedInterests([]);
-    setSelectedStayTier(1);
-  };
-
-  const formatSummaryDate = (iso: string) => {
-    try {
-      return formatDate(iso);
-    } catch {
-      return iso;
+    // Keep a chosen end date if it still fits the new start; otherwise ask for it again.
+    if (picked.end && endFits(iso, endDate)) {
+      setDurationNights(nightsBetween(iso, endDate));
+      setActivePopup(null);
+      return;
     }
+    unpick('end');
+    setEndCal(monthOf(addDaysISO(iso, 1)));
+    setActivePopup('end');
   };
 
-  // Derive summary strings
-  const durationSummary = `${durationNights} Nights`;
-  const guestSummary = `${rooms} ${rooms === 1 ? 'Room' : 'Rooms'} · ${adults} ${adults === 1 ? 'Adult' : 'Adults'}${
-    children > 0 ? `, ${children} ${children === 1 ? 'Child' : 'Children'}` : ''
-  }`;
-  
-  const filterSummary =
-    selectedInterests.length > 0
-      ? `${selectedInterests.slice(0, 1).join(', ')}${
-          selectedInterests.length > 1 ? ` +${selectedInterests.length - 1}` : ''
-        }`
-      : selectedStayTier !== 1
-      ? STAY_TIER_OPTIONS.find((t) => t.tier === selectedStayTier)?.label || 'Filters'
-      : 'Select Filters';
+  const pickEnd = (iso: string) => {
+    if (!endFits(departureDate, iso)) return;
+    markPicked('end');
+    setDurationNights(nightsBetween(departureDate, iso));
+    setActivePopup(null);
+  };
+
+  const changeGuests = (nextAdults: number, nextChildren: number, nextInfants: number) => {
+    const a = Math.min(MAX_ADULTS, Math.max(1, nextAdults));
+    const c = Math.min(MAX_CHILDREN, Math.max(0, nextChildren));
+    const i = Math.min(MAX_INFANTS, Math.max(0, nextInfants));
+    markPicked('guests');
+    const needed = roomsFor(a, c);
+    // a hand-picked room count is kept as long as it still fits the party (one adult per room at most)
+    const nextRooms = roomsManual ? Math.min(Math.max(rooms, needed), a) : needed;
+    setGuests(nextRooms, a, c);
+    setInfants(i);
+  };
+
+  const changeRooms = (nextRooms: number) => {
+    const needed = roomsFor(adults, children);
+    const r = Math.min(adults, Math.max(needed, nextRooms));
+    markPicked('guests');
+    setRoomsManual(r !== needed);
+    setGuests(r, adults, children);
+  };
+
+  const guestSummary = [
+    plural(adults, 'Adult', 'Adults'),
+    children > 0 ? plural(children, 'Child', 'Children') : null,
+    infants > 0 ? plural(infants, 'Infant', 'Infants') : null,
+  ]
+    .filter(Boolean)
+    .join(', ');
 
   const handleLaunchPlanning = () => {
+    const missing: { popup: Exclude<Popup, null>; label: string }[] = [];
+    if (!picked.dest) missing.push({ popup: 'dest', label: 'destination' });
+    if (!picked.start) missing.push({ popup: 'start', label: 'trip start date' });
+    if (!picked.end) missing.push({ popup: 'end', label: 'trip end date' });
+    if (!picked.guests) missing.push({ popup: 'guests', label: 'guests' });
+    if (missing.length > 0) {
+      setValidationError(
+        `Please choose your ${missing.map((m) => m.label).join(', ').replace(/, ([^,]*)$/, ' and $1')} to continue.`,
+      );
+      setActivePopup(missing[0].popup);
+      setTimeout(() => setValidationError(null), 4000);
+      return;
+    }
+
     const res = craftItinerary();
     if (!res.success) {
       setValidationError(res.error || 'Please check your trip details.');
@@ -248,8 +341,6 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
     if (onCraftItinerary) {
       onCraftItinerary();
     } else if (onStartPlanning) {
-      const checkIn = departureDate || addDaysISO(today, 30);
-      const checkOut = addDaysISO(checkIn, durationNights);
       const travellerType: TravellerType =
         adults === 1 && children === 0
           ? 'solo'
@@ -259,562 +350,326 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
           ? 'family'
           : 'friends';
 
-      onStartPlanning({
-        destinationId: selectedDestId,
-        aiDestination: false,
-        travellerType,
-        adults,
-        children,
-        rooms,
-        checkIn,
-        checkOut,
-        interests: selectedInterests.length > 0 ? selectedInterests : ['Leisure', 'Sightseeing'],
-        stayTier: selectedStayTier,
-        aiPlan: true,
-      }, 3);
+      onStartPlanning(
+        {
+          destinationId: selectedDestId,
+          aiDestination: false,
+          travellerType,
+          adults,
+          children,
+          rooms,
+          checkIn: departureDate,
+          checkOut: endDate,
+          interests,
+          stayTier,
+          aiPlan: true,
+        },
+        3,
+      );
     }
   };
 
+  const fieldClass = (popup: Exclude<Popup, null>) =>
+    `w-full text-left p-3 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between h-[84px] ${
+      activePopup === popup ? FIELD_OPEN : FIELD_IDLE
+    }`;
+
+  const fieldLabel = (text: string, popup: Exclude<Popup, null>) => (
+    <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B7280] flex items-center justify-between">
+      <span>{text}</span>
+      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activePopup === popup ? 'rotate-180' : ''}`} />
+    </span>
+  );
+
+  const hint = (text: string) => <span className="text-[#6B7280] font-normal">{text}</span>;
+
+  const toggle = (popup: Exclude<Popup, null>) => setActivePopup(activePopup === popup ? null : popup);
+
   return (
-    <div
-      ref={containerRef}
-      className="relative w-full max-w-6xl mx-auto z-30"
-      aria-label="MakeMyTrip inspired holiday planning console"
-    >
-      <div className="bg-[#0E1822]/85 backdrop-blur-xl border border-white/20 rounded-3xl p-4 sm:p-6 shadow-[0_24px_50px_-16px_rgba(0,0,0,0.7)] text-white">
+    <div ref={containerRef} className="relative w-full max-w-6xl mx-auto z-30" aria-label="Holiday planning console">
+      <div className="bg-gradient-to-br from-white/70 via-white/55 to-white/40 backdrop-blur-2xl backdrop-saturate-150 border border-white/60 ring-1 ring-inset ring-white/50 rounded-3xl p-4 sm:p-6 shadow-[0_24px_60px_-18px_rgba(22,34,46,0.45),inset_0_1px_0_rgba(255,255,255,0.7)] text-[#16222E]">
         {/* Top Header Label */}
-        <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-white/10">
+        <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-[#16222E]/10">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#9DD3D0] animate-pulse" />
-            <span className="text-xs sm:text-sm font-semibold tracking-wider text-[#9DD3D0] uppercase">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#0E7C86] animate-pulse" />
+            <span className="text-xs sm:text-sm font-semibold tracking-wider text-[#0E7C86] uppercase">
               Holiday Packages & Customiser
             </span>
           </div>
-          <span className="text-xs text-white/60 hidden sm:inline">
-            Directly seeds your bespoke itinerary
-          </span>
+          <span className="text-xs text-[#6B7280] hidden sm:inline">Directly seeds your bespoke itinerary</span>
         </div>
 
-        {/* 5 Logical Fields Row (Desktop: 5 columns, Tablet: 2/3 cols, Mobile: stacked) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3">
+        {/* 4 fields: destination, start date, end date, guests & rooms */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
           {/* FIELD 1: DESTINATION */}
           <div className="relative">
             <button
               type="button"
-              onClick={() => setActivePopup(activePopup === 'dest' ? null : 'dest')}
+              onClick={() => toggle('dest')}
               aria-expanded={activePopup === 'dest'}
               aria-haspopup="dialog"
-              className={`w-full text-left p-3 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between h-[84px] ${
-                activePopup === 'dest'
-                  ? 'bg-white/20 border-[#9DD3D0] shadow-[0_0_15px_rgba(157,211,208,0.2)]'
-                  : 'bg-white/10 border-white/15 hover:bg-white/15 hover:border-white/25'
-              }`}
+              className={fieldClass('dest')}
             >
-              <span className="text-[11px] font-bold uppercase tracking-wider text-white/60 flex items-center justify-between">
-                <span>Destination</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activePopup === 'dest' ? 'rotate-180' : ''}`} />
-              </span>
+              {fieldLabel('Destination', 'dest')}
               <div className="flex items-center gap-2 mt-1 truncate">
-                <MapPin className="w-4 h-4 text-[#9DD3D0] shrink-0" />
+                <MapPin className="w-4 h-4 text-[#0E7C86] shrink-0" />
                 <div className="min-w-0 truncate">
-                  <div className="text-sm font-semibold text-white truncate leading-tight">
-                    {selectedDest.name}
+                  <div className="text-sm font-semibold truncate leading-tight">
+                    {picked.dest ? selectedDest.name : hint('Where to?')}
                   </div>
-                  <div className="text-[11px] text-white/60 truncate leading-tight">
-                    {selectedDest.country}
+                  <div className="text-[11px] text-[#6B7280] truncate leading-tight">
+                    {picked.dest ? selectedDest.country : 'Choose a destination'}
                   </div>
                 </div>
               </div>
             </button>
 
-            {/* Destination Popover */}
             {activePopup === 'dest' && (
-              <div className="absolute top-[92px] left-0 sm:left-auto right-0 sm:w-[320px] bg-[#16222E] border border-white/20 rounded-2xl p-3 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[#9DD3D0] px-2 py-1">
+              <div className={`${POPOVER} left-0 w-full sm:w-[320px] !p-3`}>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[#0E7C86] px-2 py-1">
                   Select Destination
                 </p>
                 <div className="space-y-1 mt-1 max-h-[260px] overflow-y-auto">
-                  {DESTINATION_OPTIONS.map((dest) => (
-                    <button
-                      key={dest.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedDestId(dest.id);
-                        setActivePopup(null);
-                      }}
-                      className={`w-full flex items-center gap-3 p-2 rounded-xl text-left transition-colors cursor-pointer ${
-                        selectedDestId === dest.id
-                          ? 'bg-white/15 text-white font-medium'
-                          : 'text-white/80 hover:bg-white/10 hover:text-white'
-                      }`}
-                    >
-                      <img
-                        src={dest.image}
-                        alt=""
-                        className="w-9 h-9 rounded-lg object-cover shrink-0"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="text-sm font-semibold truncate">{dest.name}</div>
-                        <div className="text-[11px] text-white/50 truncate">{dest.country} • {dest.tag}</div>
-                      </div>
-                      {selectedDestId === dest.id && (
-                        <Check className="w-4 h-4 text-[#9DD3D0] shrink-0" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* FIELD 2: WHEN & DURATION */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setActivePopup(activePopup === 'duration' ? null : 'duration')}
-              aria-expanded={activePopup === 'duration'}
-              aria-haspopup="dialog"
-              className={`w-full text-left p-3 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between h-[84px] ${
-                activePopup === 'duration'
-                  ? 'bg-white/20 border-[#9DD3D0] shadow-[0_0_15px_rgba(157,211,208,0.2)]'
-                  : 'bg-white/10 border-white/15 hover:bg-white/15 hover:border-white/25'
-              }`}
-            >
-              <span className="text-[11px] font-bold uppercase tracking-wider text-white/60 flex items-center justify-between">
-                <span>When & Duration</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activePopup === 'duration' ? 'rotate-180' : ''}`} />
-              </span>
-              <div className="flex items-center gap-2 mt-1 truncate">
-                <Clock className="w-4 h-4 text-[#9DD3D0] shrink-0" />
-                <div className="min-w-0 truncate">
-                  <div className="text-sm font-semibold text-white truncate leading-tight">
-                    {durationSummary}
-                  </div>
-                  <div className="text-[11px] text-white/60 truncate leading-tight">
-                    {NIGHT_PRESETS.find((p) => p.nights === durationNights)?.sub || timingPreference}
-                  </div>
-                </div>
-              </div>
-            </button>
-
-            {/* When & Duration Popover */}
-            {activePopup === 'duration' && (
-              <div className="absolute top-[92px] left-0 sm:left-auto right-0 sm:w-[320px] bg-[#16222E] border border-white/20 rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[#9DD3D0] mb-2">
-                  Trip Duration
-                </p>
-                <div className="grid grid-cols-2 gap-2 mb-4">
-                  {NIGHT_PRESETS.map((p) => (
-                    <button
-                      key={p.nights}
-                      type="button"
-                      onClick={() => setDurationNights(p.nights)}
-                      className={`p-2 rounded-xl text-left border transition-all cursor-pointer ${
-                        durationNights === p.nights
-                          ? 'bg-[#0B4A82] border-[#0B4A82] text-white'
-                          : 'bg-white/5 border-white/10 text-white/80 hover:bg-white/10'
-                      }`}
-                    >
-                      <div className="text-xs font-bold">{p.label}</div>
-                      <div className="text-[10px] opacity-75">{p.sub}</div>
-                    </button>
-                  ))}
-                </div>
-
-                <div className="pt-3 border-t border-white/10">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#9DD3D0] mb-2">
-                    Timing Preference
-                  </p>
-                  <div className="space-y-1.5">
-                    {TIMING_PRESETS.map((t) => (
+                  {DESTINATION_OPTIONS.map((dest) => {
+                    const on = picked.dest && selectedDestId === dest.id;
+                    return (
                       <button
-                        key={t.label}
+                        key={dest.id}
                         type="button"
                         onClick={() => {
-                          setTimingPreference(t.label);
-                          setActivePopup(null);
+                          pickDest(dest.id);
+                          if (picked.start) {
+                            setActivePopup(null);
+                          } else {
+                            setStartCal(monthOf(departureDate));
+                            setActivePopup('start');
+                          }
                         }}
-                        className={`w-full px-3 py-1.5 rounded-lg text-xs font-medium text-left flex items-center justify-between cursor-pointer ${
-                          timingPreference === t.label
-                            ? 'bg-white/20 text-white'
-                            : 'text-white/70 hover:bg-white/10 hover:text-white'
+                        className={`w-full flex items-center gap-3 p-2 rounded-xl text-left transition-colors cursor-pointer ${
+                          on ? 'bg-[#0B4A82]/10 font-medium' : 'text-[#334155] hover:bg-[#16222E]/8 hover:text-[#16222E]'
                         }`}
                       >
-                        <div>
-                          <div>{t.label}</div>
-                          <div className="text-[10px] text-white/50">{t.hint}</div>
+                        <img src={dest.image} alt="" className="w-9 h-9 rounded-lg object-cover shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-semibold truncate">{dest.name}</div>
+                          <div className="text-[11px] text-[#6B7280] truncate">
+                            {dest.country} • {dest.tag}
+                          </div>
                         </div>
-                        {timingPreference === t.label && <Check className="w-3.5 h-3.5 text-[#9DD3D0]" />}
+                        {on && <Check className="w-4 h-4 text-[#0E7C86] shrink-0" />}
                       </button>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
           </div>
 
-          {/* FIELD 3: DEPARTURE DATE (New Dedicated Calendar Picker) */}
+          {/* FIELD 2: TRIP START DATE */}
           <div className="relative">
             <button
               type="button"
-              onClick={() => setActivePopup(activePopup === 'departure' ? null : 'departure')}
-              aria-expanded={activePopup === 'departure'}
+              onClick={() => {
+                if (activePopup !== 'start') setStartCal(monthOf(departureDate));
+                toggle('start');
+              }}
+              aria-expanded={activePopup === 'start'}
               aria-haspopup="dialog"
-              className={`w-full text-left p-3 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between h-[84px] ${
-                activePopup === 'departure'
-                  ? 'bg-white/20 border-[#9DD3D0] shadow-[0_0_15px_rgba(157,211,208,0.2)]'
-                  : 'bg-white/10 border-white/15 hover:bg-white/15 hover:border-white/25'
-              }`}
+              className={fieldClass('start')}
             >
-              <span className="text-[11px] font-bold uppercase tracking-wider text-white/60 flex items-center justify-between">
-                <span>Departure Date</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activePopup === 'departure' ? 'rotate-180' : ''}`} />
-              </span>
+              {fieldLabel('Trip Start Date', 'start')}
               <div className="flex items-center gap-2 mt-1 truncate">
-                <Calendar className="w-4 h-4 text-[#9DD3D0] shrink-0" />
+                <Calendar className="w-4 h-4 text-[#0E7C86] shrink-0" />
                 <div className="min-w-0 truncate">
-                  <div className="text-sm font-semibold text-white truncate leading-tight">
-                    {formatSummaryDate(departureDate)}
+                  <div className="text-sm font-semibold truncate leading-tight">
+                    {picked.start ? formatDate(departureDate) : hint('Select date')}
                   </div>
-                  <div className="text-[11px] text-white/60 truncate leading-tight">
-                    Specific start date
+                  <div className="text-[11px] text-[#6B7280] truncate leading-tight">
+                    {picked.start ? 'Departure' : 'When do you leave?'}
                   </div>
                 </div>
               </div>
             </button>
 
-            {/* Departure Date Calendar Popover */}
-            {activePopup === 'departure' && (
-              <div className="absolute top-[92px] left-0 sm:left-auto right-0 sm:w-[330px] bg-[#16222E] border border-white/20 rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
-                {/* Month/Year Header */}
-                <div className="flex items-center justify-between mb-3">
-                  <button
-                    type="button"
-                    onClick={handlePrevMonth}
-                    disabled={isPastMonth}
-                    className="p-1 rounded-lg hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer"
-                    aria-label="Previous month"
-                  >
-                    <ChevronLeft className="w-4 h-4 text-white" />
-                  </button>
-                  <span className="text-sm font-bold text-white">
-                    {MONTH_NAMES[calMonth]} {calYear}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleNextMonth}
-                    className="p-1 rounded-lg hover:bg-white/10 cursor-pointer"
-                    aria-label="Next month"
-                  >
-                    <ChevronRight className="w-4 h-4 text-white" />
-                  </button>
-                </div>
-
-                {/* Day Labels */}
-                <div className="grid grid-cols-7 gap-1 text-center mb-1">
-                  {DAY_LABELS.map((d) => (
-                    <span key={d} className="text-[10px] font-semibold text-white/50">
-                      {d}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Days Grid */}
-                <div className="grid grid-cols-7 gap-1 text-center">
-                  {/* Empty offset padding for first day */}
-                  {Array.from({ length: firstDayOfWeek }).map((_, i) => (
-                    <div key={`empty-${i}`} className="h-8" />
-                  ))}
-
-                  {Array.from({ length: daysInCurrentMonth }).map((_, i) => {
-                    const day = i + 1;
-                    const mm = String(calMonth + 1).padStart(2, '0');
-                    const dd = String(day).padStart(2, '0');
-                    const cellIso = `${calYear}-${mm}-${dd}`;
-                    const isPast = cellIso < today;
-                    const isSelected = cellIso === departureDate;
-
-                    return (
-                      <button
-                        key={day}
-                        type="button"
-                        disabled={isPast}
-                        onClick={() => handleSelectDate(day)}
-                        className={`h-8 w-8 mx-auto rounded-full text-xs font-medium flex items-center justify-center transition-colors cursor-pointer ${
-                          isSelected
-                            ? 'bg-[#0B4A82] text-white font-bold shadow-sm'
-                            : isPast
-                            ? 'text-white/20 cursor-not-allowed'
-                            : 'text-white/90 hover:bg-white/15'
-                        }`}
-                      >
-                        {day}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Quick Shortcuts */}
-                <div className="mt-3 pt-3 border-t border-white/10">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-white/50 mb-1.5">
-                    Quick Departure
-                  </p>
-                  <div className="flex gap-1.5">
-                    {[
-                      { label: '2 Weeks', days: 14 },
-                      { label: '1 Month', days: 30 },
-                      { label: '2 Months', days: 60 },
-                    ].map((s) => (
-                      <button
-                        key={s.label}
-                        type="button"
-                        onClick={() => handleSelectDeparturePreset(s.days)}
-                        className="flex-1 py-1 px-2 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 text-[11px] font-medium text-white/80 transition-colors cursor-pointer"
-                      >
-                        {s.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+            {activePopup === 'start' && (
+              <div className={`${POPOVER} left-0 w-full sm:w-[330px]`}>
+                <CalendarGrid
+                  month={startCal.month}
+                  year={startCal.year}
+                  onMonthChange={(month, year) => setStartCal({ month, year })}
+                  minIso={today}
+                  isDisabled={(iso) => iso < today}
+                  selectedIso={picked.start ? departureDate : null}
+                  onSelect={pickStart}
+                  footer={
+                    <div className="mt-3 pt-3 border-t border-[#16222E]/10">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6B7280] mb-1.5">
+                        Quick select
+                      </p>
+                      <div className="flex gap-1.5">
+                        {[
+                          { label: '2 Weeks', days: 14 },
+                          { label: '1 Month', days: 30 },
+                          { label: '2 Months', days: 60 },
+                        ].map((s) => (
+                          <button
+                            key={s.label}
+                            type="button"
+                            onClick={() => {
+                              const iso = addDaysISO(today, s.days);
+                              setStartCal(monthOf(iso));
+                              pickStart(iso);
+                            }}
+                            className="flex-1 py-1 px-2 rounded-lg bg-white/60 hover:bg-[#16222E]/8 border border-[#16222E]/10 text-[11px] font-medium text-[#334155] transition-colors cursor-pointer"
+                          >
+                            {s.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  }
+                />
               </div>
             )}
           </div>
 
-          {/* FIELD 4: ROOMS & GUESTS (MakeMyTrip Inspired) */}
+          {/* FIELD 3: TRIP END DATE */}
           <div className="relative">
             <button
               type="button"
-              onClick={() => setActivePopup(activePopup === 'guests' ? null : 'guests')}
+              onClick={() => {
+                if (activePopup !== 'end') setEndCal(monthOf(picked.end ? endDate : addDaysISO(departureDate, 1)));
+                toggle('end');
+              }}
+              aria-expanded={activePopup === 'end'}
+              aria-haspopup="dialog"
+              className={fieldClass('end')}
+            >
+              {fieldLabel('Trip End Date', 'end')}
+              <div className="flex items-center gap-2 mt-1 truncate">
+                <CalendarCheck className="w-4 h-4 text-[#0E7C86] shrink-0" />
+                <div className="min-w-0 truncate">
+                  <div className="text-sm font-semibold truncate leading-tight">
+                    {picked.end ? formatDate(endDate) : hint('Select date')}
+                  </div>
+                  <div className="text-[11px] text-[#6B7280] truncate leading-tight">
+                    {picked.end ? plural(durationNights, 'night', 'nights') : 'When do you return?'}
+                  </div>
+                </div>
+              </div>
+            </button>
+
+            {activePopup === 'end' && (
+              <div className={`${POPOVER} left-0 sm:left-auto sm:right-0 w-full sm:w-[330px]`}>
+                {!picked.start && (
+                  <p className="mb-2 text-[11px] text-[#0E7C86] font-medium">
+                    Tip: choose your start date first, then your return.
+                  </p>
+                )}
+                <CalendarGrid
+                  month={endCal.month}
+                  year={endCal.year}
+                  onMonthChange={(month, year) => setEndCal({ month, year })}
+                  minIso={addDaysISO(departureDate, 1)}
+                  isDisabled={(iso) => !endFits(departureDate, iso)}
+                  selectedIso={picked.end ? endDate : null}
+                  rangeFrom={picked.start ? departureDate : null}
+                  rangeTo={picked.end ? endDate : null}
+                  onSelect={pickEnd}
+                  footer={
+                    <p className="mt-3 pt-3 border-t border-[#16222E]/10 text-[10px] text-[#6B7280]">
+                      We plan up to {MAX_TRIP_DAYS} days per trip.
+                    </p>
+                  }
+                />
+              </div>
+            )}
+          </div>
+
+          {/* FIELD 4: GUESTS & ROOMS */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => toggle('guests')}
               aria-expanded={activePopup === 'guests'}
               aria-haspopup="dialog"
-              className={`w-full text-left p-3 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between h-[84px] ${
-                activePopup === 'guests'
-                  ? 'bg-white/20 border-[#9DD3D0] shadow-[0_0_15px_rgba(157,211,208,0.2)]'
-                  : 'bg-white/10 border-white/15 hover:bg-white/15 hover:border-white/25'
-              }`}
+              className={fieldClass('guests')}
             >
-              <span className="text-[11px] font-bold uppercase tracking-wider text-white/60 flex items-center justify-between">
-                <span>Rooms & Guests</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activePopup === 'guests' ? 'rotate-180' : ''}`} />
-              </span>
+              {fieldLabel('Guests & Rooms', 'guests')}
               <div className="flex items-center gap-2 mt-1 truncate">
-                <Users className="w-4 h-4 text-[#9DD3D0] shrink-0" />
+                <Users className="w-4 h-4 text-[#0E7C86] shrink-0" />
                 <div className="min-w-0 truncate">
-                  <div className="text-sm font-semibold text-white truncate leading-tight">
-                    {guestSummary}
+                  <div className="text-sm font-semibold truncate leading-tight">
+                    {picked.guests ? guestSummary : hint("Who's travelling?")}
                   </div>
-                  <div className="text-[11px] text-white/60 truncate leading-tight">
-                    Configuration
+                  <div className="text-[11px] text-[#6B7280] truncate leading-tight">
+                    {picked.guests ? plural(rooms, 'Room', 'Rooms') : 'Add guests, rooms follow'}
                   </div>
                 </div>
               </div>
             </button>
 
-            {/* Rooms & Guests Popover */}
             {activePopup === 'guests' && (
-              <div className="absolute top-[92px] left-0 sm:left-auto right-0 sm:w-[330px] bg-[#16222E] border border-white/20 rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[#9DD3D0] mb-3">
-                  Rooms & Guests
-                </p>
+              <div className={`${POPOVER} right-0 w-full sm:w-[340px]`}>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[#0E7C86] mb-3">Guests</p>
 
-                {/* Counters: Rooms, Adults, Children */}
                 <div className="space-y-3.5">
-                  {/* Rooms */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-xs font-semibold text-white">Rooms</div>
-                      <div className="text-[10px] text-white/50">Private villas / suites</div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setRooms(Math.max(1, rooms - 1))}
-                        disabled={rooms <= 1}
-                        className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 flex items-center justify-center cursor-pointer"
-                        aria-label="Decrease rooms"
-                      >
-                        <Minus className="w-3.5 h-3.5" />
-                      </button>
-                      <span className="w-6 text-center text-sm font-bold">{rooms}</span>
-                      <button
-                        type="button"
-                        onClick={() => setRooms(Math.min(6, rooms + 1))}
-                        className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center cursor-pointer"
-                        aria-label="Increase rooms"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Adults */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-xs font-semibold text-white">Adults</div>
-                      <div className="text-[10px] text-white/50">Age 12+</div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setAdults(Math.max(1, adults - 1))}
-                        disabled={adults <= 1}
-                        className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 flex items-center justify-center cursor-pointer"
-                        aria-label="Decrease adults"
-                      >
-                        <Minus className="w-3.5 h-3.5" />
-                      </button>
-                      <span className="w-6 text-center text-sm font-bold">{adults}</span>
-                      <button
-                        type="button"
-                        onClick={() => setAdults(Math.min(12, adults + 1))}
-                        className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center cursor-pointer"
-                        aria-label="Increase adults"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Children */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-xs font-semibold text-white">Children</div>
-                      <div className="text-[10px] text-white/50">Age 2-11</div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setChildren(Math.max(0, children - 1))}
-                        disabled={children <= 0}
-                        className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 flex items-center justify-center cursor-pointer"
-                        aria-label="Decrease children"
-                      >
-                        <Minus className="w-3.5 h-3.5" />
-                      </button>
-                      <span className="w-6 text-center text-sm font-bold">{children}</span>
-                      <button
-                        type="button"
-                        onClick={() => setChildren(Math.min(6, children + 1))}
-                        className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center cursor-pointer"
-                        aria-label="Increase children"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-white/10 text-right">
-                  <button
-                    type="button"
-                    onClick={() => setActivePopup(null)}
-                    className="px-4 py-1.5 rounded-full bg-[#0B4A82] hover:bg-[#0E7C86] text-white text-xs font-semibold cursor-pointer"
-                  >
-                    Apply
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* FIELD 5: FILTERS (Travel Interests & Stay Tier) */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setActivePopup(activePopup === 'filters' ? null : 'filters')}
-              aria-expanded={activePopup === 'filters'}
-              aria-haspopup="dialog"
-              className={`w-full text-left p-3 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between h-[84px] ${
-                activePopup === 'filters'
-                  ? 'bg-white/20 border-[#9DD3D0] shadow-[0_0_15px_rgba(157,211,208,0.2)]'
-                  : 'bg-white/10 border-white/15 hover:bg-white/15 hover:border-white/25'
-              }`}
-            >
-              <span className="text-[11px] font-bold uppercase tracking-wider text-white/60 flex items-center justify-between">
-                <span>Filters</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activePopup === 'filters' ? 'rotate-180' : ''}`} />
-              </span>
-              <div className="flex items-center gap-2 mt-1 truncate">
-                <SlidersHorizontal className="w-4 h-4 text-[#9DD3D0] shrink-0" />
-                <div className="min-w-0 truncate">
-                  <div className="text-sm font-semibold text-white truncate leading-tight">
-                    {filterSummary}
-                  </div>
-                  <div className="text-[11px] text-white/60 truncate leading-tight">
-                    Vibe & Stay Tier
-                  </div>
-                </div>
-              </div>
-            </button>
-
-            {/* Filters Popover */}
-            {activePopup === 'filters' && (
-              <div className="absolute top-[92px] right-0 sm:w-[340px] bg-[#16222E] border border-white/20 rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#9DD3D0]">
-                    Travel Vibe & Interests
-                  </p>
-                  {selectedInterests.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={clearFilters}
-                      className="text-[11px] text-white/50 hover:text-white flex items-center gap-1 cursor-pointer"
-                    >
-                      <RotateCcw className="w-3 h-3" />
-                      <span>Reset</span>
-                    </button>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 mb-4">
-                  {INTEREST_OPTIONS.map((item) => {
-                    const isSelected = selectedInterests.includes(item.id);
+                  {[
+                    { key: 'adults', label: 'Adults', sub: 'Age 12 and above', value: adults, min: 1, max: MAX_ADULTS },
+                    { key: 'children', label: 'Children', sub: 'Age 6 to 12', value: children, min: 0, max: MAX_CHILDREN },
+                    { key: 'infants', label: 'Infants', sub: 'Below 6 years', value: infants, min: 0, max: MAX_INFANTS },
+                    { key: 'rooms', label: 'Rooms', sub: 'Added automatically, adjustable', value: rooms, min: roomsFor(adults, children), max: adults },
+                  ].map((row) => {
+                    const apply = (delta: number) => {
+                      const v = row.value + delta;
+                      if (row.key === 'rooms') return changeRooms(v);
+                      changeGuests(
+                        row.key === 'adults' ? v : adults,
+                        row.key === 'children' ? v : children,
+                        row.key === 'infants' ? v : infants,
+                      );
+                    };
                     return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => toggleInterest(item.id)}
-                        className={`p-2 rounded-xl text-left border flex items-center gap-2 transition-all cursor-pointer ${
-                          isSelected
-                            ? 'bg-[#0B4A82] border-[#0B4A82] text-white font-medium'
-                            : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
-                        }`}
-                      >
-                        <span className="shrink-0">{item.icon}</span>
-                        <span className="text-xs truncate">{item.label}</span>
-                      </button>
+                      <div key={row.key} className="flex items-center justify-between">
+                        <div>
+                          <div className="text-xs font-semibold">{row.label}</div>
+                          <div className="text-[10px] text-[#6B7280]">{row.sub}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => apply(-1)}
+                            disabled={row.value <= row.min}
+                            className={STEP_BTN}
+                            aria-label={`Decrease ${row.label.toLowerCase()}`}
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          <span className="w-6 text-center text-sm font-bold">{row.value}</span>
+                          <button
+                            type="button"
+                            onClick={() => apply(1)}
+                            disabled={row.value >= row.max}
+                            className={STEP_BTN}
+                            aria-label={`Increase ${row.label.toLowerCase()}`}
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
 
-                {/* Stay Tier Filter */}
-                <div className="pt-3 border-t border-white/10">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#9DD3D0] mb-2">
-                    Accommodation Tier
-                  </p>
-                  <div className="space-y-1.5 mb-3">
-                    {STAY_TIER_OPTIONS.map((t) => (
-                      <button
-                        key={t.tier}
-                        type="button"
-                        onClick={() => setSelectedStayTier(t.tier)}
-                        className={`w-full p-2 rounded-xl text-left border flex items-center justify-between transition-colors cursor-pointer ${
-                          selectedStayTier === t.tier
-                            ? 'bg-white/15 border-[#9DD3D0] text-white'
-                            : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
-                        }`}
-                      >
-                        <div>
-                          <div className="text-xs font-semibold">{t.label}</div>
-                          <div className="text-[10px] text-white/50">{t.desc}</div>
-                        </div>
-                        {selectedStayTier === t.tier && <Check className="w-3.5 h-3.5 text-[#9DD3D0]" />}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                <p className="mt-4 flex items-start gap-2 text-[10px] text-[#6B7280] leading-snug">
+                  <BedDouble className="w-3.5 h-3.5 text-[#0E7C86] shrink-0" />
+                  <span>
+                    Rooms update as you add guests: up to 2 adults per room, 4 guests when children are travelling.
+                    Infants stay free.
+                  </span>
+                </p>
 
-                <div className="pt-2 border-t border-white/10 text-right">
+                <div className="mt-4 pt-3 border-t border-[#16222E]/10 text-right">
                   <button
                     type="button"
                     onClick={() => setActivePopup(null)}
@@ -829,25 +684,25 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
         </div>
 
         {validationError && (
-          <div className="mt-3 px-4 py-2.5 rounded-xl bg-red-500/20 border border-red-500/40 text-red-200 text-xs sm:text-sm font-medium animate-in fade-in duration-200">
+          <div className="mt-3 px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm font-medium animate-in fade-in duration-200">
             {validationError}
           </div>
         )}
 
         {/* Bottom Action Bar */}
-        <div className="mt-4 pt-4 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="mt-4 pt-4 border-t border-[#16222E]/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Quick Destination Pills */}
           <div className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-1">
-            <span className="text-xs text-white/50 shrink-0 hidden md:inline">Popular:</span>
+            <span className="text-xs text-[#6B7280] shrink-0 hidden md:inline">Popular:</span>
             {DESTINATION_OPTIONS.slice(0, 4).map((d) => (
               <button
                 key={d.id}
                 type="button"
-                onClick={() => setSelectedDestId(d.id)}
+                onClick={() => pickDest(d.id)}
                 className={`text-xs px-2.5 py-1 rounded-full border transition-colors shrink-0 cursor-pointer ${
-                  selectedDestId === d.id
-                    ? 'bg-white/20 border-[#9DD3D0] text-[#9DD3D0]'
-                    : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
+                  picked.dest && selectedDestId === d.id
+                    ? 'bg-[#0B4A82]/10 border-[#0E7C86] text-[#0E7C86]'
+                    : 'bg-white/50 border-white/70 text-[#475569] hover:bg-white/80 hover:text-[#16222E]'
                 }`}
               >
                 {d.name}
