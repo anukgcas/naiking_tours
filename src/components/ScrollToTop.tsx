@@ -31,7 +31,7 @@ export const ScrollToTop: React.FC<ScrollToTopProps> = ({ onClick }) => {
           transition={reduced ? { duration: 0.15 } : { type: 'spring', stiffness: 320, damping: 15, mass: 0.8 }}
           whileHover={reduced ? undefined : { y: -3, scale: 1.06 }}
           whileTap={reduced ? undefined : { scale: 0.92 }}
-          className="group fixed right-4 sm:right-6 lg:right-8 bottom-24 md:bottom-8 z-30 w-11 h-11 rounded-full bg-[#1E2022] text-white shadow-lg flex items-center justify-center cursor-pointer hover:bg-[#C2571A] transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] focus-visible:ring-offset-2"
+          className="group fixed right-4 sm:right-6 lg:right-8 bottom-24 md:bottom-8 z-30 w-11 h-11 rounded-full bg-[#16222E] text-white shadow-lg flex items-center justify-center cursor-pointer hover:bg-[#0B4A82] transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4A82] focus-visible:ring-offset-2"
         >
           <motion.span
             className="flex"

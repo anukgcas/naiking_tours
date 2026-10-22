@@ -2,9 +2,11 @@ import React from 'react';
 import { motion } from 'motion/react';
 
 /**
- * Naikings Tours & Travels — vector rebuild of the brand logo so it can be
- * animated (letters rise in, crown drops, flag unfurls and keeps waving).
- * Everything is sized in `em`, so `fontSize` (px) scales the whole lockup.
+ * Westack — Tour Customization CRM brand logo.
+ * Static use renders public/images/westack_logo.png (transparent PNG, no backing).
+ * `animated` splits it into two stacked layers — the lockup without the plane,
+ * and the plane alone — so the mark can wipe in and the plane can fly into the W.
+ * The lockup scales with `fontSize` (px), same contract as before.
  */
 
 interface NLogoProps {
@@ -12,191 +14,127 @@ interface NLogoProps {
   fontSize?: number;
   /** Legacy presets, mapped onto fontSize. */
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  /** `light` is for dark backgrounds: the logo is rendered as a single-colour white mark. */
   variant?: 'dark' | 'light';
-  /** Play the entrance animation (letters, crown, flag). */
+  /** Play the entrance animation (mark wipes in, plane flies in). */
   animated?: boolean;
   /** Seconds before the entrance animation starts. */
   delay?: number;
+  /** Kept for API compatibility; the tagline is part of the logo artwork. */
   showTagline?: boolean;
   className?: string;
 }
 
 const SIZE_MAP = { sm: 20, md: 26, lg: 40, xl: 64, '2xl': 96 };
 
-const EASE = [0.16, 1, 0.3, 1] as const;
-
-type Glyph = 'N' | 'A' | 'I' | 'K' | 'G' | 'S' | 'FLAG';
-const GLYPHS: { g: Glyph; crown?: boolean }[] = [
-  { g: 'N' },
-  { g: 'A' },
-  { g: 'I', crown: true },
-  { g: 'K' },
-  { g: 'FLAG' },
-  { g: 'N' },
-  { g: 'G' },
-  { g: 'S' },
-];
-
-const gradientText: React.CSSProperties = {
-  backgroundImage: 'linear-gradient(180deg, #F0AE45 0%, #E2842A 48%, #C2571A 100%)',
-  WebkitBackgroundClip: 'text',
-  backgroundClip: 'text',
-  WebkitTextFillColor: 'transparent',
-  color: 'transparent',
-};
-
-const Crown: React.FC<{ animated: boolean; delay: number }> = ({ animated, delay }) => (
-  <motion.svg
-    viewBox="0 0 40 26"
-    aria-hidden="true"
-    className="absolute left-1/2 -translate-x-1/2 overflow-visible"
-    style={{ width: '0.42em', top: '-0.34em' }}
-    initial={animated ? { y: -18, opacity: 0, rotate: -12 } : false}
-    animate={{ y: 0, opacity: 1, rotate: 0 }}
-    transition={{ delay, duration: 0.8, ease: [0.34, 1.56, 0.64, 1] }}
-  >
-    <defs>
-      <linearGradient id="crownGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#F0AE45" />
-        <stop offset="1" stopColor="#CF6A22" />
-      </linearGradient>
-    </defs>
-    <path
-      d="M3 22 L1 6 L11 13 L20 1 L29 13 L39 6 L37 22 Z"
-      fill="url(#crownGrad)"
-    />
-    <rect x="3" y="22" width="34" height="3.4" rx="1.2" fill="#C2571A" />
-    <circle cx="1.5" cy="5.5" r="2.2" fill="#F0AE45" />
-    <circle cx="20" cy="1.6" r="2.2" fill="#F0AE45" />
-    <circle cx="38.5" cy="5.5" r="2.2" fill="#F0AE45" />
-  </motion.svg>
-);
-
-/** The "I" that doubles as a flag-pole carrying the Maratha bhagwa flag. */
-const FlagGlyph: React.FC<{ animated: boolean; delay: number }> = ({ animated, delay }) => (
-  <span className="relative inline-block" style={{ width: '0.34em', height: '1em' }}>
-    <svg
-      viewBox="0 0 34 100"
-      aria-hidden="true"
-      className="absolute left-0 overflow-visible"
-      style={{ width: '0.34em', height: '1em', bottom: 0 }}
-    >
-      <defs>
-        <linearGradient id="poleGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#E2842A" />
-          <stop offset="1" stopColor="#C2571A" />
-        </linearGradient>
-        <linearGradient id="flagGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#FFB02E" />
-          <stop offset="1" stopColor="#C2571A" />
-        </linearGradient>
-      </defs>
-      {/* pole grows upward */}
-      <motion.rect
-        x="6"
-        y="2"
-        width="4.6"
-        height="98"
-        rx="1.6"
-        fill="url(#poleGrad)"
-        style={{ originY: 1, transformBox: 'fill-box' }}
-        initial={animated ? { scaleY: 0 } : false}
-        animate={{ scaleY: 1 }}
-        transition={{ delay, duration: 0.7, ease: EASE }}
-      />
-      {/* flag unfurls from the pole, then flutters forever */}
-      <motion.g
-        style={{ transformBox: 'fill-box', transformOrigin: '0% 50%' }}
-        initial={animated ? { scaleX: 0, opacity: 0 } : false}
-        animate={{ scaleX: 1, opacity: 1 }}
-        transition={{ delay: delay + 0.55, duration: 0.7, ease: EASE }}
-      >
-        <g className="nk-flag-wave">
-          <path d="M10.6 4 C 18 0, 24 8, 34 3 L 27 14 L 34 26 C 24 31, 18 21, 10.6 26 Z" fill="url(#flagGrad)" />
-        </g>
-      </motion.g>
-      {/* warrior silhouette guarding the pole */}
-      <motion.g
-        fill="#C2571A"
-        initial={animated ? { opacity: 0, y: 6 } : false}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: delay + 0.9, duration: 0.6, ease: EASE }}
-      >
-        <circle cx="21" cy="36" r="2.6" />
-        <path d="M17 41 L25 41 L26 56 L22 56 L21 49 L20 56 L16 56 Z" />
-      </motion.g>
-    </svg>
-  </span>
-);
+const LOGO_ALT = 'Westack — Tour Customization CRM';
+const ASPECT = 1367 / 377; // width / height of the cropped artwork
+// Centre of the plane inside the artwork, used as its rotate/scale origin.
+const PLANE_ORIGIN = '32.2% 11.4%';
 
 export const NLogo: React.FC<NLogoProps> = ({
   fontSize,
   size = 'md',
-  variant = 'dark',
+  variant: _variant = 'dark',
   animated = false,
   delay = 0,
-  showTagline = true,
   className = '',
 }) => {
   const fs = fontSize ?? SIZE_MAP[size];
-  const taglineColor = variant === 'light' ? 'rgba(255,255,255,0.85)' : '#4B4F55';
+  const height = fs * 1.6;
+  const filter = undefined; // always the original full-colour artwork; `variant` is kept only for API compatibility
+
+  if (!animated) {
+    return (
+      <span className={`inline-flex items-center select-none ${className}`}>
+        <img
+          src="/images/westack_logo.png"
+          alt={LOGO_ALT}
+          draggable={false}
+          style={{ height, width: 'auto', filter }}
+        />
+      </span>
+    );
+  }
 
   return (
-    <div
-      className={`inline-flex flex-col items-center select-none ${className}`}
-      style={{ fontSize: fs, paddingTop: '0.34em' }}
+    <span
       role="img"
-      aria-label="Naikings Tours & Travels"
+      aria-label={LOGO_ALT}
+      className={`relative inline-block select-none ${className}`}
+      style={{ height, width: height * ASPECT, filter }}
     >
-      <div
-        className="flex items-end leading-none"
-        style={{
-          fontFamily: "'Cinzel', 'Times New Roman', serif",
-          fontWeight: 800,
-          fontSize: '1em',
-          letterSpacing: '0.01em',
-        }}
+      {/* Flight path: draws behind the plane, then fades away */}
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 1367 377"
+        className="absolute inset-0 w-full h-full overflow-visible pointer-events-none"
       >
-        {GLYPHS.map((item, i) => {
-          if (item.g === 'FLAG') {
-            return <FlagGlyph key={i} animated={animated} delay={delay + i * 0.07} />;
-          }
-          return (
-            <span key={i} className="relative inline-block overflow-visible">
-              <motion.span
-                className="inline-block"
-                style={{ ...gradientText, lineHeight: 1 }}
-                initial={animated ? { y: '0.6em', opacity: 0, filter: 'blur(6px)' } : false}
-                animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
-                transition={{ delay: delay + i * 0.07, duration: 0.75, ease: EASE }}
-              >
-                {item.g}
-              </motion.span>
-              {item.crown && <Crown animated={animated} delay={delay + 0.55} />}
-            </span>
-          );
-        })}
-      </div>
-
-      {showTagline && (
-        <motion.span
-          className="uppercase whitespace-nowrap"
-          style={{
-            fontFamily: 'Jost, sans-serif',
-            fontWeight: 600,
-            fontSize: '0.27em',
-            letterSpacing: '0.34em',
-            marginTop: '0.32em',
-            marginRight: '-0.34em',
-            color: taglineColor,
-          }}
-          initial={animated ? { opacity: 0, letterSpacing: '0.7em' } : false}
-          animate={{ opacity: 1, letterSpacing: '0.34em' }}
-          transition={{ delay: delay + 0.9, duration: 0.9, ease: EASE }}
-        >
-          Tours &amp; Travels
-        </motion.span>
-      )}
-    </div>
+        <defs>
+          <linearGradient id="nlTrail" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stopColor="#0E7C86" stopOpacity="0" />
+            <stop offset="1" stopColor="#1D7BA6" stopOpacity="0.9" />
+          </linearGradient>
+        </defs>
+        <motion.path
+          d="M 3 495 Q 249 224 440 43"
+          fill="none"
+          stroke="url(#nlTrail)"
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeDasharray="2 14"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: [0, 1, 1], opacity: [0, 1, 0] }}
+          transition={{ delay: delay + 0.8, duration: 1.8, ease: 'easeOut', times: [0, 0.65, 1] }}
+        />
+      </svg>
+      {/* Everything but the plane: wipes in left to right */}
+      <motion.img
+        src="/images/westack_logo_noplane.png"
+        alt=""
+        draggable={false}
+        className="absolute inset-0 w-full h-full"
+        initial={{ clipPath: 'inset(0 100% 0 0)', opacity: 0 }}
+        animate={{ clipPath: 'inset(0 0% 0 0)', opacity: 1 }}
+        transition={{
+          clipPath: { delay, duration: 1.5, ease: [0.65, 0, 0.35, 1] },
+          opacity: { delay, duration: 0.4 },
+        }}
+      />
+      {/* The plane: swoops up from the lower left and settles above the W */}
+      <motion.img
+        src="/images/westack_plane.png"
+        alt=""
+        draggable={false}
+        className="absolute inset-0 w-full h-full"
+        style={{ transformOrigin: PLANE_ORIGIN }}
+        initial={{ x: '-32%', y: '120%', scale: 0.5, opacity: 0 }}
+        animate={{
+          x: ['-32%', '-14%', '0%'],
+          y: ['120%', '48%', '0%'],
+          scale: [0.5, 0.85, 1],
+          opacity: [0, 1, 1],
+        }}
+        transition={{ delay: delay + 0.8, duration: 1.2, ease: 'easeOut', times: [0, 0.55, 1] }}
+      />
+      {/* Light sweep across the artwork once the plane has landed */}
+      <motion.span
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage:
+            'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.85) 50%, transparent 65%)',
+          backgroundSize: '250% 100%',
+          backgroundRepeat: 'no-repeat',
+          WebkitMaskImage: 'url(/images/westack_logo_noplane.png)',
+          maskImage: 'url(/images/westack_logo_noplane.png)',
+          WebkitMaskSize: '100% 100%',
+          maskSize: '100% 100%',
+        }}
+        initial={{ backgroundPositionX: '130%', opacity: 0 }}
+        animate={{ backgroundPositionX: ['130%', '-30%'], opacity: [0, 1, 1, 0] }}
+        transition={{ delay: delay + 2.2, duration: 1.1, ease: 'easeInOut' }}
+      />
+    </span>
   );
 };

@@ -281,12 +281,12 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
       className="relative w-full max-w-6xl mx-auto z-30"
       aria-label="MakeMyTrip inspired holiday planning console"
     >
-      <div className="bg-[#14110F]/85 backdrop-blur-xl border border-white/20 rounded-3xl p-4 sm:p-6 shadow-[0_24px_50px_-16px_rgba(0,0,0,0.7)] text-white">
+      <div className="bg-[#0E1822]/85 backdrop-blur-xl border border-white/20 rounded-3xl p-4 sm:p-6 shadow-[0_24px_50px_-16px_rgba(0,0,0,0.7)] text-white">
         {/* Top Header Label */}
         <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-white/10">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#FFB27A] animate-pulse" />
-            <span className="text-xs sm:text-sm font-semibold tracking-wider text-[#FFB27A] uppercase">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#9DD3D0] animate-pulse" />
+            <span className="text-xs sm:text-sm font-semibold tracking-wider text-[#9DD3D0] uppercase">
               Holiday Packages & Customiser
             </span>
           </div>
@@ -306,7 +306,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
               aria-haspopup="dialog"
               className={`w-full text-left p-3 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between h-[84px] ${
                 activePopup === 'dest'
-                  ? 'bg-white/20 border-[#FFB27A] shadow-[0_0_15px_rgba(255,178,122,0.2)]'
+                  ? 'bg-white/20 border-[#9DD3D0] shadow-[0_0_15px_rgba(157,211,208,0.2)]'
                   : 'bg-white/10 border-white/15 hover:bg-white/15 hover:border-white/25'
               }`}
             >
@@ -315,7 +315,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activePopup === 'dest' ? 'rotate-180' : ''}`} />
               </span>
               <div className="flex items-center gap-2 mt-1 truncate">
-                <MapPin className="w-4 h-4 text-[#FFB27A] shrink-0" />
+                <MapPin className="w-4 h-4 text-[#9DD3D0] shrink-0" />
                 <div className="min-w-0 truncate">
                   <div className="text-sm font-semibold text-white truncate leading-tight">
                     {selectedDest.name}
@@ -329,8 +329,8 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
 
             {/* Destination Popover */}
             {activePopup === 'dest' && (
-              <div className="absolute top-[92px] left-0 sm:left-auto right-0 sm:w-[320px] bg-[#1E2022] border border-white/20 rounded-2xl p-3 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[#FFB27A] px-2 py-1">
+              <div className="absolute top-[92px] left-0 sm:left-auto right-0 sm:w-[320px] bg-[#16222E] border border-white/20 rounded-2xl p-3 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[#9DD3D0] px-2 py-1">
                   Select Destination
                 </p>
                 <div className="space-y-1 mt-1 max-h-[260px] overflow-y-auto">
@@ -358,7 +358,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                         <div className="text-[11px] text-white/50 truncate">{dest.country} • {dest.tag}</div>
                       </div>
                       {selectedDestId === dest.id && (
-                        <Check className="w-4 h-4 text-[#FFB27A] shrink-0" />
+                        <Check className="w-4 h-4 text-[#9DD3D0] shrink-0" />
                       )}
                     </button>
                   ))}
@@ -376,7 +376,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
               aria-haspopup="dialog"
               className={`w-full text-left p-3 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between h-[84px] ${
                 activePopup === 'duration'
-                  ? 'bg-white/20 border-[#FFB27A] shadow-[0_0_15px_rgba(255,178,122,0.2)]'
+                  ? 'bg-white/20 border-[#9DD3D0] shadow-[0_0_15px_rgba(157,211,208,0.2)]'
                   : 'bg-white/10 border-white/15 hover:bg-white/15 hover:border-white/25'
               }`}
             >
@@ -385,7 +385,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activePopup === 'duration' ? 'rotate-180' : ''}`} />
               </span>
               <div className="flex items-center gap-2 mt-1 truncate">
-                <Clock className="w-4 h-4 text-[#FFB27A] shrink-0" />
+                <Clock className="w-4 h-4 text-[#9DD3D0] shrink-0" />
                 <div className="min-w-0 truncate">
                   <div className="text-sm font-semibold text-white truncate leading-tight">
                     {durationSummary}
@@ -399,8 +399,8 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
 
             {/* When & Duration Popover */}
             {activePopup === 'duration' && (
-              <div className="absolute top-[92px] left-0 sm:left-auto right-0 sm:w-[320px] bg-[#1E2022] border border-white/20 rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[#FFB27A] mb-2">
+              <div className="absolute top-[92px] left-0 sm:left-auto right-0 sm:w-[320px] bg-[#16222E] border border-white/20 rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[#9DD3D0] mb-2">
                   Trip Duration
                 </p>
                 <div className="grid grid-cols-2 gap-2 mb-4">
@@ -411,7 +411,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                       onClick={() => setDurationNights(p.nights)}
                       className={`p-2 rounded-xl text-left border transition-all cursor-pointer ${
                         durationNights === p.nights
-                          ? 'bg-[#C2571A] border-[#C2571A] text-white'
+                          ? 'bg-[#0B4A82] border-[#0B4A82] text-white'
                           : 'bg-white/5 border-white/10 text-white/80 hover:bg-white/10'
                       }`}
                     >
@@ -422,7 +422,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                 </div>
 
                 <div className="pt-3 border-t border-white/10">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#FFB27A] mb-2">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#9DD3D0] mb-2">
                     Timing Preference
                   </p>
                   <div className="space-y-1.5">
@@ -444,7 +444,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                           <div>{t.label}</div>
                           <div className="text-[10px] text-white/50">{t.hint}</div>
                         </div>
-                        {timingPreference === t.label && <Check className="w-3.5 h-3.5 text-[#FFB27A]" />}
+                        {timingPreference === t.label && <Check className="w-3.5 h-3.5 text-[#9DD3D0]" />}
                       </button>
                     ))}
                   </div>
@@ -462,7 +462,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
               aria-haspopup="dialog"
               className={`w-full text-left p-3 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between h-[84px] ${
                 activePopup === 'departure'
-                  ? 'bg-white/20 border-[#FFB27A] shadow-[0_0_15px_rgba(255,178,122,0.2)]'
+                  ? 'bg-white/20 border-[#9DD3D0] shadow-[0_0_15px_rgba(157,211,208,0.2)]'
                   : 'bg-white/10 border-white/15 hover:bg-white/15 hover:border-white/25'
               }`}
             >
@@ -471,7 +471,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activePopup === 'departure' ? 'rotate-180' : ''}`} />
               </span>
               <div className="flex items-center gap-2 mt-1 truncate">
-                <Calendar className="w-4 h-4 text-[#FFB27A] shrink-0" />
+                <Calendar className="w-4 h-4 text-[#9DD3D0] shrink-0" />
                 <div className="min-w-0 truncate">
                   <div className="text-sm font-semibold text-white truncate leading-tight">
                     {formatSummaryDate(departureDate)}
@@ -485,7 +485,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
 
             {/* Departure Date Calendar Popover */}
             {activePopup === 'departure' && (
-              <div className="absolute top-[92px] left-0 sm:left-auto right-0 sm:w-[330px] bg-[#1E2022] border border-white/20 rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute top-[92px] left-0 sm:left-auto right-0 sm:w-[330px] bg-[#16222E] border border-white/20 rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
                 {/* Month/Year Header */}
                 <div className="flex items-center justify-between mb-3">
                   <button
@@ -542,7 +542,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                         onClick={() => handleSelectDate(day)}
                         className={`h-8 w-8 mx-auto rounded-full text-xs font-medium flex items-center justify-center transition-colors cursor-pointer ${
                           isSelected
-                            ? 'bg-[#C2571A] text-white font-bold shadow-sm'
+                            ? 'bg-[#0B4A82] text-white font-bold shadow-sm'
                             : isPast
                             ? 'text-white/20 cursor-not-allowed'
                             : 'text-white/90 hover:bg-white/15'
@@ -589,7 +589,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
               aria-haspopup="dialog"
               className={`w-full text-left p-3 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between h-[84px] ${
                 activePopup === 'guests'
-                  ? 'bg-white/20 border-[#FFB27A] shadow-[0_0_15px_rgba(255,178,122,0.2)]'
+                  ? 'bg-white/20 border-[#9DD3D0] shadow-[0_0_15px_rgba(157,211,208,0.2)]'
                   : 'bg-white/10 border-white/15 hover:bg-white/15 hover:border-white/25'
               }`}
             >
@@ -598,7 +598,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activePopup === 'guests' ? 'rotate-180' : ''}`} />
               </span>
               <div className="flex items-center gap-2 mt-1 truncate">
-                <Users className="w-4 h-4 text-[#FFB27A] shrink-0" />
+                <Users className="w-4 h-4 text-[#9DD3D0] shrink-0" />
                 <div className="min-w-0 truncate">
                   <div className="text-sm font-semibold text-white truncate leading-tight">
                     {guestSummary}
@@ -612,8 +612,8 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
 
             {/* Rooms & Guests Popover */}
             {activePopup === 'guests' && (
-              <div className="absolute top-[92px] left-0 sm:left-auto right-0 sm:w-[330px] bg-[#1E2022] border border-white/20 rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[#FFB27A] mb-3">
+              <div className="absolute top-[92px] left-0 sm:left-auto right-0 sm:w-[330px] bg-[#16222E] border border-white/20 rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[#9DD3D0] mb-3">
                   Rooms & Guests
                 </p>
 
@@ -708,7 +708,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                   <button
                     type="button"
                     onClick={() => setActivePopup(null)}
-                    className="px-4 py-1.5 rounded-full bg-[#C2571A] hover:bg-[#E5501A] text-white text-xs font-semibold cursor-pointer"
+                    className="px-4 py-1.5 rounded-full bg-[#0B4A82] hover:bg-[#0E7C86] text-white text-xs font-semibold cursor-pointer"
                   >
                     Apply
                   </button>
@@ -726,7 +726,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
               aria-haspopup="dialog"
               className={`w-full text-left p-3 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between h-[84px] ${
                 activePopup === 'filters'
-                  ? 'bg-white/20 border-[#FFB27A] shadow-[0_0_15px_rgba(255,178,122,0.2)]'
+                  ? 'bg-white/20 border-[#9DD3D0] shadow-[0_0_15px_rgba(157,211,208,0.2)]'
                   : 'bg-white/10 border-white/15 hover:bg-white/15 hover:border-white/25'
               }`}
             >
@@ -735,7 +735,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activePopup === 'filters' ? 'rotate-180' : ''}`} />
               </span>
               <div className="flex items-center gap-2 mt-1 truncate">
-                <SlidersHorizontal className="w-4 h-4 text-[#FFB27A] shrink-0" />
+                <SlidersHorizontal className="w-4 h-4 text-[#9DD3D0] shrink-0" />
                 <div className="min-w-0 truncate">
                   <div className="text-sm font-semibold text-white truncate leading-tight">
                     {filterSummary}
@@ -749,9 +749,9 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
 
             {/* Filters Popover */}
             {activePopup === 'filters' && (
-              <div className="absolute top-[92px] right-0 sm:w-[340px] bg-[#1E2022] border border-white/20 rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute top-[92px] right-0 sm:w-[340px] bg-[#16222E] border border-white/20 rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#FFB27A]">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#9DD3D0]">
                     Travel Vibe & Interests
                   </p>
                   {selectedInterests.length > 0 && (
@@ -776,7 +776,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                         onClick={() => toggleInterest(item.id)}
                         className={`p-2 rounded-xl text-left border flex items-center gap-2 transition-all cursor-pointer ${
                           isSelected
-                            ? 'bg-[#C2571A] border-[#C2571A] text-white font-medium'
+                            ? 'bg-[#0B4A82] border-[#0B4A82] text-white font-medium'
                             : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
                         }`}
                       >
@@ -789,7 +789,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
 
                 {/* Stay Tier Filter */}
                 <div className="pt-3 border-t border-white/10">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#FFB27A] mb-2">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#9DD3D0] mb-2">
                     Accommodation Tier
                   </p>
                   <div className="space-y-1.5 mb-3">
@@ -800,7 +800,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                         onClick={() => setSelectedStayTier(t.tier)}
                         className={`w-full p-2 rounded-xl text-left border flex items-center justify-between transition-colors cursor-pointer ${
                           selectedStayTier === t.tier
-                            ? 'bg-white/15 border-[#FFB27A] text-white'
+                            ? 'bg-white/15 border-[#9DD3D0] text-white'
                             : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
                         }`}
                       >
@@ -808,7 +808,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                           <div className="text-xs font-semibold">{t.label}</div>
                           <div className="text-[10px] text-white/50">{t.desc}</div>
                         </div>
-                        {selectedStayTier === t.tier && <Check className="w-3.5 h-3.5 text-[#FFB27A]" />}
+                        {selectedStayTier === t.tier && <Check className="w-3.5 h-3.5 text-[#9DD3D0]" />}
                       </button>
                     ))}
                   </div>
@@ -818,7 +818,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                   <button
                     type="button"
                     onClick={() => setActivePopup(null)}
-                    className="px-4 py-1.5 rounded-full bg-[#C2571A] hover:bg-[#E5501A] text-white text-xs font-semibold cursor-pointer"
+                    className="px-4 py-1.5 rounded-full bg-[#0B4A82] hover:bg-[#0E7C86] text-white text-xs font-semibold cursor-pointer"
                   >
                     Done
                   </button>
@@ -846,7 +846,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                 onClick={() => setSelectedDestId(d.id)}
                 className={`text-xs px-2.5 py-1 rounded-full border transition-colors shrink-0 cursor-pointer ${
                   selectedDestId === d.id
-                    ? 'bg-white/20 border-[#FFB27A] text-[#FFB27A]'
+                    ? 'bg-white/20 border-[#9DD3D0] text-[#9DD3D0]'
                     : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
                 }`}
               >
@@ -859,9 +859,9 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
           <button
             type="button"
             onClick={handleLaunchPlanning}
-            className="group relative inline-flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3.5 rounded-full bg-gradient-to-r from-[#F7931E] via-[#E5501A] to-[#C2571A] text-white font-semibold text-sm sm:text-base shadow-[0_10px_25px_-5px_rgba(229,80,26,0.6)] hover:brightness-110 active:scale-[0.98] transition-all duration-200 cursor-pointer shrink-0"
+            className="group relative inline-flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3.5 rounded-full bg-gradient-to-r from-[#1D7BA6] via-[#0E7C86] to-[#0B4A82] text-white font-semibold text-sm sm:text-base shadow-[0_10px_25px_-5px_rgba(14,124,134,0.6)] hover:brightness-110 active:scale-[0.98] transition-all duration-200 cursor-pointer shrink-0"
           >
-            <Sparkles className="w-4 h-4 text-[#FAF8F5]" />
+            <Sparkles className="w-4 h-4 text-[#F6F8FA]" />
             <span>Craft My Itinerary</span>
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </button>

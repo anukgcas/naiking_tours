@@ -28,6 +28,22 @@ type Tab = 'home' | 'why' | 'start' | 'plan' | 'overview';
 
 function AppContent() {
   const [showLoader, setShowLoader] = useState(true);
+
+  // Keep the page parked at the top behind the splash so the home page opens fresh when it lifts
+  useEffect(() => {
+    if (!showLoader) return;
+    const prev = window.history.scrollRestoration;
+    window.history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+    const html = document.documentElement;
+    const overflow = html.style.overflow;
+    html.style.overflow = 'hidden';
+    return () => {
+      html.style.overflow = overflow;
+      window.history.scrollRestoration = prev;
+      window.scrollTo(0, 0);
+    };
+  }, [showLoader]);
   const [activeTab, setActiveTab] = useState<Tab>('home');
   // Which part of the home page is on screen: the hero, the sections in between, or Naiking Standard onwards
   const [homeSection, setHomeSection] = useState<'hero' | 'mid' | 'why'>('hero');
@@ -229,7 +245,7 @@ function AppContent() {
   const headerTab = onHomePage && homeSection === 'mid' ? null : navTab;
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-[#1E2022] font-sans">
+    <div className="min-h-screen flex flex-col bg-white text-[#16222E] font-sans">
       {showLoader && <Loader onComplete={() => setShowLoader(false)} />}
 
       {/* The trip-setup page opens as its own full page: no site header, footer or tab bar */}
@@ -279,6 +295,7 @@ function AppContent() {
               onExploreDestination={handleSelectDestination}
               onStartPlanningWithDraft={(patch, step) => startWizard({ draftPatch: patch, step })}
               onCraftItinerary={handleCraftItinerary}
+              paused={showLoader}
             />
             <CuratedPackages onSelectPackage={handleSelectPackage} />
             <SignatureDestinations
@@ -330,8 +347,8 @@ function AppContent() {
       />
 
       {toastMessage && (
-        <div className="fixed bottom-20 md:bottom-8 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-[#1E2022] text-[#FAF8F5] text-xs sm:text-sm font-medium shadow-2xl flex items-center gap-2 border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-200">
-          <div className="w-4 h-4 rounded-full bg-[#C2571A] flex items-center justify-center text-white shrink-0">
+        <div className="fixed bottom-20 md:bottom-8 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-[#16222E] text-[#F6F8FA] text-xs sm:text-sm font-medium shadow-2xl flex items-center gap-2 border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <div className="w-4 h-4 rounded-full bg-[#0B4A82] flex items-center justify-center text-white shrink-0">
             <Check className="w-2.5 h-2.5" />
           </div>
           <span>{toastMessage}</span>

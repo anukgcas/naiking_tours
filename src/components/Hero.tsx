@@ -14,6 +14,8 @@ interface HeroProps {
   onStartPlanningWithDraft?: (patch: Partial<TripDraft>, initialStep?: number) => void;
   /** Directly navigates to planner with crafted active itinerary */
   onCraftItinerary?: () => void;
+  /** Holds the background slideshow on its first scene (e.g. while the splash screen is up). */
+  paused?: boolean;
 }
 
 interface DestinationReel {
@@ -180,7 +182,7 @@ const WanderingPlane: React.FC = () => {
       >
         <path
           d="M12 0 L4 -2 L-2 -12 L-5 -12 L-2 -2 L-9 -3 L-11 -6 L-13 -6 L-11 0 L-13 6 L-11 6 L-9 3 L-2 2 L-5 12 L-2 12 L4 2 Z"
-          fill="#C2571A"
+          fill="#0B4A82"
           fillOpacity="0.85"
         />
       </motion.svg>
@@ -193,6 +195,7 @@ export const Hero: React.FC<HeroProps> = ({
   onExploreDestination,
   onStartPlanningWithDraft,
   onCraftItinerary,
+  paused = false,
 }) => {
   const [activeReelIndex, setActiveReelIndex] = useState(0);
   const [reelsHovered, setReelsHovered] = useState(false);
@@ -202,12 +205,12 @@ export const Hero: React.FC<HeroProps> = ({
 
   // Auto-advance scenic background; hovering preview strip pauses timer
   useEffect(() => {
-    if (reelsHovered) return;
+    if (reelsHovered || paused) return;
     const id = setTimeout(() => {
       setActiveReelIndex((activeReelIndex + 1) % FEATURED_REELS.length);
     }, REEL_INTERVAL_MS);
     return () => clearTimeout(id);
-  }, [activeReelIndex, reelsHovered]);
+  }, [activeReelIndex, reelsHovered, paused]);
 
   const handleScrollToDestinations = () => {
     document.getElementById('signature-destinations')?.scrollIntoView({ behavior: 'smooth' });
@@ -222,7 +225,7 @@ export const Hero: React.FC<HeroProps> = ({
   };
 
   return (
-    <section id="hero" className="relative bg-[#1E2022]" style={{ fontFamily: "'Jost', sans-serif" }}>
+    <section id="hero" className="relative bg-[#16222E]" style={{ fontFamily: "'Jost', sans-serif" }}>
       <div className="relative pt-[76px] lg:pt-[96px] overflow-hidden">
         {/* Unified scenic background photo */}
         <div className="absolute inset-0">
@@ -240,8 +243,8 @@ export const Hero: React.FC<HeroProps> = ({
             />
           </AnimatePresence>
           {/* Readability gradients */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#14110F]/75 via-[#14110F]/35 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#14110F]/90 via-transparent to-[#14110F]/30" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0E1822]/75 via-[#0E1822]/35 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0E1822]/90 via-transparent to-[#0E1822]/30" />
         </div>
 
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden motion-reduce:hidden">
@@ -252,7 +255,7 @@ export const Hero: React.FC<HeroProps> = ({
           {/* Title + Branding Statement */}
           <div className="w-full max-w-[800px] mx-auto text-center mb-6 sm:mb-8">
             <motion.p
-              className="mb-2 text-[15px] sm:text-base font-semibold tracking-[0.2em] text-[#FFB27A]"
+              className="mb-2 text-[15px] sm:text-base font-semibold tracking-[0.2em] text-[#9DD3D0]"
               style={{ fontFamily: "'Marcellus', serif" }}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -313,7 +316,7 @@ export const Hero: React.FC<HeroProps> = ({
                   >
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white" />
                     <span>Where should we take you?</span>
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#C2571A] text-white flex items-center justify-center transition-colors">
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#0B4A82] text-white flex items-center justify-center transition-colors">
                       <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                     </span>
                   </button>
@@ -334,7 +337,7 @@ export const Hero: React.FC<HeroProps> = ({
                 transition={{ duration: 0.45, ease: 'easeOut' }}
                 className="text-white p-5 sm:p-6 rounded-3xl bg-white/10 backdrop-blur-md border border-white/25 shadow-[0_18px_40px_-20px_rgba(0,0,0,0.6)] lg:w-[300px] shrink-0"
               >
-                <span className="text-xs font-semibold text-[#FFB27A] uppercase tracking-wider block">
+                <span className="text-xs font-semibold text-[#9DD3D0] uppercase tracking-wider block">
                   {currentReel.country}
                 </span>
                 <span className="mt-1 text-2xl sm:text-3xl font-bold block leading-tight">
@@ -363,7 +366,7 @@ export const Hero: React.FC<HeroProps> = ({
                 <button
                   type="button"
                   onClick={handleScrollToDestinations}
-                  className="group inline-flex items-center gap-1 text-xs font-medium text-[#FFB27A] hover:underline cursor-pointer"
+                  className="group inline-flex items-center gap-1 text-xs font-medium text-[#9DD3D0] hover:underline cursor-pointer"
                 >
                   <span>View All 6 Destinations</span>
                   <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />

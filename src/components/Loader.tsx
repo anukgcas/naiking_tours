@@ -7,7 +7,7 @@ interface LoaderProps {
 }
 
 const EASE = [0.76, 0, 0.24, 1] as const;
-const SHOW_MS = 3300; // logo build + progress
+const SHOW_MS = 4400; // logo build + progress
 const EXIT_MS = 900; // curtain lift
 
 export const Loader: React.FC<LoaderProps> = ({ onComplete }) => {
@@ -16,7 +16,7 @@ export const Loader: React.FC<LoaderProps> = ({ onComplete }) => {
   const [logoSize, setLogoSize] = useState(72);
 
   useEffect(() => {
-    const fit = () => setLogoSize(Math.min(64, Math.max(30, Math.floor(window.innerWidth / 13))));
+    const fit = () => setLogoSize(Math.min(60, Math.max(28, Math.floor(window.innerWidth / 14))));
     fit();
     window.addEventListener('resize', fit);
     return () => window.removeEventListener('resize', fit);
@@ -50,12 +50,12 @@ export const Loader: React.FC<LoaderProps> = ({ onComplete }) => {
     >
       {/* Two curtain halves that part to reveal the site */}
       <motion.div
-        className="absolute inset-x-0 top-0 h-1/2 bg-[#FAF8F5]"
+        className="absolute inset-x-0 top-0 h-1/2 bg-[#F6F8FA]"
         animate={{ y: leaving ? '-100%' : '0%' }}
         transition={{ duration: EXIT_MS / 1000, ease: EASE }}
       />
       <motion.div
-        className="absolute inset-x-0 bottom-0 h-1/2 bg-[#FAF8F5]"
+        className="absolute inset-x-0 bottom-0 h-1/2 bg-[#F6F8FA]"
         animate={{ y: leaving ? '100%' : '0%' }}
         transition={{ duration: EXIT_MS / 1000, ease: EASE }}
       />
@@ -69,18 +69,18 @@ export const Loader: React.FC<LoaderProps> = ({ onComplete }) => {
         <NLogo fontSize={logoSize} animated delay={0.25} />
 
         <div className="mt-12 w-56 sm:w-64">
-          <div className="h-[3px] rounded-full bg-[#1E2022]/8 overflow-hidden">
+          <div className="h-[3px] rounded-full bg-[#16222E]/8 overflow-hidden">
             <div
               className="h-full rounded-full"
               style={{
                 width: `${progress}%`,
-                background: '#1E2022',
+                background: '#16222E',
               }}
             />
           </div>
           <div className="mt-3 flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.28em] text-[#6B7280]">
             <span>Preparing your journey</span>
-            <span className="tabular-nums text-[#1E2022]">{progress}%</span>
+            <span className="tabular-nums text-[#16222E]">{progress}%</span>
           </div>
         </div>
       </motion.div>

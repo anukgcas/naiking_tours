@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
-/* Brand tokens pulled from the Naikings logo: saffron gradient + charcoal */
+/* Brand tokens from the Westack logo: navy + teal on cool slate neutrals (token names kept for compatibility) */
 @theme {
-  --color-saffron-300: #FFC94D;
-  --color-saffron-500: #F7931E;
-  --color-saffron-600: #C2571A;
-  --color-saffron-700: #E5501A;
-  --color-charcoal: #1E2022;
-  --color-cream: #FAF8F5;
+  --color-saffron-300: #8CC7C4;
+  --color-saffron-500: #1D7BA6;
+  --color-saffron-600: #0B4A82;
+  --color-saffron-700: #0E7C86;
+  --color-charcoal: #16222E;
+  --color-cream: #F6F8FA;
   --font-display: 'Cinzel', 'Times New Roman', serif;
   --animate-underline-draw: underline-draw 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   --animate-marquee: marquee 38s linear infinite;
@@ -25,7 +25,7 @@
   body {
     font-family: var(--font-sans);
     background-color: #FFFFFF;
-    color: #1E2022;
+    color: #16222E;
   }
 }
 
@@ -71,7 +71,7 @@
 }
 
 .text-saffron-gradient {
-  background-image: linear-gradient(90deg, #FFC94D 0%, #F7931E 40%, #E5501A 75%, #F7931E 100%);
+  background-image: linear-gradient(90deg, #0B4A82 0%, #1D7BA6 40%, #0E7C86 75%, #1D7BA6 100%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -96,9 +96,9 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(30, 32, 34, 0.15);
+  background: rgba(22,34,46, 0.15);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(30, 32, 34, 0.28);
+  background: rgba(22,34,46, 0.28);
 }

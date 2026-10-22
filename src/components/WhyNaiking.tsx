@@ -46,21 +46,21 @@ const ReviewCard: React.FC<(typeof REVIEWS)[number]> = ({ quote, guest, trip }) 
     .map((w) => w[0])
     .join('');
   return (
-    <figure className="w-[300px] sm:w-[360px] shrink-0 mr-5 rounded-3xl bg-[#FAF8F5] border border-[#1E2022]/8 p-6 flex flex-col justify-between cursor-pointer">
+    <figure className="w-[300px] sm:w-[360px] shrink-0 mr-5 rounded-3xl bg-[#F6F8FA] border border-[#16222E]/8 p-6 flex flex-col justify-between cursor-pointer">
       <div>
-        <div className="flex gap-0.5 text-[#C2571A]" aria-label="5 out of 5 stars">
+        <div className="flex gap-0.5 text-[#0B4A82]" aria-label="5 out of 5 stars">
           {[0, 1, 2, 3, 4].map((i) => (
             <Star key={i} className="w-3.5 h-3.5 fill-current" />
           ))}
         </div>
-        <blockquote className="mt-4 text-[15px] leading-relaxed text-[#1E2022]">“{quote}”</blockquote>
+        <blockquote className="mt-4 text-[15px] leading-relaxed text-[#16222E]">“{quote}”</blockquote>
       </div>
       <figcaption className="mt-6 flex items-center gap-3">
-        <span className="w-9 h-9 rounded-full bg-[#1E2022] text-white flex items-center justify-center text-xs font-bold">
+        <span className="w-9 h-9 rounded-full bg-[#16222E] text-white flex items-center justify-center text-xs font-bold">
           {initials}
         </span>
         <span className="leading-tight">
-          <span className="block text-sm font-bold text-[#1E2022]">{guest}</span>
+          <span className="block text-sm font-bold text-[#16222E]">{guest}</span>
           <span className="block text-xs text-[#6B7280]">{trip}</span>
         </span>
       </figcaption>
@@ -73,10 +73,10 @@ export const WhyNaiking: React.FC = () => {
     <section id="why-naiking" className="py-16 lg:py-12 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto text-center mb-10 lg:mb-14">
-          <span className="text-md font-semibold text-[#C2571A]">
+          <span className="text-md font-semibold text-[#0B4A82]">
             The Naiking Distinction
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#1E2022] mt-2 text-balance">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#16222E] mt-2 text-balance">
             Designed for travellers who value serenity over speed
           </h2>
           <p className="mt-3 text-sm sm:text-base text-[#6B7280]">Hear it from those who travelled with us</p>

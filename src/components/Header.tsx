@@ -28,8 +28,8 @@ export const Header: React.FC<HeaderProps> = ({
   const overHero = !isScrolled && activeTab === 'home';
   const linkIdle = overHero
     ? 'text-white/80 hover:text-white'
-    : 'text-[#6B7280] hover:text-[#1E2022]';
-  const linkActive = overHero ? 'text-white' : 'text-[#1E2022]';
+    : 'text-[#6B7280] hover:text-[#16222E]';
+  const linkActive = overHero ? 'text-white' : 'text-[#16222E]';
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 639px)');
@@ -62,7 +62,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             type="button"
             onClick={() => onNavigate('home')}
-            className="flex items-center gap-3 group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] rounded-lg transition-transform active:scale-98"
+            className="flex items-center gap-3 group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4A82] rounded-lg transition-transform active:scale-98"
             aria-label="Naikings Tours & Travels Home"
           >
             <span
@@ -72,6 +72,7 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <NLogo
                 fontSize={isNarrow ? 19 : 28}
+                variant={overHero ? 'light' : 'dark'}
                 className="transition-all duration-300 group-hover:scale-[1.03]"
               />
             </span>
@@ -82,7 +83,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => onNavigate('home')}
-              className={`text-[15px] font-medium transition-colors duration-200 relative py-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] rounded-sm ${
+              className={`text-[15px] font-medium transition-colors duration-200 relative py-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4A82] rounded-sm ${
                 activeTab === 'home' ? linkActive : linkIdle
               }`}
             >
@@ -91,7 +92,7 @@ export const Header: React.FC<HeaderProps> = ({
                 aria-hidden="true"
                 className={`absolute bottom-0 left-0 right-0 h-[2px] rounded-full origin-left transition-transform duration-300 ease-out motion-reduce:transition-none ${
                   activeTab === 'home' ? 'scale-x-100' : 'scale-x-0'
-                } ${overHero ? 'bg-white' : 'bg-[#C2571A]'}`}
+                } ${overHero ? 'bg-white' : 'bg-[#0B4A82]'}`}
               />
             </button>
 
@@ -99,7 +100,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onExploreDestinations}
-                className={`text-[15px] font-medium ${linkIdle} transition-colors duration-200 py-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] rounded-sm`}
+                className={`text-[15px] font-medium ${linkIdle} transition-colors duration-200 py-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4A82] rounded-sm`}
               >
                 Destinations
               </button>
@@ -109,7 +110,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onBrowsePackages}
-                className={`text-[15px] font-medium ${linkIdle} transition-colors duration-200 py-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] rounded-sm`}
+                className={`text-[15px] font-medium ${linkIdle} transition-colors duration-200 py-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4A82] rounded-sm`}
               >
                 Packages
               </button>
@@ -118,13 +119,13 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={onOpenMyTrips}
-              className={`text-[15px] font-medium ${linkIdle} transition-colors duration-200 relative py-1 flex items-center gap-1.5 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] rounded-sm`}
+              className={`text-[15px] font-medium ${linkIdle} transition-colors duration-200 relative py-1 flex items-center gap-1.5 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4A82] rounded-sm`}
             >
               My Trips
               {bookedTripsCount > 0 && (
                 <span
                   className={`inline-flex items-center justify-center w-5 h-5 text-[11px] font-bold rounded-full ${
-                    overHero ? 'bg-white text-[#1E2022]' : 'bg-[#1E2022] text-white'
+                    overHero ? 'bg-white text-[#16222E]' : 'bg-[#16222E] text-white'
                   }`}
                 >
                   {bookedTripsCount}
@@ -135,7 +136,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => onNavigate('why')}
-              className={`text-[15px] font-medium transition-colors duration-200 relative py-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] rounded-sm ${
+              className={`text-[15px] font-medium transition-colors duration-200 relative py-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4A82] rounded-sm ${
                 activeTab === 'why' ? linkActive : linkIdle
               }`}
             >
@@ -144,7 +145,7 @@ export const Header: React.FC<HeaderProps> = ({
                 aria-hidden="true"
                 className={`absolute bottom-0 left-0 right-0 h-[2px] rounded-full origin-left transition-transform duration-300 ease-out motion-reduce:transition-none ${
                   activeTab === 'why' ? 'scale-x-100' : 'scale-x-0'
-                } ${overHero ? 'bg-white' : 'bg-[#C2571A]'}`}
+                } ${overHero ? 'bg-white' : 'bg-[#0B4A82]'}`}
               />
             </button>
           </nav>

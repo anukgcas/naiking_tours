@@ -144,16 +144,16 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({ onSelectPackag
       : CURATED_PACKAGES.filter((p) => p.category === activeCategory);
 
   return (
-    <section id="curated-packages" className="py-12 md:py-16 bg-[#FAF8F5]/60 scroll-mt-20">
+    <section id="curated-packages" className="py-12 md:py-16 bg-[#F6F8FA]/60 scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C2571A]/10 text-[#C2571A] text-xs font-semibold uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0B4A82]/10 text-[#0B4A82] text-xs font-semibold uppercase tracking-wider mb-2">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Signature Journeys</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-[#1E2022]">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-[#16222E]">
               Curated Travel Packages
             </h2>
             <p className="mt-2 text-sm sm:text-base text-[#6B7280]">
@@ -170,8 +170,8 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({ onSelectPackag
                 onClick={() => setActiveCategory(cat)}
                 className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer shrink-0 ${
                   activeCategory === cat
-                    ? 'bg-[#1E2022] text-white shadow-sm'
-                    : 'bg-white border border-[#1E2022]/10 text-[#6B7280] hover:text-[#1E2022] hover:bg-[#FAF8F5]'
+                    ? 'bg-[#16222E] text-white shadow-sm'
+                    : 'bg-white border border-[#16222E]/10 text-[#6B7280] hover:text-[#16222E] hover:bg-[#F6F8FA]'
                 }`}
               >
                 {cat}
@@ -185,7 +185,7 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({ onSelectPackag
           {filtered.map((pkg) => (
             <div
               key={pkg.id}
-              className="group bg-white rounded-3xl border border-[#1E2022]/10 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+              className="group bg-white rounded-3xl border border-[#16222E]/10 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
             >
               <div>
                 {/* Photo Header */}
@@ -198,13 +198,13 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({ onSelectPackag
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   
                   {/* Duration Badge */}
-                  <div className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1E2022]/80 backdrop-blur-md text-white text-xs font-semibold">
-                    <Clock className="w-3.5 h-3.5 text-[#FFB27A]" />
+                  <div className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#16222E]/80 backdrop-blur-md text-white text-xs font-semibold">
+                    <Clock className="w-3.5 h-3.5 text-[#9DD3D0]" />
                     <span>{pkg.duration}</span>
                   </div>
 
                   {/* Category Pill */}
-                  <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[#1E2022] text-xs font-bold uppercase tracking-wider">
+                  <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[#16222E] text-xs font-bold uppercase tracking-wider">
                     {pkg.category}
                   </div>
 
@@ -220,7 +220,7 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({ onSelectPackag
 
                 {/* Content Body */}
                 <div className="p-5 sm:p-6">
-                  <h3 className="text-lg sm:text-xl font-bold text-[#1E2022] group-hover:text-[#C2571A] transition-colors leading-snug">
+                  <h3 className="text-lg sm:text-xl font-bold text-[#16222E] group-hover:text-[#0B4A82] transition-colors leading-snug">
                     {pkg.name}
                   </h3>
                   <p className="mt-2 text-xs sm:text-sm text-[#6B7280] line-clamp-2 leading-relaxed">
@@ -228,11 +228,11 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({ onSelectPackag
                   </p>
 
                   {/* Inclusions Row */}
-                  <div className="mt-4 pt-4 border-t border-[#1E2022]/8 flex flex-wrap gap-2">
+                  <div className="mt-4 pt-4 border-t border-[#16222E]/8 flex flex-wrap gap-2">
                     {pkg.inclusions.map((inc) => (
                       <span
                         key={inc}
-                        className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-[#FAF8F5] text-[#1E2022]/80 border border-[#1E2022]/6"
+                        className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-[#F6F8FA] text-[#16222E]/80 border border-[#16222E]/6"
                       >
                         {inc}
                       </span>
@@ -243,7 +243,7 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({ onSelectPackag
                   <div className="mt-4 space-y-1.5">
                     {pkg.highlights.map((h, i) => (
                       <div key={i} className="flex items-start gap-2 text-xs text-[#4B5563]">
-                        <Check className="w-3.5 h-3.5 text-[#C2571A] shrink-0 mt-0.5" />
+                        <Check className="w-3.5 h-3.5 text-[#0B4A82] shrink-0 mt-0.5" />
                         <span className="line-clamp-1">{h}</span>
                       </div>
                     ))}
@@ -256,7 +256,7 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({ onSelectPackag
                 <button
                   type="button"
                   onClick={() => onSelectPackage(pkg)}
-                  className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 rounded-2xl bg-[#1E2022] text-white font-semibold text-sm hover:bg-[#C2571A] active:scale-[0.98] transition-all duration-200 cursor-pointer group/btn"
+                  className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 rounded-2xl bg-[#16222E] text-white font-semibold text-sm hover:bg-[#0B4A82] active:scale-[0.98] transition-all duration-200 cursor-pointer group/btn"
                 >
                   <span>Customise Itinerary</span>
                   <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
