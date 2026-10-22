@@ -46,6 +46,8 @@ export type TravellerType = 'solo' | 'couple' | 'family' | 'friends';
 export interface TripDraft {
   /** Optional ID for active draft tracking */
   id?: string;
+  /** Canonical package ID if created from or customized from a curated package */
+  packageId?: string;
   /** Empty while the traveller has asked AI to choose (see aiDestination). */
   destinationId: string;
   aiDestination: boolean;
@@ -140,6 +142,7 @@ export interface PlannedDay {
 
 export interface TripBooking {
   id: string;
+  packageId?: string;
   destination: string;
   packageName: string;
   startDate: string;
@@ -159,4 +162,43 @@ export interface TripBooking {
   draft?: TripDraft;
   /** Preserved plan state for resuming in planner */
   plan?: PlanState;
+}
+
+export interface SavedPackageItem {
+  packageId: string;
+  savedAt: string;
+}
+
+export type EnquiryCategory =
+  | 'general_info'
+  | 'general_package'
+  | 'discuss_package'
+  | 'coupon_availability'
+  | 'discount_eligibility'
+  | 'seasonal_offers'
+  | 'festive_offers'
+  | 'callback_request'
+  | 'coupons_discounts'
+  | 'customization'
+  | 'dates_availability'
+  | 'other';
+
+export interface PackageEnquiry {
+  packageId: string;
+  packageName: string;
+  destinationId: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  preferredContactMethod: 'email' | 'phone' | 'either';
+  category: EnquiryCategory;
+  message?: string;
+  submittedAt: string;
+}
+
+export interface EnquirySubmissionResult {
+  success: boolean;
+  status: 'sent' | 'unsupported_backend' | 'validation_error' | 'network_error';
+  message: string;
+  enquiryId?: string;
 }

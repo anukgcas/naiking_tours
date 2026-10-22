@@ -22,9 +22,15 @@ import {
   getDestination,
   reconcilePlan,
 } from './data/planner';
-import { TripBooking, TripDraft } from './types';
+import { TripBooking, TripDraft, PlanState } from './types';
 import { Check } from 'lucide-react';
 import { TripProvider, useTrip } from './context/TripContext';
+import { SavedPackagesProvider, useSavedPackages } from './context/SavedPackagesContext';
+import { SavedPackagesDrawer } from './components/SavedPackagesDrawer';
+import { PackageEnquiryModal } from './components/PackageEnquiryModal';
+import { SharedItineraryPreviewModal } from './components/SharedItineraryPreviewModal';
+import { PrintableItinerary } from './components/PrintableItinerary';
+import { getSharePayloadFromUrl, deserializeItinerary } from './services/shareService';
 
 type Tab = 'home' | 'why' | 'start' | 'plan' | 'overview';
 
@@ -54,6 +60,11 @@ function AppContent() {
   // Which part of the home page is on screen: the hero, the sections in between, or Naiking Standard onwards
   const [homeSection, setHomeSection] = useState<'hero' | 'mid' | 'why'>('hero');
   const [isMyTripsOpen, setIsMyTripsOpen] = useState(false);
+  const [isSavedPackagesOpen, setIsSavedPackagesOpen] = useState(false);
+  const [enquiryPackage, setEnquiryPackage] = useState<CuratedPackage | null>(null);
+
+  // Saved packages wishlist context
+  const { savedPackages, savedCount, removePackage } = useSavedPackages();
 
   // Unified persistent trip context
   const {
@@ -70,7 +81,16 @@ function AppContent() {
     selectPackage,
     loadSavedTrip,
     confirmTrip,
+    adoptSharedTrip,
   } = useTrip();
+
+  // Shared itinerary preview state (non-destructive URL loading)
+  const [sharedTripPreview, setSharedTripPreview] = useState<{
+    isOpen: boolean;
+    draft: TripDraft | null;
+    plan: PlanState | null;
+    error: string | null;
+  }>({ isOpen: false, draft: null, plan: null, error: null });
 
   // Guided wizard step state for deep-editing when needed
   const [wizardStep, setWizardStep] = useState(0);
@@ -81,6 +101,58 @@ function AppContent() {
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  // Check for shared itinerary URL parameter (?trip=...) on load and popstate
+  useEffect(() => {
+    const checkUrl = () => {
+      const payloadStr = getSharePayloadFromUrl();
+      if (!payloadStr) return;
+
+      const res = deserializeItinerary(payloadStr);
+      if (res.success) {
+        setSharedTripPreview({
+          isOpen: true,
+          draft: res.data.draft,
+          plan: res.data.plan,
+          error: null,
+        });
+      } else {
+        setSharedTripPreview({
+          isOpen: true,
+          draft: null,
+          plan: null,
+          error: res.error,
+        });
+      }
+    };
+
+    checkUrl();
+    window.addEventListener('popstate', checkUrl);
+    return () => window.removeEventListener('popstate', checkUrl);
+  }, []);
+
+  const clearTripUrlParam = () => {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('trip');
+      window.history.replaceState({}, document.title, url.pathname + (url.search ? url.search : '') + url.hash);
+    } catch {
+      // Ignore in restricted environments
+    }
+  };
+
+  const handleAdoptSharedItinerary = (sharedDraft: TripDraft, sharedPlan: PlanState) => {
+    adoptSharedTrip(sharedDraft, sharedPlan);
+    clearTripUrlParam();
+    setSharedTripPreview({ isOpen: false, draft: null, plan: null, error: null });
+    goTo('plan');
+    showToast('Imported shared itinerary into your planner.');
+  };
+
+  const handleDismissSharedPreview = () => {
+    clearTripUrlParam();
+    setSharedTripPreview({ isOpen: false, draft: null, plan: null, error: null });
   };
 
   // While a nav click is smooth-scrolling, the scroll spy below must not flip the highlighted link
@@ -163,12 +235,14 @@ function AppContent() {
   };
 
   const handleSelectPackage = (pkg: CuratedPackage) => {
+    setEnquiryPackage(null);
     selectPackage(pkg);
     goTo('plan');
     showToast(`Configured ${pkg.name} in itinerary planner.`);
   };
 
   const handleSelectSavedTrip = (trip: TripBooking) => {
+    setEnquiryPackage(null);
     loadSavedTrip(trip);
     setIsMyTripsOpen(false);
     goTo('plan');
@@ -281,7 +355,9 @@ function AppContent() {
           activeTab={headerTab}
           onNavigate={handleNavigate}
           onOpenMyTrips={() => setIsMyTripsOpen(true)}
+          onOpenSavedPackages={() => setIsSavedPackagesOpen(true)}
           bookedTripsCount={bookedTrips.length}
+          savedPackagesCount={savedCount}
           onExploreDestinations={scrollToDestinations}
           onBrowsePackages={scrollToPackages}
         />
@@ -304,6 +380,7 @@ function AppContent() {
             onStayTierChange={(stayTier) => updateDraft({ stayTier })}
             onEditDetails={handleEditDetails}
             onContinue={() => goTo('overview')}
+            onShowToast={showToast}
           />
         ) : view === 'overview' && plan ? (
           <TripOverview
@@ -314,6 +391,7 @@ function AppContent() {
             onConfirm={handleConfirmTrip}
             onViewTrips={() => setIsMyTripsOpen(true)}
             onPlanAnother={handlePlanAnother}
+            onShowToast={showToast}
           />
         ) : (
           <>
@@ -325,7 +403,10 @@ function AppContent() {
               paused={showLoader}
               prefillConsole={editingTrip}
             />
-            <CuratedPackages onSelectPackage={handleSelectPackage} />
+            <CuratedPackages
+              onSelectPackage={handleSelectPackage}
+              onEnquirePackage={(pkg) => setEnquiryPackage(pkg)}
+            />
             <SignatureDestinations
               destinations={SIGNATURE_DESTINATIONS}
               onSelectDestination={handleSelectDestination}
@@ -357,7 +438,9 @@ function AppContent() {
             currentTab={navTab}
             onNavigate={handleNavigate}
             onOpenMyTrips={() => setIsMyTripsOpen(true)}
+            onOpenSavedPackages={() => setIsSavedPackagesOpen(true)}
             bookedTripsCount={bookedTrips.length}
+            savedPackagesCount={savedCount}
           />
         </>
       )}
@@ -374,6 +457,47 @@ function AppContent() {
         onSelectTrip={handleSelectSavedTrip}
       />
 
+      <SavedPackagesDrawer
+        isOpen={isSavedPackagesOpen}
+        onClose={() => setIsSavedPackagesOpen(false)}
+        savedPackages={savedPackages}
+        onRemovePackage={(pkgId) => {
+          removePackage(pkgId);
+          showToast('Package removed from saved wishlist.');
+        }}
+        onSelectPackage={(pkg) => {
+          setIsSavedPackagesOpen(false);
+          handleSelectPackage(pkg);
+        }}
+        onEnquirePackage={(pkg) => {
+          setIsSavedPackagesOpen(false);
+          setEnquiryPackage(pkg);
+        }}
+        onExplorePackages={scrollToPackages}
+      />
+
+      <PackageEnquiryModal
+        pkg={enquiryPackage}
+        isOpen={Boolean(enquiryPackage)}
+        onClose={() => setEnquiryPackage(null)}
+      />
+
+      <SharedItineraryPreviewModal
+        isOpen={sharedTripPreview.isOpen}
+        draft={sharedTripPreview.draft}
+        plan={sharedTripPreview.plan}
+        errorMessage={sharedTripPreview.error}
+        onContinuePlanning={handleAdoptSharedItinerary}
+        onPrint={() => window.print()}
+        onDismiss={handleDismissSharedPreview}
+      />
+
+      {sharedTripPreview.isOpen && sharedTripPreview.draft && sharedTripPreview.plan && (
+        <div className="hidden print:block">
+          <PrintableItinerary draft={sharedTripPreview.draft} plan={sharedTripPreview.plan} />
+        </div>
+      )}
+
       {toastMessage && (
         <div className="fixed bottom-20 md:bottom-8 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-[#16222E] text-[#F6F8FA] text-xs sm:text-sm font-medium shadow-2xl flex items-center gap-2 border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-200">
           <div className="w-4 h-4 rounded-full bg-[#0B4A82] flex items-center justify-center text-white shrink-0">
@@ -389,7 +513,9 @@ function AppContent() {
 export default function App() {
   return (
     <TripProvider>
-      <AppContent />
+      <SavedPackagesProvider>
+        <AppContent />
+      </SavedPackagesProvider>
     </TripProvider>
   );
 }

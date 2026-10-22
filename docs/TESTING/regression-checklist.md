@@ -81,5 +81,60 @@ This checklist must be executed and verified prior to merging pull requests or t
 ### 9. Mobile Responsive Viewport (375px)
 - [ ] Inspect mobile layout on phone screen size.
 - [ ] Confirm header renders brand logo without horizontal overflow.
-- [ ] Confirm fixed [MobileBottomNav.tsx](../../src/components/MobileBottomNav.tsx) provides Home, Plan, My Trips, and Why Us.
+- [ ] Confirm fixed [MobileBottomNav.tsx](../../src/components/MobileBottomNav.tsx) provides Home, Plan, Saved, My Trips, and Why Us.
 - [ ] Verify customizer fields stack cleanly into readable touch targets.
+
+---
+
+### 10. Save for Later Wishlist (`SavedPackagesDrawer.tsx`, `CuratedPackages.tsx`)
+- [ ] On curated package card, click bookmark icon $\rightarrow$ confirm bookmark toggles active.
+- [ ] Confirm header navbar "Saved" badge increments.
+- [ ] Click "Saved" in header $\rightarrow$ verify slide-over drawer opens showing the saved package.
+- [ ] Click "Remove" (trash icon) $\rightarrow$ confirm package removed and toast message displays.
+- [ ] Re-save package, open drawer, and click "Customise" $\rightarrow$ confirm it loads package into the planner canvas without creating duplicate state.
+- [ ] Reload browser $\rightarrow$ confirm saved packages persist from `naiking_saved_packages_v1`.
+
+---
+
+### 11. Package Enquiry & Callback Requests (`PackageEnquiryModal.tsx`)
+- [ ] Click "Enquire" on any curated package card $\rightarrow$ confirm modal opens with prefilled package name and duration.
+- [ ] Submit empty form $\rightarrow$ confirm client validation flags required fields (Full Name, contact info).
+- [ ] Select "Request a Callback / Consultation" $\rightarrow$ confirm valid phone number ($\ge 10$ digits) is strictly required.
+- [ ] Fill valid name, phone, category, and message $\rightarrow$ click submit.
+- [ ] Confirm loading state with spinner disables repeated clicks.
+- [ ] Confirm honest notification appears stating backend CRM dispatch is unconfigured (no fake success).
+
+---
+
+### 12. Package Discovery-to-Planning Journey (`FEAT-020`)
+- [ ] Browse packages on homepage and select "Customise Itinerary" on a package (e.g. Kamandalu Rainforest & Ocean Sanctuary).
+- [ ] Verify planner canvas opens with badge: "Customising: Kamandalu Rainforest & Ocean Sanctuary".
+- [ ] Verify destination is set to Bali and duration matches package nights (4 nights / 5 days).
+- [ ] Verify package signature highlights are seeded into the baseline plan.
+- [ ] Verify existing user preferences (rooms, adults, children, departure date, stay tier) are preserved.
+- [ ] Verify Save for Later items remain untouched when a package is customized.
+- [ ] Verify customizing does NOT create an entry in My Trips (`bookedTrips`).
+- [ ] Verify confirming a trip preserves the customized package name in My Trips.
+- [ ] Open enquiry for Package A while Package B is in the planner; verify enquiry displays Package A context.
+- [ ] Rapid repeated clicks on Save for Later toggle cleanly without race conditions.
+
+---
+
+### 13. Itinerary Export & Sharing (`FEAT-021`)
+- [ ] Verify **"Print / Save as PDF"** and **"Share Link"** buttons are visible in the Trip Planner top bar.
+- [ ] Verify **"Print / Save as PDF"** and **"Share Link"** buttons are visible in the Trip Overview top bar and price card.
+- [ ] Click "Print / Save as PDF": verify browser print dialog opens without modifying application state.
+- [ ] Verify `@media print` stylesheet hides website header, footer, bottom navigation, modals, and buttons.
+- [ ] Verify printable document displays company branding, destination, travel dates, guests, stay tier, day-by-day schedules, and itemized cost breakdown with estimate disclosures.
+- [ ] Verify empty itineraries display a friendly leisure notice rather than misleading tables.
+- [ ] Click "Share Link": verify modal opens with compact Base64 share URL.
+- [ ] Click "Copy Link": verify feedback transitions to "Copied" and toast appears.
+- [ ] Verify manual selection fallback works if clipboard permissions are restricted.
+- [ ] Open a share URL (`?trip=...`) in a fresh browser session.
+- [ ] Verify `SharedItineraryPreviewModal` opens displaying the shared trip with recalculated prices and "Shared Itinerary Preview" banner.
+- [ ] Verify opening a share link does NOT overwrite recipient's existing active trip, booked trips, or saved wishlist.
+- [ ] Click "Keep My Current Trip / Dismiss": verify modal closes and `?trip=` is stripped from URL without altering active trip.
+- [ ] Re-open share link and click "Continue Planning This Itinerary": verify shared trip loads into planner and `?trip=` is removed from URL.
+- [ ] Verify malformed or oversized payloads display an informative error modal without crashing.
+
+

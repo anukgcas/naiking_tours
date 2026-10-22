@@ -9,6 +9,7 @@ import {
 import {
   PLANNER_DESTINATIONS,
   addDaysISO,
+  aiPickCities,
   autoFillPlan,
   emptyPlan,
   getDestination,
@@ -18,7 +19,7 @@ import {
   validateDraft,
 } from '../data/planner';
 import { INITIAL_BOOKED_TRIPS } from '../data/mockData';
-import { CuratedPackage } from '../components/CuratedPackages';
+import { CuratedPackage, CURATED_PACKAGES } from '../components/CuratedPackages';
 
 const STORAGE_KEY_ACTIVE_TRIP = 'naiking_active_trip_v2';
 const STORAGE_KEY_SAVED_TRIPS = 'naiking_saved_trips_v2';
@@ -31,6 +32,7 @@ export interface ContactDetails {
 
 export interface ActiveTripState {
   id: string;
+  packageId?: string | null;
   isSavedTrip: boolean;
   savedTripId: string | null;
   destinationId: string;
@@ -49,6 +51,7 @@ export interface ActiveTripState {
 export interface TripContextValue {
   // Authoritative State
   activeTripId: string;
+  packageId?: string | null;
   isSavedTrip: boolean;
   savedTripId: string | null;
   destinationId: string;
@@ -90,6 +93,7 @@ export interface TripContextValue {
   selectPackage: (pkg: CuratedPackage) => void;
   loadSavedTrip: (trip: TripBooking) => void;
   confirmTrip: (contact: ContactDetails) => TripBooking;
+  adoptSharedTrip: (sharedDraft: TripDraft, sharedPlan: PlanState) => void;
 }
 
 const TripContext = createContext<TripContextValue | null>(null);
@@ -111,20 +115,23 @@ const buildDraft = (
   children: number,
   interests: ActivityCategory[],
   stayTier: 0 | 1 | 2,
-  timingPreference: string
+  timingPreference: string,
+  packageId?: string | null,
+  cityIds?: string[]
 ): TripDraft => {
   const checkIn = departureDate;
   const checkOut = addDaysISO(departureDate, Math.max(1, durationNights));
-  return {
+  const baseDraft: TripDraft = {
     id,
+    packageId: packageId || undefined,
     destinationId,
     aiDestination: false,
     travellerType: deriveTravellerType(adults, children, rooms),
     interests,
     // days start empty: the traveller builds the plan, and AI fills in only when asked
     aiPlan: false,
-    cityIds: [],
-    aiCities: true,
+    cityIds: cityIds || [],
+    aiCities: !cityIds || cityIds.length === 0,
     checkIn,
     checkOut,
     adults,
@@ -133,6 +140,15 @@ const buildDraft = (
     stayTier,
     timingPreference,
   };
+
+  if (!cityIds || cityIds.length === 0) {
+    const picked = aiPickCities(baseDraft);
+    if (picked.length > 0) {
+      baseDraft.cityIds = picked;
+    }
+  }
+
+  return baseDraft;
 };
 
 const createDefaultState = (): ActiveTripState => {
@@ -158,11 +174,13 @@ const createDefaultState = (): ActiveTripState => {
     children,
     interests,
     stayTier,
-    timingPreference
+    timingPreference,
+    null
   );
 
   return {
     id,
+    packageId: null,
     isSavedTrip: false,
     savedTripId: null,
     destinationId,
@@ -193,6 +211,16 @@ const loadInitialActiveTrip = (): ActiveTripState => {
     const validDest = PLANNER_DESTINATIONS.some((d) => d.id === parsed.destinationId)
       ? parsed.destinationId
       : 'bali';
+
+    // Validate package identity if present
+    const rawPackageId = typeof parsed.packageId === 'string'
+      ? parsed.packageId
+      : typeof parsed.draft?.packageId === 'string'
+      ? parsed.draft.packageId
+      : null;
+    const packageId = rawPackageId && CURATED_PACKAGES.some((p) => p.id === rawPackageId)
+      ? rawPackageId
+      : null;
 
     // Validate dates
     const today = todayISO();
@@ -227,7 +255,8 @@ const loadInitialActiveTrip = (): ActiveTripState => {
       children,
       interests,
       stayTier,
-      timingPreference
+      timingPreference,
+      packageId
     );
 
     let plan: PlanState | null = null;
@@ -244,6 +273,7 @@ const loadInitialActiveTrip = (): ActiveTripState => {
 
     return {
       id,
+      packageId,
       isSavedTrip,
       savedTripId,
       destinationId: validDest,
@@ -305,6 +335,9 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const setDestinationId = useCallback((newDestId: string) => {
     setActiveTrip((prev) => {
       if (prev.destinationId === newDestId) return prev;
+      const packageId = prev.packageId && CURATED_PACKAGES.find((p) => p.id === prev.packageId)?.destinationId === newDestId
+        ? prev.packageId
+        : null;
       const nextDraft = buildDraft(
         prev.id,
         newDestId,
@@ -315,12 +348,14 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
         prev.children,
         prev.interests,
         prev.stayTier,
-        prev.timingPreference
+        prev.timingPreference,
+        packageId
       );
       // Reconcile plan for new destination
       const nextPlan = prev.plan ? reconcilePlan(prev.plan, nextDraft) : null;
       return {
         ...prev,
+        packageId,
         destinationId: newDestId,
         draft: nextDraft,
         plan: nextPlan,
@@ -342,7 +377,8 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
         prev.children,
         prev.interests,
         prev.stayTier,
-        prev.timingPreference
+        prev.timingPreference,
+        prev.packageId
       );
       const nextPlan = prev.plan ? reconcilePlan(prev.plan, nextDraft) : null;
       return {
@@ -375,7 +411,8 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
         prev.children,
         prev.interests,
         prev.stayTier,
-        prev.timingPreference
+        prev.timingPreference,
+        prev.packageId
       );
       return {
         ...prev,
@@ -399,7 +436,8 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
         prev.children,
         prev.interests,
         prev.stayTier,
-        prev.timingPreference
+        prev.timingPreference,
+        prev.packageId
       );
       return {
         ...prev,
@@ -423,7 +461,8 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
         prev.children,
         prev.interests,
         prev.stayTier,
-        prev.timingPreference
+        prev.timingPreference,
+        prev.packageId
       );
       return {
         ...prev,
@@ -447,7 +486,8 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
         valid,
         prev.interests,
         prev.stayTier,
-        prev.timingPreference
+        prev.timingPreference,
+        prev.packageId
       );
       return {
         ...prev,
@@ -472,7 +512,8 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
         c,
         prev.interests,
         prev.stayTier,
-        prev.timingPreference
+        prev.timingPreference,
+        prev.packageId
       );
       return {
         ...prev,
@@ -502,7 +543,6 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateDraft = useCallback((patch: Partial<TripDraft>) => {
     setActiveTrip((prev) => {
-      const mergedDraft: TripDraft = { ...prev.draft, ...patch };
       let departureDate = prev.departureDate;
       let durationNights = prev.durationNights;
 
@@ -522,6 +562,9 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const interests = patch.interests ?? prev.interests;
       const stayTier = patch.stayTier ?? prev.stayTier;
       const timingPreference = patch.timingPreference ?? prev.timingPreference;
+      const packageId = patch.packageId !== undefined
+        ? (patch.packageId && CURATED_PACKAGES.some((p) => p.id === patch.packageId) ? patch.packageId : null)
+        : prev.packageId;
 
       const nextDraft = buildDraft(
         prev.id,
@@ -533,7 +576,8 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
         children,
         interests,
         stayTier,
-        timingPreference
+        timingPreference,
+        packageId
       );
 
       // Reconcile plan if destination or duration changed
@@ -541,6 +585,7 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return {
         ...prev,
+        packageId,
         destinationId,
         durationNights,
         timingPreference,
@@ -568,7 +613,6 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let effectiveState = activeTrip;
 
     if (draftPatch) {
-      const merged = { ...activeTrip.draft, ...draftPatch };
       let departureDate = activeTrip.departureDate;
       let durationNights = activeTrip.durationNights;
 
@@ -586,6 +630,9 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const interests = draftPatch.interests ?? activeTrip.interests;
       const stayTier = draftPatch.stayTier ?? activeTrip.stayTier;
       const timingPreference = draftPatch.timingPreference ?? activeTrip.timingPreference;
+      const packageId = draftPatch.packageId !== undefined
+        ? (draftPatch.packageId && CURATED_PACKAGES.some((p) => p.id === draftPatch.packageId) ? draftPatch.packageId : null)
+        : activeTrip.packageId;
 
       const nextDraft = buildDraft(
         activeTrip.id,
@@ -597,11 +644,13 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
         children,
         interests,
         stayTier,
-        timingPreference
+        timingPreference,
+        packageId
       );
 
       effectiveState = {
         ...activeTrip,
+        packageId,
         destinationId,
         durationNights,
         timingPreference,
@@ -657,11 +706,13 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
       children,
       interests,
       stayTier,
-      timingPreference
+      timingPreference,
+      null
     );
 
     setActiveTrip({
       id,
+      packageId: null,
       isSavedTrip: false,
       savedTripId: null,
       destinationId: dest,
@@ -679,21 +730,42 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const selectPackage = useCallback((pkg: CuratedPackage) => {
-    const today = todayISO();
-    const departureDate = addDaysISO(today, 30);
-    const id = `pkg-${pkg.id}-${Date.now()}`;
-    const destinationId = pkg.destinationId;
-    const durationNights = pkg.nights;
-    const timingPreference = 'Upcoming Month';
-    const rooms = 1;
-    const adults = 2;
-    const children = 0;
-    const interests: ActivityCategory[] = ['Leisure', 'Sightseeing'];
-    const stayTier: 0 | 1 | 2 = 1;
+    // 1. Defensively validate destination against canonical destinations
+    const validDest = PLANNER_DESTINATIONS.some((d) => d.id === pkg.destinationId)
+      ? pkg.destinationId
+      : 'bali';
 
+    // 2. Clamp duration nights (1-14)
+    const durationNights = Math.max(1, Math.min(14, typeof pkg.nights === 'number' ? pkg.nights : 4));
+
+    // 3. Preserve user preferences when valid; otherwise fallback to sensible defaults
+    const today = todayISO();
+    const departureDate = activeTrip.departureDate && activeTrip.departureDate >= today
+      ? activeTrip.departureDate
+      : addDaysISO(today, 30);
+    const timingPreference = activeTrip.timingPreference || 'Upcoming Month';
+    const rooms = activeTrip.rooms >= 1 ? activeTrip.rooms : 1;
+    const adults = activeTrip.adults >= 1 ? activeTrip.adults : 2;
+    const children = activeTrip.children >= 0 ? activeTrip.children : 0;
+
+    // Stay tier: preserve user stayTier or adapt for luxury package
+    const stayTier: 0 | 1 | 2 = activeTrip.stayTier ?? (pkg.category === 'Luxury' ? 2 : 1);
+
+    // Interests: preserve user's interests if set; otherwise derive from package category
+    const interests: ActivityCategory[] = activeTrip.interests && activeTrip.interests.length > 0
+      ? activeTrip.interests
+      : pkg.category === 'Beach'
+      ? ['Leisure', 'Wellness']
+      : pkg.category === 'Mountains'
+      ? ['Adventure', 'Sightseeing']
+      : pkg.category === 'Culture'
+      ? ['Culture', 'Sightseeing']
+      : ['Leisure', 'Wellness'];
+
+    const id = `pkg-${pkg.id}-${Date.now()}`;
     const draft = buildDraft(
       id,
-      destinationId,
+      validDest,
       departureDate,
       durationNights,
       rooms,
@@ -701,17 +773,45 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
       children,
       interests,
       stayTier,
-      timingPreference
+      timingPreference,
+      pkg.id
     );
 
-    const basePlan = reconcilePlan(null, draft);
+    // 4. Seed baseline plan from package highlights if matching activities exist
+    const destObj = getDestination(validDest);
+    let basePlan = emptyPlan(draft);
+    if (destObj && Array.isArray(pkg.highlights)) {
+      const matchedActivityIds: string[] = [];
+      for (const h of pkg.highlights) {
+        const words = h.toLowerCase().split(/[\s,&]+/).filter((w) => w.length >= 4);
+        const found = destObj.activities.find((a) => {
+          const lowerName = a.name.toLowerCase();
+          return words.some((w) => lowerName.includes(w));
+        });
+        if (found && !matchedActivityIds.includes(found.id)) {
+          matchedActivityIds.push(found.id);
+        }
+      }
+
+      // Distribute matched anchor activities across the days
+      if (matchedActivityIds.length > 0) {
+        matchedActivityIds.forEach((actId, idx) => {
+          const dayIdx = idx % basePlan.days.length;
+          basePlan.days[dayIdx].push(actId);
+        });
+      }
+    }
+
+    // 5. Auto fill remaining open slots with balanced picks
     const finalPlan = autoFillPlan(draft, basePlan);
 
+    // 6. Update active trip state - isSavedTrip false, savedTripId null (preserves booked trips)
     setActiveTrip({
       id,
+      packageId: pkg.id,
       isSavedTrip: false,
       savedTripId: null,
-      destinationId,
+      destinationId: validDest,
       durationNights,
       timingPreference,
       departureDate,
@@ -723,13 +823,15 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
       draft,
       plan: finalPlan,
     });
-  }, []);
+  }, [activeTrip]);
 
   const loadSavedTrip = useCallback((trip: TripBooking) => {
     // If trip already has draft and plan attached, load them
     if (trip.draft && trip.plan) {
+      const pkgId = trip.packageId || trip.draft.packageId || null;
       setActiveTrip({
         id: trip.id,
+        packageId: pkgId,
         isSavedTrip: true,
         savedTripId: trip.id,
         destinationId: trip.draft.destinationId,
@@ -741,7 +843,7 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
         children: trip.draft.children,
         interests: trip.draft.interests,
         stayTier: trip.draft.stayTier,
-        draft: trip.draft,
+        draft: { ...trip.draft, packageId: pkgId || undefined },
         plan: trip.plan,
       });
       return;
@@ -761,6 +863,7 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const stayTier: 0 | 1 | 2 = 1;
     const interests: ActivityCategory[] = ['Leisure', 'Culture'];
     const timingPreference = 'Upcoming Month';
+    const pkgId = trip.packageId || null;
 
     const draft = buildDraft(
       trip.id,
@@ -772,7 +875,8 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
       children,
       interests,
       stayTier,
-      timingPreference
+      timingPreference,
+      pkgId
     );
 
     const basePlan = reconcilePlan(null, draft);
@@ -780,6 +884,7 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setActiveTrip({
       id: trip.id,
+      packageId: pkgId,
       isSavedTrip: true,
       savedTripId: trip.id,
       destinationId: matchedDest.id,
@@ -800,10 +905,18 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const dest = getDestination(activeTrip.destinationId) || PLANNER_DESTINATIONS[0];
     const newBookingId = `NT-${Math.floor(1000 + Math.random() * 9000)}`;
 
+    const curatedPkg = activeTrip.packageId
+      ? CURATED_PACKAGES.find((p) => p.id === activeTrip.packageId)
+      : null;
+    const packageName = curatedPkg
+      ? `${curatedPkg.name} (Customized)`
+      : `Custom ${activeTrip.durationNights + 1}-Day ${dest.name} Journey`;
+
     const newBooking: TripBooking = {
       id: newBookingId,
+      packageId: activeTrip.packageId || undefined,
       destination: dest.name,
-      packageName: `Custom ${activeTrip.durationNights + 1}-Day ${dest.name} Journey`,
+      packageName,
       startDate: activeTrip.draft.checkIn,
       endDate: activeTrip.draft.checkOut,
       travellers: {
@@ -813,8 +926,8 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
       totalPrice: 45000 + activeTrip.durationNights * 8500 * activeTrip.rooms,
       status: 'Preparing',
       bookingDate: 'Today',
-      image: dest.image,
-      draft: { ...activeTrip.draft, id: newBookingId },
+      image: curatedPkg?.image || dest.image,
+      draft: { ...activeTrip.draft, id: newBookingId, packageId: activeTrip.packageId || undefined },
       plan: activeTrip.plan ? { ...activeTrip.plan } : undefined,
     };
 
@@ -830,12 +943,50 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return newBooking;
   }, [activeTrip]);
 
+  const adoptSharedTrip = useCallback((sharedDraft: TripDraft, sharedPlan: PlanState) => {
+    const validDest = PLANNER_DESTINATIONS.some((d) => d.id === sharedDraft.destinationId)
+      ? sharedDraft.destinationId
+      : 'bali';
+    const nights = nightsBetween(sharedDraft.checkIn, sharedDraft.checkOut);
+    const clampedNights = Math.max(1, Math.min(14, nights));
+    const packageId = sharedDraft.packageId && CURATED_PACKAGES.some((p) => p.id === sharedDraft.packageId)
+      ? sharedDraft.packageId
+      : null;
+    const newId = `shared-${Date.now()}`;
+
+    const draft: TripDraft = {
+      ...sharedDraft,
+      id: newId,
+      packageId: packageId || undefined,
+      destinationId: validDest,
+    };
+
+    setActiveTrip({
+      id: newId,
+      packageId,
+      isSavedTrip: false,
+      savedTripId: null,
+      destinationId: validDest,
+      durationNights: clampedNights,
+      timingPreference: sharedDraft.timingPreference || 'Upcoming Month',
+      departureDate: sharedDraft.checkIn,
+      rooms: sharedDraft.rooms || 1,
+      adults: sharedDraft.adults || 2,
+      children: sharedDraft.children || 0,
+      interests: sharedDraft.interests || ['Leisure', 'Culture'],
+      stayTier: sharedDraft.stayTier ?? 1,
+      draft,
+      plan: sharedPlan,
+    });
+  }, []);
+
   const hasActivePlan = useMemo(() => {
     return activeTrip.plan !== null && validateDraft(activeTrip.draft) === null;
   }, [activeTrip.plan, activeTrip.draft]);
 
   const value: TripContextValue = useMemo(() => ({
     activeTripId: activeTrip.id,
+    packageId: activeTrip.packageId,
     isSavedTrip: activeTrip.isSavedTrip,
     savedTripId: activeTrip.savedTripId,
     destinationId: activeTrip.destinationId,
@@ -871,6 +1022,7 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
     selectPackage,
     loadSavedTrip,
     confirmTrip,
+    adoptSharedTrip,
   }), [
     activeTrip,
     hasActivePlan,
@@ -893,6 +1045,7 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
     selectPackage,
     loadSavedTrip,
     confirmTrip,
+    adoptSharedTrip,
   ]);
 
   return <TripContext.Provider value={value}>{children}</TripContext.Provider>;

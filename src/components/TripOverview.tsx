@@ -15,6 +15,8 @@ import {
   Sun,
   Sunrise,
   Users,
+  Printer,
+  Share2,
 } from 'lucide-react';
 import { Activity, DaySlot, PlanState, TripBooking, TripDraft } from '../types';
 import {
@@ -40,6 +42,8 @@ import {
   tripDays,
 } from '../data/planner';
 import { StepIndicator } from './StepIndicator';
+import { ShareItineraryModal } from './ShareItineraryModal';
+import { PrintableItinerary } from './PrintableItinerary';
 
 export interface ContactDetails {
   name: string;
@@ -56,6 +60,7 @@ interface TripOverviewProps {
   onConfirm: (contact: ContactDetails) => TripBooking;
   onViewTrips: () => void;
   onPlanAnother: () => void;
+  onShowToast?: (msg: string) => void;
 }
 
 const SLOT_ICON: Record<DaySlot, React.ReactNode> = {
@@ -283,6 +288,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
   onConfirm,
   onViewTrips,
   onPlanAnother,
+  onShowToast,
 }) => {
   const dest = getDestination(draft.destinationId)!;
   const days = tripDays(draft);
@@ -299,6 +305,12 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
   const [errors, setErrors] = useState<Partial<Record<keyof ContactDetails, string>>>({});
   const [confirmed, setConfirmed] = useState<TripBooking | null>(null);
   const [openDays, setOpenDays] = useState<Set<number>>(() => new Set([0]));
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  const handlePrint = () => {
+    window.print();
+  };
+
   const toggleDay = (i: number) =>
     setOpenDays((prev) => {
       const next = new Set(prev);
@@ -364,18 +376,39 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
     }`;
 
   return (
-    <section className="pt-24 lg:pt-28 pb-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <StepIndicator current={2} />
-          <button
-            type="button"
-            onClick={onEditPlan}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#6B7280] hover:text-[#16222E] cursor-pointer self-start lg:self-auto"
-          >
-            <ArrowLeft className="w-4 h-4" /> Edit itinerary
-          </button>
-        </div>
+    <>
+      <section className="pt-24 lg:pt-28 pb-24 print:hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <StepIndicator current={2} />
+            <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={handlePrint}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white border border-[#16222E]/12 text-xs font-semibold text-[#16222E] hover:border-[#0B4A82] hover:text-[#0B4A82] shadow-xs transition cursor-pointer"
+                title="Print itinerary or save as PDF using browser print dialog"
+              >
+                <Printer className="w-3.5 h-3.5 text-[#0B4A82]" />
+                <span>Print / Save as PDF</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsShareModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white border border-[#16222E]/12 text-xs font-semibold text-[#16222E] hover:border-[#0B4A82] hover:text-[#0B4A82] shadow-xs transition cursor-pointer"
+                title="Generate a shareable link for travel companions"
+              >
+                <Share2 className="w-3.5 h-3.5 text-[#0B4A82]" />
+                <span>Share Link</span>
+              </button>
+              <button
+                type="button"
+                onClick={onEditPlan}
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#6B7280] hover:text-[#16222E] cursor-pointer ml-1"
+              >
+                <ArrowLeft className="w-4 h-4" /> Edit itinerary
+              </button>
+            </div>
+          </div>
 
         {/* Banner */}
         <div className="mt-5 relative rounded-3xl overflow-hidden h-56 sm:h-64 bg-[#16222E]">
@@ -588,6 +621,26 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                 About {formatINR(costs.perPerson)} per guest for {guests} guest{guests > 1 ? 's' : ''}. Flights not included.
               </p>
 
+              <div className="mt-4 pt-3 border-t border-[#16222E]/8 grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={handlePrint}
+                  className="inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#F6F8FA] hover:bg-[#EEF4F8] text-[#16222E] hover:text-[#0B4A82] text-xs font-semibold border border-[#16222E]/10 transition cursor-pointer"
+                  title="Print or save as PDF"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Print / PDF</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsShareModalOpen(true)}
+                  className="inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#F6F8FA] hover:bg-[#EEF4F8] text-[#16222E] hover:text-[#0B4A82] text-xs font-semibold border border-[#16222E]/10 transition cursor-pointer"
+                  title="Share with travel companions"
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                  <span>Share Link</span>
+                </button>
+              </div>
             </div>
 
             <form onSubmit={handleSubmit} noValidate className="p-5 rounded-2xl bg-white border border-[#16222E]/10 shadow-sm space-y-3">
@@ -645,5 +698,19 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
         </div>
       </div>
     </section>
+
+    <ShareItineraryModal
+      draft={draft}
+      plan={plan}
+      isOpen={isShareModalOpen}
+      onClose={() => setIsShareModalOpen(false)}
+      onPrint={handlePrint}
+      onShowToast={onShowToast}
+    />
+
+    <div className="hidden print:block">
+      <PrintableItinerary draft={draft} plan={plan} />
+    </div>
+  </>
   );
 };

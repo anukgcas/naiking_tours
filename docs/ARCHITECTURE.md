@@ -19,13 +19,13 @@ This document describes the architectural design, component boundaries, state fl
 The application is structured as a single-page React 19 application in [src/App.tsx](../src/App.tsx) without an external router dependency. Views are controlled via the `activeTab` state:
 
 ```text
-App (wrapped in TripProvider)
-├── Header.tsx (Global navigation: Logo, Home, Destinations, Packages, My Trips, Why Naiking)
+App (wrapped in TripProvider and SavedPackagesProvider)
+├── Header.tsx (Global navigation: Logo, Home, Destinations, Packages, Saved, My Trips, Why Naiking)
 ├── main (Dynamic View Switching via activeTab)
 │   ├── view === 'home' | 'why'
 │   │   ├── Hero.tsx
 │   │   │   └── TripPlanningConsole.tsx (5-Field Holiday Customizer)
-│   │   ├── CuratedPackages.tsx (Curated itinerary cards)
+│   │   ├── CuratedPackages.tsx (Curated itinerary cards with Save & Enquire actions)
 │   │   ├── SignatureDestinations.tsx (Destinations grid/tilt cards)
 │   │   ├── HowItWorks.tsx (Service walkthrough)
 │   │   ├── StandardVsNaiking.tsx (Comparative value breakdown)
@@ -37,9 +37,11 @@ App (wrapped in TripProvider)
 │   │   └── TripOverview.tsx (Full itinerary summary, pricing, inquiry form)
 │   └── view === 'start' (TripWizard: optional deep-customization wizard)
 ├── Footer.tsx
-├── MobileBottomNav.tsx (Mobile viewport navigation)
+├── MobileBottomNav.tsx (Mobile viewport navigation including Saved & My Trips)
 ├── ScrollToTop.tsx
-└── MyTripsDrawer.tsx (Slide-over saved trips inspector)
+├── MyTripsDrawer.tsx (Slide-over saved trips inspector)
+├── SavedPackagesDrawer.tsx (Slide-over saved package wishlist)
+└── PackageEnquiryModal.tsx (Accessible package inquiry & callback modal dialog)
 ```
 
 ---
@@ -51,6 +53,7 @@ App (wrapped in TripProvider)
 ```typescript
 export interface ActiveTripState {
   id: string;                    // Stable draft identifier (e.g. "draft-1792606829")
+  packageId?: string | null;     // Canonical curated package ID (e.g. "pkg-bali-sanctuary")
   isSavedTrip: boolean;          // True if currently inspecting a loaded saved trip
   savedTripId: string | null;    // ID of the saved trip (e.g. "NT-8921")
   
@@ -66,7 +69,7 @@ export interface ActiveTripState {
   stayTier: 0 | 1 | 2;           // 0 Comfort, 1 Signature, 2 Ultra Luxury
 
   // Domain Models
-  draft: TripDraft;              // Fully formed planner draft representation
+  draft: TripDraft;              // Fully formed planner draft representation (retains packageId)
   plan: PlanState | null;        // Day-by-day activity IDs and extras
 }
 ```
@@ -83,9 +86,9 @@ export interface ActiveTripState {
 | `setStayTier` | `(tier: 0 \| 1 \| 2) => void` | Updates stay luxury tier (Comfort, Signature, Ultra Luxury) |
 | `craftItinerary` | `() => { success: boolean, error?: string }` | Validates configuration, reconciles/autofills plan, prepares for planner view |
 | `startNewTrip` | `(destId?: string) => void` | Generates a new draft ID, resets to fresh clean defaults, detaches saved trip context |
-| `selectPackage` | `(pkg: CuratedPackage) => void` | Seeds active trip state with package's destination, night count, and curated style |
+| `selectPackage` | `(pkg: CuratedPackage) => void` | Customizes package: seeds `packageId`, validates destination, clamps nights, preserves user preferences (guests, dates, stay tier), seeds signature highlights, and autofills itinerary |
 | `loadSavedTrip` | `(trip: TripBooking) => void` | Loads a saved trip's configuration and plan into active editing mode |
-| `confirmTrip` | `(contact: ContactDetails) => TripBooking` | Creates new unique booking, attaches draft/plan, saves to `bookedTrips` storage |
+| `confirmTrip` | `(contact: ContactDetails) => TripBooking` | Creates new unique booking, attaches draft/plan, preserves curated package title, saves to `bookedTrips` storage |
 
 ---
 
@@ -138,6 +141,7 @@ sequenceDiagram
 ### Storage Keys
 - `naiking_active_trip_v2`: Active trip preferences, draft, and current `PlanState`.
 - `naiking_saved_trips_v2`: Array of confirmed / booked trips.
+- `naiking_saved_packages_v1`: Array of bookmarked packages (`SavedPackageItem[]`).
 
 ### Defensive Validation on Hydration
 When the application initializes:
@@ -147,13 +151,18 @@ When the application initializes:
    - `departureDate` must be a valid ISO string. If the stored date is in the past, it automatically advances to `today + 30 days` to prevent negative-date bugs.
    - `durationNights` is clamped between 1 and 14 days.
    - `rooms` and `adults` are validated to be $\ge 1$.
+   - Saved packages are checked against canonical `CURATED_PACKAGES` and deduplicated.
 3. If stored data is corrupted or missing, clean defaults are restored silently without unhandled runtime exceptions.
 
 ---
 
-## 6. Drafts vs. Saved Trips Lifecycle Separation
+## 6. Three-Way Domain State Separation
 
-A critical requirement is that active in-progress drafts do not mutate or overwrite saved trips. The system enforces strict lifecycle boundaries:
+A critical architectural rule in this codebase is that **Active Drafts**, **Saved Trips**, and **Saved Packages** remain strictly isolated:
+
+1. **Active Draft (`TripContext`)**: The traveller's current in-progress plan. Mutated by the customizer and planner canvas.
+2. **Saved Trips (`TripContext`)**: Concierge bookings (`TripBooking[]`). Never mutated by active draft edits.
+3. **Saved Packages (`SavedPackagesContext`)**: A package wishlist (`naiking_saved_packages_v1`). Bookmarking or removing a package never mutates the active draft, never generates an itinerary automatically, and never alters confirmed trips.
 
 ```mermaid
 stateDiagram-v2
@@ -180,4 +189,43 @@ stateDiagram-v2
         Sets isSavedTrip = true.
         Loads trip's own itinerary for review.
     end note
+
+    state "Saved Packages (Wishlist)" as Wishlist
+    Wishlist --> Wishlist: Save / Unsave Package
+    Wishlist --> ActiveDraft: User clicks "Customise" (selectPackage)
 ```
+
+---
+
+## 7. Package Enquiry Service Boundary
+
+- Package enquiries and consultation callbacks operate through a decoupled typed service layer (`src/services/enquiryService.ts`).
+- When a live CRM backend is provisioned via `VITE_ENQUIRY_API_ENDPOINT`, requests are dispatched over HTTP POST.
+- When unconfigured, the application returns status `unsupported_backend` and renders an honest notice with the concierge contact info (`concierge@naikingtours.com`), strictly avoiding fake success responses.
+
+---
+
+## 8. Itinerary Export & URL Sharing Architecture (`FEAT-021`)
+
+### 8.1 Print-to-PDF Pipeline
+- Employs browser-native print functionality (`window.print()`) paired with dedicated print styling (`@media print` in [src/index.css](../src/index.css)).
+- Renders an isolated, unstyled-for-screen `<PrintableItinerary />` document containing:
+  - Header branding & concierge contact coordinates.
+  - Complete trip identity, traveller breakdown, and accommodation tier.
+  - Itemized day-by-day schedules with activity durations, time slots, and descriptions.
+  - Transfer logistics and chauffeured vehicle arrangements.
+  - Itemized estimated cost breakdown and price disclaimer.
+- The on-screen application chrome, navigations, sidebars, buttons, and drawers are automatically suppressed during printing (`display: none !important`), and day cards avoid awkward page splits via `.print-avoid-break`.
+
+### 8.2 Stateless URL Sharing (`src/services/shareService.ts`)
+- **Zero Server Storage**: Shares encode the itinerary client-side using a versioned schema (`SharePayloadV1`) transformed into URL-safe Base64 (RFC 4648 §5).
+- **Security & Privacy Boundary**:
+  - Excludes all PII (names, emails, phone numbers, custom messages).
+  - Excludes private booking references and unrelated saved trips.
+  - Never trusts client-supplied prices; derived values are strictly recomputed from canonical catalogues via `computeCosts`.
+  - Enforces payload size limit of 8,192 characters.
+- **Non-Destructive Recipient Preview**:
+  - Encoded links (`?trip=...`) open in an isolated `SharedItineraryPreviewModal`.
+  - Recipient's active trip and saved trips remain 100% untouched during preview.
+  - Adoption is explicit: clicking "Continue Planning This Itinerary" executes `adoptSharedTrip`, updates the active draft/plan, cleans the query parameter via `history.replaceState`, and navigates to the planner canvas.
+
