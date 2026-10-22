@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MapPin, ArrowRight, Search } from 'lucide-react';
+import { MapPin, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence, animate, useMotionValue } from 'motion/react';
 import { Marquee } from './HeroParts';
 import { TripPlanningConsole } from './TripPlanningConsole';
@@ -199,7 +199,6 @@ export const Hero: React.FC<HeroProps> = ({
 }) => {
   const [activeReelIndex, setActiveReelIndex] = useState(0);
   const [reelsHovered, setReelsHovered] = useState(false);
-  const [showQuickSearchFallback, setShowQuickSearchFallback] = useState(false);
 
   const currentReel = FEATURED_REELS[activeReelIndex];
 
@@ -290,39 +289,6 @@ export const Hero: React.FC<HeroProps> = ({
               onExploreDestination={onExploreDestination}
               onCraftItinerary={onCraftItinerary}
             />
-
-            {/* Quick alternative search fallback toggle */}
-            <div className="mt-3 text-center">
-              <button
-                type="button"
-                onClick={() => setShowQuickSearchFallback(!showQuickSearchFallback)}
-                className="text-xs text-white/60 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5"
-              >
-                <Search className="w-3.5 h-3.5" />
-                <span>
-                  {showQuickSearchFallback
-                    ? 'Hide simple search prompt'
-                    : 'Prefer simple search? Click here'}
-                </span>
-              </button>
-
-              {showQuickSearchFallback && (
-                <div className="mt-3 max-w-[500px] mx-auto animate-in fade-in duration-200">
-                  <button
-                    type="button"
-                    onClick={onStartWizard}
-                    aria-label="Where should we take you"
-                    className="group relative w-full h-12 pl-12 pr-12 rounded-full bg-white/10 backdrop-blur-md border border-white/25 text-left text-sm text-white/85 hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 active:scale-[0.99] transition cursor-pointer"
-                  >
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white" />
-                    <span>Where should we take you?</span>
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#0B4A82] text-white flex items-center justify-center transition-colors">
-                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                    </span>
-                  </button>
-                </div>
-              )}
-            </div>
           </motion.div>
 
           {/* Featured destination story card + Popular Destinations strip */}
