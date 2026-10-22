@@ -45,6 +45,8 @@ import {
   transferLabel,
   tripDays,
 } from '../data/planner';
+import { Day1Arrival } from './Day1Arrival';
+import { LastDayDeparture } from './LastDayDeparture';
 import { StepIndicator } from './StepIndicator';
 import { RouteMap } from './RouteMap';
 
@@ -54,7 +56,6 @@ interface TripPlannerProps {
   onPlanChange: (plan: PlanState) => void;
   onStayTierChange: (tier: TripDraft['stayTier']) => void;
   onEditDetails: () => void;
-  onEditCities: () => void;
   onContinue: () => void;
 }
 
@@ -78,8 +79,8 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
   draft,
   plan,
   onPlanChange,
+  onStayTierChange,
   onEditDetails,
-  onEditCities,
   onContinue,
 }) => {
   const dest = getDestination(draft.destinationId)!;
@@ -91,6 +92,9 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
   const [drag, setDrag] = useState<DragInfo | null>(null);
   const [overColumn, setOverColumn] = useState<Column | null>(null);
   const [openAddId, setOpenAddId] = useState<string | null>(null);
+  // Which activity's time editor is open (`${dayIndex}:${activityId}`) and the optional start time for a new add
+  const [editTimeKey, setEditTimeKey] = useState<string | null>(null);
+  const [addTime, setAddTime] = useState('');
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const toggleSaved = (id: string) =>
     setSavedIds((prev) => {
@@ -193,9 +197,10 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
 
   // ---------- board actions ----------
 
-  const move = (id: string, from: Column, to: Column, beforeIndex?: number) => {
+  /** The plan after moving an activity, or null when the move is not allowed (already on that day). */
+  const movePlan = (id: string, from: Column, to: Column, beforeIndex?: number): PlanState | null => {
     const next = plan.days.map((d) => [...d]);
-    if (to !== 'ideas' && from !== to && next[to].includes(id)) return;
+    if (to !== 'ideas' && from !== to && next[to].includes(id)) return null;
 
     let insertAt = beforeIndex;
     if (from !== 'ideas') {
@@ -207,11 +212,33 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
       const target = next[to];
       target.splice(insertAt === undefined ? target.length : Math.min(insertAt, target.length), 0, id);
     }
-    onPlanChange({ ...plan, days: next });
+    // custom times belong to a specific day, so they do not follow an activity to another day
+    let times = plan.times;
+    if (times && from !== to) {
+      times = { ...times };
+      if (from !== 'ideas') delete times[`${from}:${id}`];
+      if (to !== 'ideas') delete times[`${to}:${id}`];
+    }
+    return { ...plan, days: next, times };
+  };
+
+  const move = (id: string, from: Column, to: Column, beforeIndex?: number) => {
+    const next = movePlan(id, from, to, beforeIndex);
+    if (next) onPlanChange(next);
   };
 
   const addToDay = (id: string, dayIndex: number) => {
-    move(id, 'ideas', dayIndex);
+    const next = movePlan(id, 'ideas', dayIndex);
+    if (next) {
+      const mins = addTime ? toMinutes(addTime) : null;
+      const hours = activityMap(plan).get(id)?.hours ?? 1;
+      onPlanChange(
+        mins === null
+          ? next
+          : { ...next, times: { ...next.times, [`${dayIndex}:${id}`]: { start: mins, end: Math.min(mins + hours * 60, 24 * 60 - 1) } } },
+      );
+    }
+    setAddTime('');
     setOpenAddId(null);
   };
 
@@ -327,6 +354,21 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
     return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
   };
 
+  const toMinutes = (hhmm: string): number | null => {
+    const [h, m] = hhmm.split(':').map(Number);
+    return Number.isNaN(h) || Number.isNaN(m) ? null : h * 60 + m;
+  };
+
+  const setActivityTimes = (key: string, start: number, end: number) =>
+    onPlanChange({ ...plan, times: { ...plan.times, [key]: { start, end } } });
+
+  const resetActivityTimes = (key: string) => {
+    if (!plan.times?.[key]) return;
+    const times = { ...plan.times };
+    delete times[key];
+    onPlanChange({ ...plan, times });
+  };
+
   const focusIdeas = () => {
     const el = document.getElementById('ideas-search') as HTMLInputElement | null;
     el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -334,31 +376,47 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
   };
 
   type Row =
-    | { kind: 'activity'; a: Activity; idx: number; start: number; end: number }
+    | { kind: 'activity'; a: Activity; idx: number; start: number; end: number; custom: boolean; overlap: boolean }
     | { kind: 'transfer'; label: string }
     | { kind: 'free'; start: number; end: number };
 
-  const buildRows = (items: Activity[]): Row[] => {
-    const rows: Row[] = [];
+  const buildRows = (items: Activity[], dayIndex: number): Row[] => {
+    // Lay the day out in its current order: a custom time wins, otherwise an activity starts at its slot's usual
+    // time (or when the previous one ends, if later). Then order by start time so edited times read correctly.
     let cursor = 0;
-    items.forEach((a, idx) => {
-      const start = Math.max(SLOT_START[a.slot], cursor);
-      const prev = items[idx - 1];
-      if (prev) {
-        const prevCity = cityOfActivity(dest.id, prev.id);
-        const city = cityOfActivity(dest.id, a.id);
-        if (city && prevCity && city.id !== prevCity.id) rows.push({ kind: 'transfer', label: transferLabel(dest.id, city.name) });
-        if (start - cursor >= 60) rows.push({ kind: 'free', start: cursor, end: start });
-      }
-      const end = start + a.hours * 60;
-      rows.push({ kind: 'activity', a, idx, start, end });
+    const laid = items.map((a, idx) => {
+      const custom = plan.times?.[`${dayIndex}:${a.id}`];
+      const start = custom ? custom.start : Math.max(SLOT_START[a.slot], cursor);
+      const end = custom ? custom.end : start + a.hours * 60;
       cursor = end;
+      return { a, idx, start, end, custom: Boolean(custom) };
+    });
+    laid.sort((x, y) => x.start - y.start);
+
+    const rows: Row[] = [];
+    laid.forEach((cur, i) => {
+      const prev = laid[i - 1];
+      if (prev) {
+        const prevCity = cityOfActivity(dest.id, prev.a.id);
+        const city = cityOfActivity(dest.id, cur.a.id);
+        if (city && prevCity && city.id !== prevCity.id) rows.push({ kind: 'transfer', label: transferLabel(dest.id, city.name) });
+        if (cur.start - prev.end >= 60) rows.push({ kind: 'free', start: prev.end, end: cur.start });
+      }
+      rows.push({
+        kind: 'activity',
+        a: cur.a,
+        idx: cur.idx,
+        start: cur.start,
+        end: cur.end,
+        custom: cur.custom,
+        overlap: Boolean(prev) && cur.start < prev.end,
+      });
     });
     return rows;
   };
 
   const renderTimeline = (items: Activity[], dayIndex: number) => {
-    const rows = buildRows(items);
+    const rows = buildRows(items, dayIndex);
     return (
       <div>
         <ol>
@@ -404,12 +462,14 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
             }
 
             const { a, idx } = row;
+            const timeKey = `${dayIndex}:${a.id}`;
+            const editingTime = editTimeKey === timeKey;
             const style = CATEGORY_STYLES[a.category];
             const city = cityOfActivity(dest.id, a.id);
             return (
               <li key={a.id} className="flex gap-2 sm:gap-3">
                 <div className="w-12 sm:w-24 shrink-0 pt-2.5 text-right tabular-nums leading-tight">
-                  <span className="block text-[15px] font-bold text-[#16222E]">{clock(row.start)}</span>
+                  <span className={`block text-[15px] font-bold ${row.custom ? 'text-[#0B4A82]' : 'text-[#16222E]'}`}>{clock(row.start)}</span>
                   <span className="hidden sm:block text-[14px] font-medium text-[#6B7280]">to {clock(row.end)}</span>
                 </div>
                 {spine(<span className="relative z-10 mt-3.5 w-2.5 h-2.5 rounded-full bg-[#0B4A82] ring-4 ring-white" />)}
@@ -455,6 +515,14 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                             <MapPin className="w-3 h-3" /> {city.name}
                           </span>
                         )}
+                        <button
+                          type="button"
+                          onClick={() => setEditTimeKey(editingTime ? null : timeKey)}
+                          aria-expanded={editingTime}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#0B4A82]/10 text-[#0B4A82] text-[13px] font-semibold hover:bg-[#0B4A82]/20 cursor-pointer"
+                        >
+                          <Pencil className="w-3 h-3" /> {row.custom ? 'Time edited' : 'Edit time'}
+                        </button>
                         <span className="text-[14px] font-bold text-[#16222E]">
                           {a.cost === 0 ? 'Free' : `${formatINR(a.cost)} pp`}
                         </span>
@@ -489,6 +557,61 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                       </button>
                     </div>
                   </div>
+                  {row.overlap && (
+                    <p className="mt-1.5 text-[13px] font-medium text-amber-700">Overlaps the stop before it. Adjust a time if that is not intended.</p>
+                  )}
+                  {editingTime && (
+                    <div className="mt-2 rounded-xl border border-[#0B4A82]/20 bg-[#EEF4F8] p-3">
+                      <div className="flex flex-wrap items-end gap-3">
+                        <label className="block">
+                          <span className="block mb-1 text-[12px] font-bold uppercase tracking-wider text-[#6B7280]">From</span>
+                          <input
+                            type="time"
+                            value={clock(row.start)}
+                            onChange={(e) => {
+                              const start = toMinutes(e.target.value);
+                              if (start === null) return;
+                              // keep the same length when the start moves
+                              setActivityTimes(timeKey, start, Math.min(start + (row.end - row.start), 24 * 60 - 1));
+                            }}
+                            className="h-9 px-2.5 rounded-lg bg-white border border-[#16222E]/15 text-[15px] text-[#16222E] focus:outline-none focus:border-[#0B4A82]"
+                          />
+                        </label>
+                        <label className="block">
+                          <span className="block mb-1 text-[12px] font-bold uppercase tracking-wider text-[#6B7280]">To</span>
+                          <input
+                            type="time"
+                            value={clock(row.end)}
+                            onChange={(e) => {
+                              const end = toMinutes(e.target.value);
+                              if (end === null || end <= row.start) return;
+                              setActivityTimes(timeKey, row.start, end);
+                            }}
+                            className="h-9 px-2.5 rounded-lg bg-white border border-[#16222E]/15 text-[15px] text-[#16222E] focus:outline-none focus:border-[#0B4A82]"
+                          />
+                        </label>
+                        <div className="flex items-center gap-2 pb-0.5">
+                          {row.custom && (
+                            <button
+                              type="button"
+                              onClick={() => resetActivityTimes(timeKey)}
+                              className="px-3 py-1.5 rounded-full bg-white border border-[#16222E]/15 text-[13px] font-semibold text-[#475569] hover:border-[#0B4A82] hover:text-[#0B4A82] cursor-pointer"
+                            >
+                              Reset
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => setEditTimeKey(null)}
+                            className="px-3 py-1.5 rounded-full bg-[#0B4A82] text-white text-[13px] font-semibold hover:bg-[#0E7C86] cursor-pointer"
+                          >
+                            Done
+                          </button>
+                        </div>
+                      </div>
+                      <p className="mt-2 text-[12px] text-[#6B7280]">End time must be after the start. Pick any time that suits you.</p>
+                    </div>
+                  )}
                 </div>
               </li>
             );
@@ -725,7 +848,17 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                       </div>
                     </div>
                     {openAddId === a.id && (
-                      <div className="mt-2.5 pt-2.5 border-t border-[#16222E]/8 flex flex-wrap gap-1.5">
+                      <div className="mt-2.5 pt-2.5 border-t border-[#16222E]/8">
+                        <label className="flex items-center gap-2 mb-2 text-[12px] font-semibold text-[#6B7280]">
+                          Start time <span className="font-medium text-[#9CA3AF]">(optional)</span>
+                          <input
+                            type="time"
+                            value={addTime}
+                            onChange={(e) => setAddTime(e.target.value)}
+                            className="h-8 px-2 rounded-lg bg-white border border-[#16222E]/15 text-[13px] text-[#16222E] focus:outline-none focus:border-[#0B4A82]"
+                          />
+                        </label>
+                        <div className="flex flex-wrap gap-1.5">
                         {plan.days.map((_, i) => (
                           <button
                             key={i}
@@ -736,6 +869,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                             Day {i + 1}
                           </button>
                         ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -851,6 +985,14 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                             className="overflow-hidden border-t border-[#16222E]/8"
                           >
                             <div className="p-4">
+                              {di === 0 && (
+                                <Day1Arrival
+                                  draft={draft}
+                                  plan={plan}
+                                  onPlanChange={onPlanChange}
+                                  onStayTierChange={onStayTierChange}
+                                />
+                              )}
                               {items.length > 0 ? (
                                 renderTimeline(items, di)
                               ) : (
@@ -858,6 +1000,9 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                                   <p className="text-[15px] font-semibold text-[#4B4F55]">No experiences added yet</p>
                                   <p className="text-[14px] text-[#6B7280]">Drag an idea here or tap Suggest.</p>
                                 </div>
+                              )}
+                              {di === plan.days.length - 1 && (
+                                <LastDayDeparture draft={draft} plan={plan} onPlanChange={onPlanChange} />
                               )}
                             </div>
                           </motion.div>
@@ -947,22 +1092,6 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                   <span className="text-md text-[#6B7280]">Departure</span>
                 </li>
               </ol>
-              <div className="mt-6 pt-3 border-t border-[#16222E]/8 grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={onEditCities}
-                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full bg-[#F6F8FA] border border-[#16222E]/10 text-md font-semibold hover:border-[#0B4A82] hover:text-[#0B4A82] cursor-pointer"
-                >
-                  <Pencil className="w-3 h-3" /> Edit route
-                </button>
-                <button
-                  type="button"
-                  onClick={onEditCities}
-                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full bg-[#F6F8FA] border border-[#16222E]/10 text-md font-semibold hover:border-[#0B4A82] hover:text-[#0B4A82] cursor-pointer"
-                >
-                  <Plus className="w-3 h-3" /> Add city
-                </button>
-              </div>
             </div>
           </div>
         </div>

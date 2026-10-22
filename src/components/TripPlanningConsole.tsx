@@ -28,6 +28,8 @@ interface TripPlanningConsoleProps {
   onStartPlanning?: (draftPatch: Partial<TripDraft>, initialStep?: number) => void;
   onExploreDestination?: (destName: string) => void;
   onCraftItinerary?: () => void;
+  /** Open with the current trip already filled in, e.g. when editing an existing plan. */
+  prefill?: boolean;
 }
 
 const DESTINATION_OPTIONS = [
@@ -191,6 +193,7 @@ const monthOf = (iso: string) => {
 export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
   onStartPlanning,
   onCraftItinerary,
+  prefill = false,
 }) => {
   const today = todayISO();
   const {
@@ -212,16 +215,22 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
   // The console opens blank: a field only shows a value once the visitor has chosen it
   // (the trip context still holds sensible defaults underneath).
   const [picked, setPicked] = useState<Record<PickKey, boolean>>({
-    dest: false,
-    start: false,
-    end: false,
-    guests: false,
+    dest: prefill,
+    start: prefill,
+    end: prefill,
+    guests: prefill,
   });
   const markPicked = (key: PickKey) => setPicked((p) => (p[key] ? p : { ...p, [key]: true }));
   const unpick = (key: PickKey) => setPicked((p) => (p[key] ? { ...p, [key]: false } : p));
 
-  // Infants (under 6) travel free and don't change the plan, so they are tracked here only.
-  const [infants, setInfants] = useState(0);
+  // The party starts at zero so the visitor adds exactly who is travelling. It is pushed to the trip once there is
+  // at least one adult. Infants (under 6) travel free and don't change the plan, so they are tracked here only.
+  const [party, setParty] = useState({
+    adults: prefill ? adults : 0,
+    children: prefill ? children : 0,
+    infants: 0,
+    rooms: prefill ? rooms : 0,
+  });
   // Rooms follow the party automatically until the visitor adjusts them by hand.
   const [roomsManual, setRoomsManual] = useState(false);
 
@@ -289,29 +298,36 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
   };
 
   const changeGuests = (nextAdults: number, nextChildren: number, nextInfants: number) => {
-    const a = Math.min(MAX_ADULTS, Math.max(1, nextAdults));
+    const a = Math.min(MAX_ADULTS, Math.max(0, nextAdults));
     const c = Math.min(MAX_CHILDREN, Math.max(0, nextChildren));
     const i = Math.min(MAX_INFANTS, Math.max(0, nextInfants));
-    markPicked('guests');
-    const needed = roomsFor(a, c);
+    const needed = a >= 1 ? roomsFor(a, c) : 0;
     // a hand-picked room count is kept as long as it still fits the party (one adult per room at most)
-    const nextRooms = roomsManual ? Math.min(Math.max(rooms, needed), a) : needed;
-    setGuests(nextRooms, a, c);
-    setInfants(i);
+    const nextRooms = a >= 1 && roomsManual ? Math.min(Math.max(party.rooms, needed), a) : needed;
+    setParty({ adults: a, children: c, infants: i, rooms: nextRooms });
+    if (a >= 1) {
+      markPicked('guests');
+      setGuests(nextRooms, a, c);
+    } else {
+      // no adult yet: the guests field stays unfilled until one is added
+      unpick('guests');
+    }
   };
 
   const changeRooms = (nextRooms: number) => {
-    const needed = roomsFor(adults, children);
-    const r = Math.min(adults, Math.max(needed, nextRooms));
-    markPicked('guests');
+    if (party.adults < 1) return;
+    const needed = roomsFor(party.adults, party.children);
+    const r = Math.min(party.adults, Math.max(needed, nextRooms));
     setRoomsManual(r !== needed);
-    setGuests(r, adults, children);
+    setParty((p) => ({ ...p, rooms: r }));
+    markPicked('guests');
+    setGuests(r, party.adults, party.children);
   };
 
   const guestSummary = [
-    plural(adults, 'Adult', 'Adults'),
-    children > 0 ? plural(children, 'Child', 'Children') : null,
-    infants > 0 ? plural(infants, 'Infant', 'Infants') : null,
+    plural(party.adults, 'Adult', 'Adults'),
+    party.children > 0 ? plural(party.children, 'Child', 'Children') : null,
+    party.infants > 0 ? plural(party.infants, 'Infant', 'Infants') : null,
   ]
     .filter(Boolean)
     .join(', ');
@@ -321,7 +337,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
     if (!picked.dest) missing.push({ popup: 'dest', label: 'destination' });
     if (!picked.start) missing.push({ popup: 'start', label: 'trip start date' });
     if (!picked.end) missing.push({ popup: 'end', label: 'trip end date' });
-    if (!picked.guests) missing.push({ popup: 'guests', label: 'guests' });
+    if (!picked.guests) missing.push({ popup: 'guests', label: 'guests (at least one adult)' });
     if (missing.length > 0) {
       setValidationError(
         `Please choose your ${missing.map((m) => m.label).join(', ').replace(/, ([^,]*)$/, ' and $1')} to continue.`,
@@ -331,7 +347,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
       return;
     }
 
-    const res = craftItinerary();
+    const res = craftItinerary(undefined, { keepPlan: prefill });
     if (!res.success) {
       setValidationError(res.error || 'Please check your trip details.');
       setTimeout(() => setValidationError(null), 4000);
@@ -362,7 +378,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
           checkOut: endDate,
           interests,
           stayTier,
-          aiPlan: true,
+          aiPlan: false,
         },
         3,
       );
@@ -603,7 +619,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                     {picked.guests ? guestSummary : hint("Who's travelling?")}
                   </div>
                   <div className="text-[11px] text-[#6B7280] truncate leading-tight">
-                    {picked.guests ? plural(rooms, 'Room', 'Rooms') : 'Add guests, rooms follow'}
+                    {picked.guests ? plural(party.rooms, 'Room', 'Rooms') : 'Add guests, rooms follow'}
                   </div>
                 </div>
               </div>
@@ -615,18 +631,18 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
 
                 <div className="space-y-3.5">
                   {[
-                    { key: 'adults', label: 'Adults', sub: 'Age 12 and above', value: adults, min: 1, max: MAX_ADULTS },
-                    { key: 'children', label: 'Children', sub: 'Age 6 to 12', value: children, min: 0, max: MAX_CHILDREN },
-                    { key: 'infants', label: 'Infants', sub: 'Below 6 years', value: infants, min: 0, max: MAX_INFANTS },
-                    { key: 'rooms', label: 'Rooms', sub: 'Added automatically, adjustable', value: rooms, min: roomsFor(adults, children), max: adults },
+                    { key: 'adults', label: 'Adults', sub: 'Age 12 and above', value: party.adults, min: party.children > 0 || party.infants > 0 ? 1 : 0, max: MAX_ADULTS },
+                    { key: 'children', label: 'Children', sub: 'Age 6 to 12', value: party.children, min: 0, max: MAX_CHILDREN },
+                    { key: 'infants', label: 'Infants', sub: 'Below 6 years', value: party.infants, min: 0, max: MAX_INFANTS },
+                    { key: 'rooms', label: 'Rooms', sub: 'Added automatically, adjustable', value: party.rooms, min: party.adults >= 1 ? roomsFor(party.adults, party.children) : 0, max: party.adults },
                   ].map((row) => {
                     const apply = (delta: number) => {
                       const v = row.value + delta;
                       if (row.key === 'rooms') return changeRooms(v);
                       changeGuests(
-                        row.key === 'adults' ? v : adults,
-                        row.key === 'children' ? v : children,
-                        row.key === 'infants' ? v : infants,
+                        row.key === 'adults' ? v : party.adults,
+                        row.key === 'children' ? v : party.children,
+                        row.key === 'infants' ? v : party.infants,
                       );
                     };
                     return (

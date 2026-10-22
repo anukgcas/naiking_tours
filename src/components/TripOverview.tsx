@@ -11,6 +11,7 @@ import {
   MapPin,
   Moon,
   Sparkles,
+  Ship,
   Sun,
   Sunrise,
   Users,
@@ -19,6 +20,14 @@ import { Activity, DaySlot, PlanState, TripBooking, TripDraft } from '../types';
 import {
   CATEGORY_STYLES,
   TIER_LABEL,
+  VEHICLE_INFO,
+  arrivalSummary,
+  defaultArrival,
+  defaultDeparture,
+  recommendedVehicle,
+  tripVehicle,
+  vehicleOptions,
+  departureSummary,
   cityOfActivity,
   cityForDay,
   computeCosts,
@@ -42,6 +51,8 @@ interface TripOverviewProps {
   draft: TripDraft;
   plan: PlanState;
   onEditPlan: () => void;
+  /** Saves a change made on this page (e.g. the chosen vehicle) back to the plan. */
+  onPlanChange: (plan: PlanState) => void;
   onConfirm: (contact: ContactDetails) => TripBooking;
   onViewTrips: () => void;
   onPlanAnother: () => void;
@@ -261,10 +272,14 @@ const DayCard: React.FC<DayCardProps> = ({
   );
 };
 
+/** Placeholder stored while the traveller has chosen "my own vehicle" but not typed it yet. */
+const CUSTOM_VEHICLE = 'Own vehicle';
+
 export const TripOverview: React.FC<TripOverviewProps> = ({
   draft,
   plan,
   onEditPlan,
+  onPlanChange,
   onConfirm,
   onViewTrips,
   onPlanAnother,
@@ -408,8 +423,119 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                 <div>
                   <p className="text-sm font-bold text-[#16222E]">Private transfers, every day</p>
                   <p className="text-xs text-[#6B7280] mt-0.5">Chauffeured pickups between your stay and each experience.</p>
+                  <p className="text-xs font-medium text-[#0B4A82] mt-1">{arrivalSummary(draft, plan)}</p>
+                  <p className="text-xs font-medium text-[#0B4A82] mt-1">{departureSummary(draft, plan)}</p>
                 </div>
               </div>
+            </div>
+
+            {/* Vehicle choice: applies to the Day 1 pickup and the last-day drop, and sets the transfer price */}
+            <div className="mt-3 p-4 rounded-2xl bg-white border border-[#16222E]/8">
+              <div className="flex items-center gap-2">
+                {dest.id === 'maldives' ? (
+                  <Ship className="w-5 h-5 text-[#0B4A82]" />
+                ) : (
+                  <Car className="w-5 h-5 text-[#0B4A82]" />
+                )}
+                <div>
+                  <p className="text-sm font-bold text-[#16222E]">Choose your vehicle</p>
+                  <p className="text-xs text-[#6B7280]">Used for your pickup, drop and every transfer between stops.</p>
+                </div>
+              </div>
+              <div role="radiogroup" aria-label="Vehicle" className="mt-3 grid sm:grid-cols-3 gap-2.5">
+                {vehicleOptions(dest.id).map((v) => {
+                  const info = VEHICLE_INFO[v];
+                  const on = tripVehicle(draft, plan) === v;
+                  const best = recommendedVehicle(dest.id, guests) === v;
+                  const extra = Math.round(dest.transferPerDay * days * ((info?.factor ?? 1) - 1));
+                  return (
+                    <button
+                      key={v}
+                      type="button"
+                      role="radio"
+                      aria-checked={on}
+                      onClick={() =>
+                        onPlanChange({
+                          ...plan,
+                          arrival: { ...(plan.arrival ?? defaultArrival(draft)), vehicle: v },
+                          departure: { ...(plan.departure ?? defaultDeparture(draft, plan)), vehicle: v },
+                        })
+                      }
+                      className={`text-left rounded-xl border p-3 transition-all cursor-pointer ${
+                        on
+                          ? 'border-[#0B4A82] bg-[#EEF4F8] shadow-[0_0_0_3px_rgba(11,74,130,0.12)]'
+                          : 'border-[#16222E]/12 bg-white hover:border-[#0B4A82]/50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-bold text-[#16222E]">{v}</span>
+                        {on && <CheckCircle2 className="w-4 h-4 text-[#0B4A82]" />}
+                      </div>
+                      <p className="mt-0.5 text-xs text-[#6B7280] leading-snug">{info?.note}</p>
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] font-semibold">
+                        {best && <span className="px-1.5 py-0.5 rounded-full bg-[#0E7C86]/10 text-[#0E7C86]">Best for your group</span>}
+                        <span className="text-[#475569]">{extra > 0 ? `+${formatINR(extra)}` : 'Base rate'}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Their own choice: any vehicle, in their own words */}
+              {(() => {
+                const current = tripVehicle(draft, plan);
+                const isCustom = !vehicleOptions(dest.id).includes(current);
+                const applyVehicle = (v: string) =>
+                  onPlanChange({
+                    ...plan,
+                    arrival: { ...(plan.arrival ?? defaultArrival(draft)), vehicle: v },
+                    departure: { ...(plan.departure ?? defaultDeparture(draft, plan)), vehicle: v },
+                  });
+                return (
+                  <div
+                    className={`mt-2.5 rounded-xl border p-3 transition-all ${
+                      isCustom
+                        ? 'border-[#0B4A82] bg-[#EEF4F8] shadow-[0_0_0_3px_rgba(11,74,130,0.12)]'
+                        : 'border-[#16222E]/12 bg-white'
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={isCustom}
+                      onClick={() => !isCustom && applyVehicle(CUSTOM_VEHICLE)}
+                      className="w-full flex items-center justify-between gap-2 text-left cursor-pointer"
+                    >
+                      <span>
+                        <span className="block text-sm font-bold text-[#16222E]">I'll choose my own vehicle</span>
+                        <span className="block text-xs text-[#6B7280]">
+                          Tell us exactly what you need to travel in, and how many.
+                        </span>
+                      </span>
+                      {isCustom && <CheckCircle2 className="w-4 h-4 text-[#0B4A82] shrink-0" />}
+                    </button>
+                    {isCustom && (
+                      <div className="mt-3">
+                        <label htmlFor="custom-vehicle" className="block mb-1.5 text-[12px] font-bold uppercase tracking-wider text-[#6B7280]">
+                          Your vehicle
+                        </label>
+                        <input
+                          id="custom-vehicle"
+                          type="text"
+                          value={current === CUSTOM_VEHICLE ? '' : current}
+                          onChange={(e) => applyVehicle(e.target.value.trim() === '' ? CUSTOM_VEHICLE : e.target.value)}
+                          maxLength={80}
+                          placeholder="e.g. Innova Crysta, 2 vehicles, child seat needed"
+                          className="w-full h-10 px-3 rounded-xl bg-white border border-[#16222E]/15 text-[15px] text-[#16222E] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#0B4A82] focus:ring-2 focus:ring-[#0B4A82]/15 transition"
+                        />
+                        <p className="mt-1.5 text-[12px] text-[#6B7280]">
+                          Priced at the base transfer rate for now; we confirm the final amount with you.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
 
             <ol className="mt-6 space-y-4">

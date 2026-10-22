@@ -16,6 +16,8 @@ interface HeroProps {
   onCraftItinerary?: () => void;
   /** Holds the background slideshow on its first scene (e.g. while the splash screen is up). */
   paused?: boolean;
+  /** Opens the planner card with the current trip filled in (used by "Edit trip details"). */
+  prefillConsole?: boolean;
 }
 
 interface DestinationReel {
@@ -196,6 +198,7 @@ export const Hero: React.FC<HeroProps> = ({
   onStartPlanningWithDraft,
   onCraftItinerary,
   paused = false,
+  prefillConsole = false,
 }) => {
   const [activeReelIndex, setActiveReelIndex] = useState(0);
   const [reelsHovered, setReelsHovered] = useState(false);
@@ -285,6 +288,8 @@ export const Hero: React.FC<HeroProps> = ({
             className="w-full"
           >
             <TripPlanningConsole
+              key={prefillConsole ? 'edit' : 'new'}
+              prefill={prefillConsole}
               onStartPlanning={handlePlanningAction}
               onExploreDestination={onExploreDestination}
               onCraftItinerary={onCraftItinerary}

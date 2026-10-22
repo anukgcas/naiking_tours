@@ -10,6 +10,7 @@ import {
   PLANNER_DESTINATIONS,
   addDaysISO,
   autoFillPlan,
+  emptyPlan,
   getDestination,
   nightsBetween,
   reconcilePlan,
@@ -80,7 +81,11 @@ export interface TripContextValue {
   updatePlan: (updater: (prev: PlanState | null) => PlanState | null) => void;
 
   // Lifecycle actions
-  craftItinerary: (draftPatch?: Partial<TripDraft>) => { success: boolean; error?: string };
+  /** `keepPlan` keeps the days already built (editing a plan); otherwise the plan starts empty. */
+  craftItinerary: (
+    draftPatch?: Partial<TripDraft>,
+    opts?: { keepPlan?: boolean },
+  ) => { success: boolean; error?: string };
   startNewTrip: (destinationId?: string) => void;
   selectPackage: (pkg: CuratedPackage) => void;
   loadSavedTrip: (trip: TripBooking) => void;
@@ -116,7 +121,8 @@ const buildDraft = (
     aiDestination: false,
     travellerType: deriveTravellerType(adults, children, rooms),
     interests,
-    aiPlan: true,
+    // days start empty: the traveller builds the plan, and AI fills in only when asked
+    aiPlan: false,
     cityIds: [],
     aiCities: true,
     checkIn,
@@ -230,6 +236,9 @@ const loadInitialActiveTrip = (): ActiveTripState => {
         signature: typeof parsed.plan.signature === 'string' ? parsed.plan.signature : `${validDest}|${durationNights + 1}`,
         days: parsed.plan.days,
         extras: Array.isArray(parsed.plan.extras) ? parsed.plan.extras : [],
+        arrival: parsed.plan.arrival && typeof parsed.plan.arrival === 'object' ? parsed.plan.arrival : undefined,
+        departure: parsed.plan.departure && typeof parsed.plan.departure === 'object' ? parsed.plan.departure : undefined,
+        times: parsed.plan.times && typeof parsed.plan.times === 'object' ? parsed.plan.times : undefined,
       };
     }
 
@@ -555,7 +564,7 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setActiveTrip((prev) => ({ ...prev, plan: updater(prev.plan) }));
   }, []);
 
-  const craftItinerary = useCallback((draftPatch?: Partial<TripDraft>): { success: boolean; error?: string } => {
+  const craftItinerary = useCallback((draftPatch?: Partial<TripDraft>, opts?: { keepPlan?: boolean }): { success: boolean; error?: string } => {
     let effectiveState = activeTrip;
 
     if (draftPatch) {
@@ -612,7 +621,9 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // Ensure plan is generated
-    const basePlan = reconcilePlan(effectiveState.plan, effectiveState.draft);
+    const basePlan = opts?.keepPlan
+      ? reconcilePlan(effectiveState.plan, effectiveState.draft)
+      : emptyPlan(effectiveState.draft);
     const finalPlan = effectiveState.draft.aiPlan ? autoFillPlan(effectiveState.draft, basePlan) : basePlan;
 
     setActiveTrip({

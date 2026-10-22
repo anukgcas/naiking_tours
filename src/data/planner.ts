@@ -1,6 +1,8 @@
 import {
   Activity,
   ActivityCategory,
+  ArrivalDetails,
+  DepartureDetails,
   CostBreakdown,
   DaySlot,
   PlanState,
@@ -355,6 +357,155 @@ export const validateDraft = (d: TripDraft): string | null => {
   return null;
 };
 
+// ---------- Day 1 arrival: pickup & hotel ----------
+
+export interface Hotel {
+  id: string;
+  name: string;
+  /** Matches a city name in the destination's route. */
+  area: string;
+  /** 0 Comfort, 1 Signature, 2 Ultra Luxury — same scale as the stay style. */
+  tier: 0 | 1 | 2;
+  blurb: string;
+}
+
+const HOTELS: Record<string, Hotel[]> = {
+  bali: [
+    { id: 'bali-ubud-boutique', name: 'Ubud Rice-Terrace Boutique Hotel', area: 'Ubud', tier: 0, blurb: 'Quiet rooms over the paddies, walkable to the art market' },
+    { id: 'bali-sayan-villas', name: 'Sayan Valley Pool Villas', area: 'Ubud', tier: 1, blurb: 'Private-pool villas above the Ayung river' },
+    { id: 'bali-seminyak-resort', name: 'Seminyak Beachfront Resort', area: 'Seminyak', tier: 1, blurb: 'Beach-club energy with a calm spa wing' },
+    { id: 'bali-uluwatu-villas', name: 'Uluwatu Clifftop Private Villas', area: 'Uluwatu & Jimbaran', tier: 2, blurb: 'Butler-serviced villas on the cliff edge' },
+  ],
+  maldives: [
+    { id: 'mv-maafushi-guesthouse', name: 'Maafushi Guesthouse & Dive Retreat', area: 'North Malé Atoll', tier: 0, blurb: 'Local-island stay with dive and snorkel trips' },
+    { id: 'mv-baa-resort', name: 'Baa Atoll Beach Resort', area: 'Baa Atoll', tier: 1, blurb: 'Beach villas beside a protected house reef' },
+    { id: 'mv-ari-overwater', name: 'Ari Atoll Overwater Villas', area: 'Ari Atoll', tier: 1, blurb: 'Lagoon-view overwater rooms with sunset decks' },
+    { id: 'mv-private-pavilions', name: 'Private Island Water Pavilions', area: 'Ari Atoll', tier: 2, blurb: 'Pool pavilions with a dedicated butler' },
+  ],
+  dubai: [
+    { id: 'dxb-business-hotel', name: 'Downtown Business Hotel', area: 'Downtown Dubai', tier: 0, blurb: 'Smart rooms a short walk from the Dubai Mall' },
+    { id: 'dxb-skyline-hotel', name: 'Downtown Skyline Hotel', area: 'Downtown Dubai', tier: 1, blurb: 'Fountain and tower views, rooftop pool' },
+    { id: 'dxb-marina-resort', name: 'Marina Waterfront Resort', area: 'Marina & Palm', tier: 1, blurb: 'Yacht-harbour views and beach access' },
+    { id: 'dxb-palm-resort', name: 'Palm Jumeirah Beach Resort', area: 'Marina & Palm', tier: 2, blurb: 'Private beach, spa and signature dining' },
+  ],
+  manali: [
+    { id: 'mnl-cedar-lodge', name: 'Old Manali Cedar Lodge', area: 'Manali Town', tier: 0, blurb: 'Wood-panelled rooms by the Manalsu river' },
+    { id: 'mnl-heritage-hotel', name: 'Mall Road Heritage Hotel', area: 'Manali Town', tier: 1, blurb: 'Classic hill-station comfort, minutes from the Mall' },
+    { id: 'mnl-solang-resort', name: 'Solang Valley Mountain Resort', area: 'Solang & Rohtang', tier: 1, blurb: 'Slope-side stay with snow-view balconies' },
+    { id: 'mnl-naggar-retreat', name: 'Naggar Castle-View Retreat', area: 'Naggar & Kullu', tier: 2, blurb: 'Apple-orchard suites with valley panoramas' },
+  ],
+  goa: [
+    { id: 'goa-candolim-inn', name: 'Candolim Beach Inn', area: 'North Goa', tier: 0, blurb: 'Simple, sunny rooms a few steps from the sand' },
+    { id: 'goa-panjim-boutique', name: 'Panjim Heritage Boutique', area: 'Panjim & Old Goa', tier: 1, blurb: 'Restored Portuguese-era house in the Latin quarter' },
+    { id: 'goa-baga-resort', name: 'Baga Beach Resort', area: 'North Goa', tier: 1, blurb: 'Pool resort close to cafes and the shoreline' },
+    { id: 'goa-south-villas', name: 'South Goa Private Pool Villas', area: 'South Goa', tier: 2, blurb: 'Secluded villas near a quiet cove' },
+  ],
+  singapore: [
+    { id: 'sg-chinatown-boutique', name: 'Chinatown Boutique Hotel', area: 'Chinatown & Heritage', tier: 0, blurb: 'Shophouse rooms beside the hawker streets' },
+    { id: 'sg-marina-hotel', name: 'Marina Bay Skyline Hotel', area: 'Marina Bay', tier: 1, blurb: 'Bay-view rooms next to Gardens by the Bay' },
+    { id: 'sg-orchard-hotel', name: 'Orchard Garden Hotel', area: 'Orchard & Gardens', tier: 1, blurb: 'Leafy, central, steps from the shopping belt' },
+    { id: 'sg-sentosa-resort', name: 'Sentosa Beachfront Resort', area: 'Sentosa', tier: 2, blurb: 'Island resort with private cabanas' },
+  ],
+};
+
+export const getHotels = (destId: string): Hotel[] => HOTELS[destId] ?? [];
+
+const ARRIVAL_POINT: Record<string, string> = {
+  bali: 'Ngurah Rai International Airport (DPS)',
+  maldives: 'Velana International Airport (MLE)',
+  dubai: 'Dubai International Airport (DXB)',
+  manali: 'Kullu–Manali Airport, Bhuntar (KUU)',
+  goa: 'Goa Airport, Dabolim (GOI) / Mopa (GOX)',
+  singapore: 'Changi Airport (SIN)',
+};
+
+export const arrivalPointLabel = (destId: string) => ARRIVAL_POINT[destId] ?? 'Arrival airport';
+
+/** Vehicle choices for the Day 1 pickup (the Maldives transfers are by water or air). */
+export const vehicleOptions = (destId: string): string[] =>
+  destId === 'maldives' ? ['Speedboat', 'Seaplane'] : ['Sedan', 'SUV', 'Minivan'];
+
+export interface VehicleInfo {
+  /** Short line shown under the name on the review page. */
+  note: string;
+  /** Multiplier on the daily transfer cost (a Sedan is the base rate). */
+  factor: number;
+}
+
+export const VEHICLE_INFO: Record<string, VehicleInfo> = {
+  Sedan: { note: 'Comfortable for 1 to 2 guests', factor: 1 },
+  SUV: { note: 'Roomy for 3 to 4 guests and luggage', factor: 1.25 },
+  Minivan: { note: 'Best for 5 to 8 guests', factor: 1.5 },
+  Speedboat: { note: 'Fast resort transfer by water', factor: 1 },
+  Seaplane: { note: 'Scenic flight over the atolls', factor: 2.5 },
+};
+
+/** The vehicle that fits the group: the first option for the Maldives, otherwise by party size. */
+export const recommendedVehicle = (destId: string, guests: number): string => {
+  const options = vehicleOptions(destId);
+  if (options.length !== 3) return options[0];
+  return guests > 4 ? 'Minivan' : guests > 2 ? 'SUV' : 'Sedan';
+};
+
+/** The trip's vehicle: what was chosen for the Day 1 pickup, or the best fit for the group. */
+export const tripVehicle = (draft: TripDraft, plan: PlanState): string =>
+  plan.arrival?.vehicle ?? recommendedVehicle(draft.destinationId, draft.adults + draft.children);
+
+/** Starting point for the Day 1 pickup card: airport pickup at noon, a hotel that matches the stay style. */
+export const defaultArrival = (draft: TripDraft): ArrivalDetails => {
+  const hotels = getHotels(draft.destinationId);
+  const hotel = hotels.find((h) => h.tier === draft.stayTier) ?? hotels[0];
+  const guests = draft.adults + draft.children;
+  const vehicle = recommendedVehicle(draft.destinationId, guests);
+  return {
+    mode: 'airport',
+    address: '',
+    time: '12:00',
+    flightNo: '',
+    vehicle,
+    hotelId: hotel?.id ?? 'other',
+    otherHotel: '',
+  };
+};
+
+/** Last day: collect from the hotel they stayed at on arrival, drop at the airport in the evening. */
+export const defaultDeparture = (draft: TripDraft, plan?: PlanState): DepartureDetails => {
+  const arrival = plan?.arrival ?? defaultArrival(draft);
+  return {
+    mode: 'airport',
+    address: '',
+    time: '15:00',
+    flightNo: '',
+    vehicle: arrival.vehicle,
+    pickupHotelId: arrival.hotelId,
+    otherPickup: arrival.otherHotel,
+  };
+};
+
+/** One-line recap of the last-day pickup and drop. */
+export const departureSummary = (draft: TripDraft, plan: PlanState): string => {
+  const d = plan.departure ?? defaultDeparture(draft, plan);
+  const hotel = getHotels(draft.destinationId).find((h) => h.id === d.pickupHotelId);
+  const pickup = hotel ? hotel.name : d.otherPickup.trim() || 'your hotel';
+  if (d.mode === 'self') return `Last day: you leave ${pickup} on your own.`;
+  const [h, m] = d.time.split(':').map(Number);
+  const time = Number.isNaN(h) ? d.time : `${h % 12 === 0 ? 12 : h % 12}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+  const to = d.mode === 'airport' ? arrivalPointLabel(draft.destinationId) : d.address.trim() || 'your address';
+  return `Last day, ${time}: ${d.vehicle} pickup from ${pickup}, drop at ${to}.`;
+};
+
+/** One-line recap of the Day 1 pickup and hotel, e.g. for the overview page. */
+export const arrivalSummary = (draft: TripDraft, plan: PlanState): string => {
+  const a = plan.arrival ?? defaultArrival(draft);
+  const hotel = getHotels(draft.destinationId).find((h) => h.id === a.hotelId);
+  const hotelName = hotel ? hotel.name : a.otherHotel.trim() || 'your own hotel';
+  if (a.mode === 'self') return `You reach ${hotelName} on your own; we meet you there on Day 1.`;
+  const [h, m] = a.time.split(':').map(Number);
+  const time = Number.isNaN(h) ? a.time : `${h % 12 === 0 ? 12 : h % 12}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+  const from = a.mode === 'airport' ? arrivalPointLabel(draft.destinationId) : a.address.trim() || 'your address';
+  return `Day 1, ${time}: ${a.vehicle} pickup from ${from}, drop at ${hotelName}.`;
+};
+
 // ---------- plan state ----------
 
 export const planSignature = (d: TripDraft) => `${d.destinationId}|${tripDays(d)}`;
@@ -404,7 +555,7 @@ export const computeCosts = (draft: TripDraft, plan: PlanState): CostBreakdown =
   const payingGuests = draft.adults + draft.children * 0.5;
 
   const stay = dest ? dest.stayPerNight[draft.stayTier] * nights * rooms : 0;
-  const transfers = dest ? dest.transferPerDay * days : 0;
+  const transfers = dest ? Math.round(dest.transferPerDay * days * (VEHICLE_INFO[tripVehicle(draft, plan)]?.factor ?? 1)) : 0;
   const activities = plannedActivities(plan)
     .flat()
     .reduce((sum, a) => sum + a.cost * payingGuests, 0);
@@ -548,6 +699,9 @@ export const reconcilePlan = (prev: PlanState | null, draft: TripDraft): PlanSta
     signature: planSignature(draft),
     days: Array.from({ length: days }, (_, i) => prev.days[i] ?? []),
     extras: prev.extras,
+    arrival: prev.arrival,
+    departure: prev.departure,
+    times: prev.times,
   };
 };
 

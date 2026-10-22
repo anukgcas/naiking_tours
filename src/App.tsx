@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Loader } from './components/Loader';
+import { CraftingOverlay } from './components/CraftingOverlay';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { CuratedPackages, CuratedPackage } from './components/CuratedPackages';
@@ -18,6 +19,7 @@ import { SIGNATURE_DESTINATIONS } from './data/mockData';
 import {
   PLANNER_DESTINATIONS,
   autoFillPlan,
+  getDestination,
   reconcilePlan,
 } from './data/planner';
 import { TripBooking, TripDraft } from './types';
@@ -45,6 +47,10 @@ function AppContent() {
     };
   }, [showLoader]);
   const [activeTab, setActiveTab] = useState<Tab>('home');
+  // True while the visitor is editing an existing plan from the home page planner card
+  const [editingTrip, setEditingTrip] = useState(false);
+  // The "crafting your itinerary" animation that plays before the planner page opens
+  const [crafting, setCrafting] = useState(false);
   // Which part of the home page is on screen: the hero, the sections in between, or Naiking Standard onwards
   const [homeSection, setHomeSection] = useState<'hero' | 'mid' | 'why'>('hero');
   const [isMyTripsOpen, setIsMyTripsOpen] = useState(false);
@@ -96,9 +102,9 @@ function AppContent() {
 
   /** Primary homepage customizer action: directly seeds/validates itinerary and enters planner */
   const handleCraftItinerary = () => {
-    const res = craftItinerary();
+    const res = craftItinerary(undefined, { keepPlan: editingTrip });
     if (res.success) {
-      goTo('plan');
+      setCrafting(true);
     } else {
       showToast(res.error || 'Please fill in required trip details.');
     }
@@ -187,8 +193,18 @@ function AppContent() {
     }, 80);
   };
 
+  /** "Edit trip details": back to the home page planner card, pre-filled with the current trip. */
+  const handleEditDetails = () => {
+    setEditingTrip(true);
+    setActiveTab('home');
+    lockSpy();
+    setHomeSection('hero');
+    setTimeout(() => document.getElementById('hero-planner-console')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 120);
+  };
+
   const handleNavigate = (tab: 'home' | 'plan' | 'why') => {
     if (tab === 'plan') return handlePlanCTA();
+    if (tab === 'home') setEditingTrip(false);
     setActiveTab(tab);
     if (tab === 'why') {
       lockSpy();
@@ -247,6 +263,16 @@ function AppContent() {
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#16222E] font-sans">
       {showLoader && <Loader onComplete={() => setShowLoader(false)} />}
+      {crafting && (
+        <CraftingOverlay
+          destination={getDestination(draft.destinationId)?.name ?? 'your'}
+          onDone={() => {
+            setCrafting(false);
+            setEditingTrip(false);
+            goTo('plan');
+          }}
+        />
+      )}
 
       {/* The trip-setup page opens as its own full page: no site header, footer or tab bar */}
       {view !== 'start' && (
@@ -275,8 +301,7 @@ function AppContent() {
             plan={plan}
             onPlanChange={setPlan}
             onStayTierChange={(stayTier) => updateDraft({ stayTier })}
-            onEditDetails={() => startWizard({ step: 4 })}
-            onEditCities={() => startWizard({ step: 3 })}
+            onEditDetails={handleEditDetails}
             onContinue={() => goTo('overview')}
           />
         ) : view === 'overview' && plan ? (
@@ -284,6 +309,7 @@ function AppContent() {
             draft={draft}
             plan={plan}
             onEditPlan={() => goTo('plan')}
+            onPlanChange={setPlan}
             onConfirm={handleConfirmTrip}
             onViewTrips={() => setIsMyTripsOpen(true)}
             onPlanAnother={handlePlanAnother}
@@ -296,6 +322,7 @@ function AppContent() {
               onStartPlanningWithDraft={(patch, step) => startWizard({ draftPatch: patch, step })}
               onCraftItinerary={handleCraftItinerary}
               paused={showLoader}
+              prefillConsole={editingTrip}
             />
             <CuratedPackages onSelectPackage={handleSelectPackage} />
             <SignatureDestinations

@@ -70,12 +70,57 @@ export interface TripDraft {
   timingPreference?: string;
 }
 
+/** How the traveller reaches the destination on Day 1. */
+export type ArrivalMode = 'airport' | 'address' | 'self';
+
+/** Day 1 arrival logistics: where we pick the group up and which hotel they are dropped at. */
+export interface ArrivalDetails {
+  mode: ArrivalMode;
+  /** Pickup address when mode is 'address'. */
+  address: string;
+  /** 24h "HH:MM". */
+  time: string;
+  /** Optional flight / train number so the driver can track arrivals. */
+  flightNo: string;
+  vehicle: string;
+  /** Catalogue hotel id, or 'other' when the traveller has their own booking. */
+  hotelId: string;
+  /** Hotel name typed in when hotelId is 'other'. */
+  otherHotel: string;
+}
+
+/** Last-day departure logistics: pickup from the hotel and where we drop the group. */
+export interface DepartureDetails {
+  /** Where the group is dropped: the airport, a custom address, or nowhere (they leave on their own). */
+  mode: ArrivalMode;
+  /** Drop address when mode is 'address'. */
+  address: string;
+  /** Time we collect the group from the hotel, 24h "HH:MM". */
+  time: string;
+  /** Optional flight / train number for the outbound journey. */
+  flightNo: string;
+  vehicle: string;
+  /** Catalogue hotel id to be picked up from, or 'other'. */
+  pickupHotelId: string;
+  /** Pickup place typed in when pickupHotelId is 'other'. */
+  otherPickup: string;
+}
+
 /** Step 2 of the flow: the kanban board. `days[i]` holds activity ids for Day i+1. */
 export interface PlanState {
   signature: string;
   days: string[][];
   /** AI-suggested activities added to the ideas lane during this session. */
   extras: Activity[];
+  /** Day 1 pickup and hotel drop customisation (defaults apply until edited). */
+  arrival?: ArrivalDetails;
+  /** Last-day pickup and drop customisation (defaults apply until edited). */
+  departure?: DepartureDetails;
+  /**
+   * Custom start/end times (minutes from midnight) set by the traveller, keyed `${dayIndex}:${activityId}`.
+   * Activities without an entry fall back to their time-of-day slot.
+   */
+  times?: Record<string, { start: number; end: number }>;
 }
 
 export interface CostBreakdown {
