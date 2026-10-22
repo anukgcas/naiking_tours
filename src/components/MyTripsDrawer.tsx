@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Calendar, Users, ChevronDown, Compass } from 'lucide-react';
+import { X, Calendar, Users, ChevronDown, Compass, ArrowRight } from 'lucide-react';
 import { TripBooking } from '../types';
 
 interface MyTripsDrawerProps {
@@ -7,6 +7,7 @@ interface MyTripsDrawerProps {
   onClose: () => void;
   trips: TripBooking[];
   onPlanTrip: () => void;
+  onSelectTrip?: (trip: TripBooking) => void;
 }
 
 export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
@@ -14,6 +15,7 @@ export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
   onClose,
   trips,
   onPlanTrip,
+  onSelectTrip,
 }) => {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -182,6 +184,24 @@ export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
                     ))}
                   </ol>
                 )}
+
+                {/* Action row to load trip into planner */}
+                <div className="pt-2 flex items-center justify-between gap-2 border-t border-[#1E2022]/6">
+                  <span className="text-[11px] text-[#6B7280]">
+                    Booking: <span className="font-semibold text-[#1E2022]">{trip.status}</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onSelectTrip?.(trip);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1E2022] hover:bg-[#C2571A] text-white text-xs font-semibold transition-colors cursor-pointer"
+                  >
+                    <span>Open in Planner</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             ))
           ) : (

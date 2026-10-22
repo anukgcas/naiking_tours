@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Loader } from './components/Loader';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
+import { CuratedPackages, CuratedPackage } from './components/CuratedPackages';
 import { SignatureDestinations } from './components/SignatureDestinations';
 import { HowItWorks } from './components/HowItWorks';
 import { StandardVsNaiking } from './components/StandardVsNaiking';
@@ -13,38 +14,46 @@ import { WhyNaiking } from './components/WhyNaiking';
 import { Footer } from './components/Footer';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { ScrollToTop } from './components/ScrollToTop';
-import { SIGNATURE_DESTINATIONS, INITIAL_BOOKED_TRIPS } from './data/mockData';
+import { SIGNATURE_DESTINATIONS } from './data/mockData';
 import {
   PLANNER_DESTINATIONS,
   autoFillPlan,
-  computeCosts,
-  formatDate,
-  getDestination,
-  newDraft,
   reconcilePlan,
-  toPlannedDays,
-  tripDays,
-  validateDraft,
 } from './data/planner';
-import { PlanState, TripBooking, TripDraft } from './types';
+import { TripBooking, TripDraft } from './types';
 import { Check } from 'lucide-react';
+import { TripProvider, useTrip } from './context/TripContext';
 
 type Tab = 'home' | 'why' | 'start' | 'plan' | 'overview';
 
-export default function App() {
+function AppContent() {
   const [showLoader, setShowLoader] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>('home');
   // Which part of the home page is on screen: the hero, the sections in between, or Naiking Standard onwards
   const [homeSection, setHomeSection] = useState<'hero' | 'mid' | 'why'>('hero');
   const [isMyTripsOpen, setIsMyTripsOpen] = useState(false);
 
-  // Customiser: wizard (draft) -> plan board -> overview
-  const [draft, setDraft] = useState<TripDraft>(newDraft);
-  const [plan, setPlan] = useState<PlanState | null>(null);
+  // Unified persistent trip context
+  const {
+    draft,
+    plan,
+    hasActivePlan,
+    bookedTrips,
+    setDestinationId,
+    updateDraft,
+    setPlan,
+    updatePlan,
+    craftItinerary,
+    startNewTrip,
+    selectPackage,
+    loadSavedTrip,
+    confirmTrip,
+  } = useTrip();
+
+  // Guided wizard step state for deep-editing when needed
   const [wizardStep, setWizardStep] = useState(0);
   const [wizardKey, setWizardKey] = useState(0);
 
-  const [bookedTrips, setBookedTrips] = useState<TripBooking[]>(INITIAL_BOOKED_TRIPS);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -69,47 +78,97 @@ export default function App() {
     scrollTop();
   };
 
-  const canPlan = plan !== null && validateDraft(draft) === null;
-
-  const handleDraftChange = (patch: Partial<TripDraft>) => setDraft((d) => ({ ...d, ...patch }));
-
-  /** Opens the guided wizard, optionally with a place already chosen (skips straight to "who's going"). */
-  const startWizard = (opts?: { destinationId?: string; step?: number }) => {
-    if (opts?.destinationId) {
-      setDraft((d) => ({
-        ...d,
-        destinationId: opts.destinationId!,
-        aiDestination: false,
-        ...(d.destinationId !== opts.destinationId ? { cityIds: [], aiCities: false } : {}),
-      }));
+  /** Primary homepage customizer action: directly seeds/validates itinerary and enters planner */
+  const handleCraftItinerary = () => {
+    const res = craftItinerary();
+    if (res.success) {
+      goTo('plan');
+    } else {
+      showToast(res.error || 'Please fill in required trip details.');
     }
-    setWizardStep(opts?.step ?? (opts?.destinationId ? 1 : 0));
+  };
+
+  /** Opens the optional guided wizard for deep customizations (e.g. cities editing) */
+  const startWizard = (opts?: {
+    destinationId?: string;
+    step?: number;
+    draftPatch?: Partial<TripDraft>;
+  }) => {
+    if (opts?.draftPatch) {
+      updateDraft({
+        ...opts.draftPatch,
+        ...(opts.draftPatch?.destinationId && opts.draftPatch.destinationId !== draft.destinationId
+          ? { cityIds: [], aiCities: true }
+          : {}),
+      });
+    } else if (opts?.destinationId) {
+      setDestinationId(opts.destinationId);
+    }
+    setWizardStep(opts?.step ?? (opts?.destinationId || opts?.draftPatch?.destinationId ? 1 : 0));
     setWizardKey((k) => k + 1);
     goTo('start');
   };
 
   const handleWizardComplete = (final: TripDraft) => {
-    setDraft(final);
-    setPlan((prev) => {
+    updateDraft(final);
+    updatePlan((prev) => {
       const base = reconcilePlan(prev, final);
       return final.aiPlan ? autoFillPlan(final, base) : base;
     });
     goTo('plan');
   };
 
-  // Header / footer / mobile "Plan a Trip": resume a plan in progress, otherwise begin the wizard
   const handlePlanCTA = () => {
     if (activeTab === 'start') return;
-    if (canPlan) {
+    if (hasActivePlan) {
       if (activeTab !== 'plan') goTo('plan');
     } else {
-      startWizard();
+      handleCraftItinerary();
     }
   };
 
   const handleSelectDestination = (destName: string) => {
     const match = PLANNER_DESTINATIONS.find((d) => d.name.toLowerCase() === destName.toLowerCase());
-    startWizard(match ? { destinationId: match.id } : undefined);
+    if (match) {
+      setDestinationId(match.id);
+      if (activeTab !== 'home') {
+        setActiveTab('home');
+      }
+      setTimeout(() => {
+        document.getElementById('hero-planner-console')?.scrollIntoView({ behavior: 'smooth' });
+      }, 80);
+    }
+  };
+
+  const handleSelectPackage = (pkg: CuratedPackage) => {
+    selectPackage(pkg);
+    goTo('plan');
+    showToast(`Configured ${pkg.name} in itinerary planner.`);
+  };
+
+  const handleSelectSavedTrip = (trip: TripBooking) => {
+    loadSavedTrip(trip);
+    setIsMyTripsOpen(false);
+    goTo('plan');
+    showToast(`Loaded ${trip.packageName} into planner.`);
+  };
+
+  const scrollToDestinations = () => {
+    if (activeTab !== 'home' && activeTab !== 'why') {
+      setActiveTab('home');
+    }
+    setTimeout(() => {
+      document.getElementById('signature-destinations')?.scrollIntoView({ behavior: 'smooth' });
+    }, 80);
+  };
+
+  const scrollToPackages = () => {
+    if (activeTab !== 'home' && activeTab !== 'why') {
+      setActiveTab('home');
+    }
+    setTimeout(() => {
+      document.getElementById('curated-packages')?.scrollIntoView({ behavior: 'smooth' });
+    }, 80);
   };
 
   const handleNavigate = (tab: 'home' | 'plan' | 'why') => {
@@ -124,30 +183,14 @@ export default function App() {
     }
   };
 
-  const handleConfirmTrip = (_contact: ContactDetails): TripBooking => {
-    const dest = getDestination(draft.destinationId)!;
-    const costs = computeCosts(draft, plan!);
-    const trip: TripBooking = {
-      id: `NT-${Math.floor(1000 + Math.random() * 9000)}`,
-      destination: dest.name,
-      packageName: `Custom ${tripDays(draft)}-Day ${dest.name} Journey`,
-      startDate: formatDate(draft.checkIn),
-      endDate: formatDate(draft.checkOut),
-      travellers: { adults: draft.adults, children: draft.children },
-      totalPrice: costs.total,
-      status: 'Preparing',
-      bookingDate: 'Today',
-      image: dest.image,
-      itinerary: toPlannedDays(plan!),
-    };
-    setBookedTrips((prev) => [trip, ...prev]);
-    showToast(`Your ${dest.name} trip request is in. Added to My Trips.`);
-    return trip;
+  const handleConfirmTrip = (contact: ContactDetails): TripBooking => {
+    const booking = confirmTrip(contact);
+    showToast(`Your ${booking.destination} trip request is in. Added to My Trips.`);
+    return booking;
   };
 
   const handlePlanAnother = () => {
-    setDraft(newDraft());
-    setPlan(null);
+    startNewTrip();
     goTo('home');
   };
 
@@ -179,7 +222,7 @@ export default function App() {
   }, [onHome]);
 
   // Guard: the planner pages need a valid draft and a plan
-  const view: Tab = (activeTab === 'plan' || activeTab === 'overview') && !canPlan ? 'home' : activeTab;
+  const view: Tab = (activeTab === 'plan' || activeTab === 'overview') && !hasActivePlan ? 'home' : activeTab;
   const onHomePage = view === 'home' || view === 'why';
   const navTab = view === 'overview' || view === 'start' ? 'plan' : onHomePage ? (homeSection === 'why' ? 'why' : 'home') : view;
   // The top bar shows no current link while scrolling through the middle of the home page
@@ -191,13 +234,14 @@ export default function App() {
 
       {/* The trip-setup page opens as its own full page: no site header, footer or tab bar */}
       {view !== 'start' && (
-      <Header
-        activeTab={headerTab}
-        onNavigate={handleNavigate}
-        onOpenMyTrips={() => setIsMyTripsOpen(true)}
-        onOpenPlanner={handlePlanCTA}
-        bookedTripsCount={bookedTrips.length}
-      />
+        <Header
+          activeTab={headerTab}
+          onNavigate={handleNavigate}
+          onOpenMyTrips={() => setIsMyTripsOpen(true)}
+          bookedTripsCount={bookedTrips.length}
+          onExploreDestinations={scrollToDestinations}
+          onBrowsePackages={scrollToPackages}
+        />
       )}
 
       <main className="flex-1">
@@ -214,7 +258,7 @@ export default function App() {
             draft={draft}
             plan={plan}
             onPlanChange={setPlan}
-            onStayTierChange={(stayTier) => handleDraftChange({ stayTier })}
+            onStayTierChange={(stayTier) => updateDraft({ stayTier })}
             onEditDetails={() => startWizard({ step: 4 })}
             onEditCities={() => startWizard({ step: 3 })}
             onContinue={() => goTo('overview')}
@@ -230,11 +274,19 @@ export default function App() {
           />
         ) : (
           <>
-            <Hero onStartWizard={() => startWizard()} onExploreDestination={handleSelectDestination} />
+            <Hero
+              onStartWizard={() => startWizard()}
+              onExploreDestination={handleSelectDestination}
+              onStartPlanningWithDraft={(patch, step) => startWizard({ draftPatch: patch, step })}
+              onCraftItinerary={handleCraftItinerary}
+            />
+            <CuratedPackages onSelectPackage={handleSelectPackage} />
             <SignatureDestinations
               destinations={SIGNATURE_DESTINATIONS}
               onSelectDestination={handleSelectDestination}
-              onStartCustomising={() => startWizard()}
+              onStartCustomising={() => {
+                document.getElementById('hero-planner-console')?.scrollIntoView({ behavior: 'smooth' });
+              }}
             />
             <HowItWorks />
             <StandardVsNaiking />
@@ -271,8 +323,10 @@ export default function App() {
         trips={bookedTrips}
         onPlanTrip={() => {
           setIsMyTripsOpen(false);
-          handlePlanCTA();
+          startNewTrip();
+          goTo('home');
         }}
+        onSelectTrip={handleSelectSavedTrip}
       />
 
       {toastMessage && (
@@ -284,5 +338,13 @@ export default function App() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <TripProvider>
+      <AppContent />
+    </TripProvider>
   );
 }

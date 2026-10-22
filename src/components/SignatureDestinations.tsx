@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { ArrowRight, ChevronLeft, ChevronRight, Compass } from 'lucide-react';
 import { SignatureDestination } from '../types';
 
 interface SignatureDestinationsProps {
@@ -8,14 +8,57 @@ interface SignatureDestinationsProps {
   onStartCustomising: () => void;
 }
 
-const CARD_ORDER = ['bali', 'maldives', 'dubai', 'manali', 'goa'];
-const CARD_META: Record<string, { country: string; tag: string }> = {
-  bali: { country: 'Indonesia', tag: 'Tropical & Cultural' },
-  maldives: { country: 'Maldives', tag: 'Overwater Sanctuary' },
-  dubai: { country: 'UAE', tag: 'Skyline & Desert Oasis' },
-  manali: { country: 'India', tag: 'Alpine Cedar & Peaks' },
-  goa: { country: 'India', tag: 'Heritage & Coast' },
+const CARD_ORDER = ['bali', 'maldives', 'dubai', 'manali', 'goa', 'singapore'];
+
+const CARD_META: Record<
+  string,
+  { country: string; tag: string; startPrice: string; category: string }
+> = {
+  bali: {
+    country: 'Indonesia',
+    tag: 'Tropical & Cultural',
+    startPrice: '₹6,500/nt',
+    category: 'Beach',
+  },
+  maldives: {
+    country: 'Maldives',
+    tag: 'Overwater Sanctuary',
+    startPrice: '₹9,500/nt',
+    category: 'Beach',
+  },
+  dubai: {
+    country: 'UAE',
+    tag: 'Skyline & Desert Oasis',
+    startPrice: '₹8,500/nt',
+    category: 'Skyline',
+  },
+  manali: {
+    country: 'India',
+    tag: 'Alpine Cedar & Peaks',
+    startPrice: '₹3,800/nt',
+    category: 'Mountains',
+  },
+  goa: {
+    country: 'India',
+    tag: 'Heritage & Coast',
+    startPrice: '₹4,200/nt',
+    category: 'Heritage',
+  },
+  singapore: {
+    country: 'Southeast Asia',
+    tag: 'Skyline & Michelin Cuisine',
+    startPrice: '₹9,500/nt',
+    category: 'Skyline',
+  },
 };
+
+const THEME_FILTERS = [
+  { id: 'All', label: 'All Destinations' },
+  { id: 'Beach', label: 'Tropical Coast' },
+  { id: 'Mountains', label: 'Snow & Peaks' },
+  { id: 'Skyline', label: 'Iconic Skyline' },
+  { id: 'Heritage', label: 'Heritage & Culture' },
+];
 
 const TILT_MAX = 12; // degrees
 const TILT_SCALE = 1.15; // enough overscan that no edge shows at max tilt
@@ -36,11 +79,11 @@ const tiltImage = (e: React.PointerEvent<HTMLDivElement>) => {
   const prev = (img as any)._raf as number | undefined;
   if (prev) cancelAnimationFrame(prev);
   (img as any)._raf = requestAnimationFrame(() => {
-    // short transition while tracking = smooth, spring-like follow
     img.style.transition = 'transform 160ms ease-out';
     img.style.transform = `perspective(500px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) scale(${TILT_SCALE})`;
   });
 };
+
 const resetImage = (e: React.PointerEvent<HTMLDivElement>) => {
   const img = e.currentTarget.querySelector<HTMLImageElement>('[data-tilt-img]');
   if (!img) return;
@@ -55,15 +98,21 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
   onSelectDestination,
   onStartCustomising,
 }) => {
+  const [activeFilter, setActiveFilter] = useState('All');
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   const ordered = CARD_ORDER.map((id) => destinations.find((d) => d.id === id)).filter(
     (d): d is SignatureDestination => Boolean(d)
   );
-  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const filtered =
+    activeFilter === 'All'
+      ? ordered
+      : ordered.filter((d) => CARD_META[d.id]?.category === activeFilter);
 
   const scroll = (direction: 'left' | 'right') => {
     const el = scrollRef.current;
     if (!el) return;
-    // Move exactly one destination card (card width + gap) per click
     const card = el.firstElementChild as HTMLElement | null;
     const gap = parseFloat(getComputedStyle(el).columnGap) || 0;
     const step = card ? card.offsetWidth + gap : 340;
@@ -71,12 +120,16 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
   };
 
   return (
-    <section className="py-12 md:pb-8 lg:py-16">
+    <section id="signature-destinations" className="py-12 md:py-16 scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header Block: Left Title & Small Subtext, Right "View All Packages →" */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+        {/* Header Block */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1E2022]">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C2571A]/10 text-[#C2571A] text-xs font-semibold uppercase tracking-wider mb-2">
+              <Compass className="w-3.5 h-3.5" />
+              <span>Explore Destinations</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-[#1E2022]">
               Signature Destinations
             </h2>
             <p className="mt-2 text-sm font-medium sm:text-base text-[#6B7280]">
@@ -89,14 +142,14 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
             <div className="hidden md:flex lg:hidden items-center gap-2 mr-2">
               <button
                 onClick={() => scroll('left')}
-                className="w-9 h-9 rounded-full border border-[#1E2022]/10 bg-white hover:bg-[#FAF8F5] flex items-center justify-center text-[#1E2022] transition-colors shadow-2xs"
+                className="w-9 h-9 rounded-full border border-[#1E2022]/10 bg-white hover:bg-[#FAF8F5] flex items-center justify-center text-[#1E2022] transition-colors shadow-2xs cursor-pointer"
                 aria-label="Scroll destinations left"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={() => scroll('right')}
-                className="w-9 h-9 rounded-full border border-[#1E2022]/10 bg-white hover:bg-[#FAF8F5] flex items-center justify-center text-[#1E2022] transition-colors shadow-2xs"
+                className="w-9 h-9 rounded-full border border-[#1E2022]/10 bg-white hover:bg-[#FAF8F5] flex items-center justify-center text-[#1E2022] transition-colors shadow-2xs cursor-pointer"
                 aria-label="Scroll destinations right"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -105,50 +158,81 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
 
             <button
               onClick={onStartCustomising}
-              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-white border border-[#1E2022]/10 text-[14px] sm:text-[14px] font-semibold text-[#000000] hover:border-[#1E2022]/25 hover:bg-[#1E2022]/[0.025] transition-colors duration-200 group cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-white border border-[#1E2022]/10 text-[14px] font-semibold text-[#000000] hover:border-[#1E2022]/25 hover:bg-[#1E2022]/[0.025] transition-colors duration-200 group cursor-pointer"
             >
-              <span>Start Customising</span>
+              <span>Customise From Scratch</span>
               <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 ease-out group-hover:translate-x-1" />
             </button>
           </div>
         </div>
 
-        {/* Destination cards: five across on desktop, swipeable row on smaller screens */}
+        {/* Theme Category Filter Bar */}
+        <div className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden mb-8 pb-1">
+          {THEME_FILTERS.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              onClick={() => setActiveFilter(f.id)}
+              className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer shrink-0 ${
+                activeFilter === f.id
+                  ? 'bg-[#1E2022] text-white shadow-xs'
+                  : 'bg-white border border-[#1E2022]/10 text-[#6B7280] hover:text-[#1E2022] hover:bg-[#FAF8F5]'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Destination cards grid/slider */}
         <div
           ref={scrollRef}
-          className="flex lg:grid lg:grid-cols-5 gap-4 lg:gap-5 overflow-x-auto lg:overflow-visible md:-mr-6 md:pr-6 lg:mr-0 lg:pr-0 pb-4 pt-1 scroll-smooth snap-x snap-mandatory"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          className="flex lg:grid lg:grid-cols-3 xl:grid-cols-6 gap-4 lg:gap-5 overflow-x-auto lg:overflow-visible pb-4 pt-1 scroll-smooth snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          {ordered.map((dest) => {
+          {filtered.map((dest) => {
             const meta = CARD_META[dest.id];
             return (
               <div
                 key={dest.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => onSelectDestination(dest.name)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelectDestination(dest.name);
+                  }
+                }}
                 onPointerMove={tiltImage}
                 onPointerLeave={resetImage}
-                className="group relative flex-none w-[68%] sm:w-[42%] md:w-[calc((100%-76px)/3)] lg:w-auto aspect-[3/4] rounded-[1.75rem] cursor-pointer hover:z-20 select-none bg-[#EAE6DF] snap-start shadow-md hover:shadow-[0_22px_40px_-18px_rgba(30,32,34,0.45)] hover:-translate-y-1 transition-[transform,box-shadow] duration-300 ease-out"
+                className="group relative flex-none w-[75%] sm:w-[48%] md:w-[38%] lg:w-auto aspect-[3/4.2] rounded-[1.75rem] cursor-pointer hover:z-20 select-none bg-[#EAE6DF] snap-start shadow-md hover:shadow-[0_22px_40px_-18px_rgba(30,32,34,0.45)] hover:-translate-y-1 transition-[transform,box-shadow] duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A]"
               >
-                {/* Clip layer: keeps the image strictly inside THIS card */}
+                {/* Clip layer */}
                 <div className="absolute inset-0 overflow-hidden rounded-[1.75rem] [contain:paint] [transform:translateZ(0)]">
-                <img
-                  src={dest.image}
-                  alt={`${dest.name}, ${dest.country}`}
-                  referrerPolicy="no-referrer"
-                  data-tilt-img
-                  className="w-full h-full object-cover [transform-origin:center] will-change-transform"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
-
+                  <img
+                    src={dest.image}
+                    alt={`${dest.name}, ${dest.country}`}
+                    referrerPolicy="no-referrer"
+                    data-tilt-img
+                    className="w-full h-full object-cover [transform-origin:center] will-change-transform"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
                 </div>
 
-                <div className="absolute bottom-6 left-6 right-6 z-10 text-white">
-                  <p className="text-xs font-medium uppercase tracking-wider text-white/85">
+                {/* Stays from badge */}
+                {meta?.startPrice && (
+                  <div className="absolute top-4 right-4 z-10 px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/20 text-[11px] font-semibold text-white">
+                    From {meta.startPrice}
+                  </div>
+                )}
+
+                <div className="absolute bottom-5 left-5 right-5 z-10 text-white">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[#FFB27A]">
                     {meta?.country ?? dest.country}
                   </p>
-                  <h3 className="mt-0.5 text-2xl font-semibold leading-tight">{dest.name}</h3>
-                  <p className="mt-1 text-sm text-white/85">{meta?.tag ?? dest.tagline}</p>
-                  <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[#F28A55]">
+                  <h3 className="mt-0.5 text-xl sm:text-2xl font-bold leading-tight">{dest.name}</h3>
+                  <p className="mt-1 text-xs text-white/80 line-clamp-1">{meta?.tag ?? dest.tagline}</p>
+                  <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-[#FFB27A] group-hover:text-white transition-colors">
                     Plan This Trip
                     <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 ease-out group-hover:translate-x-1" />
                   </span>

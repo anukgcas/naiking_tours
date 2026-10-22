@@ -43,8 +43,9 @@ export interface Activity {
 
 export type TravellerType = 'solo' | 'couple' | 'family' | 'friends';
 
-/** Step 1 of the flow: what the traveller tells us before planning. */
 export interface TripDraft {
+  /** Optional ID for active draft tracking */
+  id?: string;
   /** Empty while the traveller has asked AI to choose (see aiDestination). */
   destinationId: string;
   aiDestination: boolean;
@@ -61,8 +62,12 @@ export interface TripDraft {
   checkOut: string;
   adults: number;
   children: number;
+  /** Number of hotel/villa rooms requested (default: 1). */
+  rooms?: number;
   /** Stay style chosen in the planner: 0 Comfort, 1 Signature, 2 Ultra Luxury. */
   stayTier: 0 | 1 | 2;
+  /** Timing or seasonal preference from customizer */
+  timingPreference?: string;
 }
 
 /** Step 2 of the flow: the kanban board. `days[i]` holds activity ids for Day i+1. */
@@ -105,4 +110,8 @@ export interface TripBooking {
   tripStyle?: TripStyle;
   /** Present on trips built with the customiser. */
   itinerary?: PlannedDay[];
+  /** Preserved draft configuration for resuming in planner */
+  draft?: TripDraft;
+  /** Preserved plan state for resuming in planner */
+  plan?: PlanState;
 }
