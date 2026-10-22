@@ -266,6 +266,7 @@ function AppContent() {
       {crafting && (
         <CraftingOverlay
           destination={getDestination(draft.destinationId)?.name ?? 'your'}
+          image={getDestination(draft.destinationId)?.image}
           onDone={() => {
             setCrafting(false);
             setEditingTrip(false);
