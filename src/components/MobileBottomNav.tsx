@@ -1,18 +1,22 @@
 import React from 'react';
-import { Home, Sparkles, Briefcase, Info } from 'lucide-react';
+import { Home, Sparkles, Briefcase, Info, Bookmark } from 'lucide-react';
 
 interface MobileBottomNavProps {
   currentTab: 'home' | 'plan' | 'why';
   onNavigate: (tab: 'home' | 'plan' | 'why') => void;
   onOpenMyTrips: () => void;
+  onOpenSavedPackages?: () => void;
   bookedTripsCount: number;
+  savedPackagesCount?: number;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   currentTab,
   onNavigate,
   onOpenMyTrips,
+  onOpenSavedPackages,
   bookedTripsCount,
+  savedPackagesCount = 0,
 }) => {
   const tabClass = (active: boolean) =>
     `flex flex-col items-center gap-1 text-[11px] font-medium py-1 px-2 transition-colors cursor-pointer ${
@@ -31,6 +35,20 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           <Sparkles className="w-4 h-4" />
           <span>Plan</span>
         </button>
+
+        {onOpenSavedPackages && (
+          <button onClick={onOpenSavedPackages} className={`relative ${tabClass(false)}`}>
+            <div className="relative">
+              <Bookmark className="w-4 h-4" />
+              {savedPackagesCount > 0 && (
+                <span className="absolute -top-1 -right-2 w-3.5 h-3.5 bg-[#0B4A82] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                  {savedPackagesCount}
+                </span>
+              )}
+            </div>
+            <span>Saved</span>
+          </button>
+        )}
 
         <button onClick={onOpenMyTrips} className={`relative ${tabClass(false)}`}>
           <div className="relative">

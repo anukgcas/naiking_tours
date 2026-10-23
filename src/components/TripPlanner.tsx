@@ -23,11 +23,14 @@ import {
   Trash2,
   Wand2,
   X,
+  Printer,
+  Share2,
 } from 'lucide-react';
 import { Activity, ActivityCategory, DaySlot, PlanState, TripDraft } from '../types';
 import {
   CATEGORIES,
   CATEGORY_STYLES,
+  PLANNER_DESTINATIONS,
   TIER_LABEL,
   activityMap,
   autoFillPlan,
@@ -49,6 +52,9 @@ import { Day1Arrival } from './Day1Arrival';
 import { LastDayDeparture } from './LastDayDeparture';
 import { StepIndicator } from './StepIndicator';
 import { RouteMap } from './RouteMap';
+import { CURATED_PACKAGES } from './CuratedPackages';
+import { ShareItineraryModal } from './ShareItineraryModal';
+import { PrintableItinerary } from './PrintableItinerary';
 
 interface TripPlannerProps {
   draft: TripDraft;
@@ -57,6 +63,7 @@ interface TripPlannerProps {
   onStayTierChange: (tier: TripDraft['stayTier']) => void;
   onEditDetails: () => void;
   onContinue: () => void;
+  onShowToast?: (msg: string) => void;
 }
 
 type Column = number | 'ideas';
@@ -82,10 +89,19 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
   onStayTierChange,
   onEditDetails,
   onContinue,
+  onShowToast,
 }) => {
-  const dest = getDestination(draft.destinationId)!;
+  const dest = getDestination(draft.destinationId) || PLANNER_DESTINATIONS[0];
+  const curatedPkg = draft.packageId
+    ? CURATED_PACKAGES.find((p) => p.id === draft.packageId)
+    : null;
   const days = tripDays(draft);
   const guests = draft.adults + draft.children;
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const handlePrint = () => {
+    window.print();
+  };
 
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<ActivityCategory | 'All'>('All');
@@ -634,23 +650,50 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
 
 
   return (
-    <section className="pt-32 lg:pt-38 pb-32">
-      <div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top bar: steps + trip summary */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <StepIndicator current={1} />
-          <button
-            type="button"
-            onClick={onEditDetails}
-            className="inline-flex items-center gap-1.5 text-[16px] font-medium text-[#6B7280] hover:text-[#16222E] cursor-pointer self-start lg:self-auto"
-          >
-            <ArrowLeft className="w-4 h-4" /> Edit trip details
-          </button>
-        </div>
+    <>
+      <section className="pt-32 lg:pt-38 pb-32 print:hidden">
+        <div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Top bar: steps + trip summary & export actions */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <StepIndicator current={1} />
+            <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={handlePrint}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#16222E]/12 text-xs font-semibold text-[#16222E] hover:border-[#0B4A82] hover:text-[#0B4A82] shadow-xs transition cursor-pointer"
+                title="Print itinerary or save as PDF via your browser's print dialog"
+              >
+                <Printer className="w-3.5 h-3.5 text-[#0B4A82]" />
+                <span>Print / Save as PDF</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsShareModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#16222E]/12 text-xs font-semibold text-[#16222E] hover:border-[#0B4A82] hover:text-[#0B4A82] shadow-xs transition cursor-pointer"
+                title="Generate a shareable link for travel companions"
+              >
+                <Share2 className="w-3.5 h-3.5 text-[#0B4A82]" />
+                <span>Share Link</span>
+              </button>
+              <button
+                type="button"
+                onClick={onEditDetails}
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#6B7280] hover:text-[#16222E] cursor-pointer ml-1"
+              >
+                <ArrowLeft className="w-4 h-4" /> Edit trip details
+              </button>
+            </div>
+          </div>
 
         {/* Page heading */}
         <div className="mt-6 pb-5 border-b border-[#16222E]/10 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
           <div className="min-w-0">
+            {curatedPkg && (
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0B4A82]/10 text-[#0B4A82] text-xs font-semibold mb-2">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Customising: {curatedPkg.name}</span>
+              </div>
+            )}
             <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#16222E]">
               Plan your {dest.name} days
             </h1>
@@ -1123,5 +1166,19 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
         </div>
       </div>
     </section>
+
+    <ShareItineraryModal
+      draft={draft}
+      plan={plan}
+      isOpen={isShareModalOpen}
+      onClose={() => setIsShareModalOpen(false)}
+      onPrint={handlePrint}
+      onShowToast={onShowToast}
+    />
+
+    <div className="hidden print:block">
+      <PrintableItinerary draft={draft} plan={plan} />
+    </div>
+  </>
   );
 };

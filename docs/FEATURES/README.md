@@ -12,6 +12,10 @@ This directory documents the core features of the Naikings Tours & Travels appli
    - 5-field luxury planning console (Destination, When & Duration, Departure Date, Rooms & Guests, Filters).
 3. [Trip State Management & Synchronization](trip-state-management.md) (`FEAT-006` / `FEAT-007`)
    - Central React Context store, persistence, round-trip synchronization, and saved-trip lifecycles.
+4. [Save for Later (Package Wishlist)](save-for-later.md) (`FEAT-018`)
+   - Package bookmarking, defensive localStorage persistence, dedicated drawer, and planner resumption.
+5. [Package Enquiry & Callback Requests](package-enquiry.md) (`FEAT-019`)
+   - Package-specific enquiries, 7 enquiry categories, client validation, and honest CRM dispatch handling.
 
 ---
 

@@ -6,8 +6,10 @@ interface HeaderProps {
   activeTab: 'home' | 'plan' | 'why' | null;
   onNavigate: (tab: 'home' | 'plan' | 'why') => void;
   onOpenMyTrips: () => void;
+  onOpenSavedPackages?: () => void;
   onOpenPlanner?: () => void;
   bookedTripsCount: number;
+  savedPackagesCount?: number;
   hasActivePlan?: boolean;
   onExploreDestinations?: () => void;
   onBrowsePackages?: () => void;
@@ -17,7 +19,9 @@ export const Header: React.FC<HeaderProps> = ({
   activeTab,
   onNavigate,
   onOpenMyTrips,
+  onOpenSavedPackages,
   bookedTripsCount,
+  savedPackagesCount = 0,
   onExploreDestinations,
   onBrowsePackages,
 }) => {
@@ -113,6 +117,26 @@ export const Header: React.FC<HeaderProps> = ({
                 className={`text-[15px] font-medium ${linkIdle} transition-colors duration-200 py-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4A82] rounded-sm`}
               >
                 Packages
+              </button>
+            )}
+
+            {onOpenSavedPackages && (
+              <button
+                type="button"
+                onClick={onOpenSavedPackages}
+                className={`text-[15px] font-medium ${linkIdle} transition-colors duration-200 relative py-1 flex items-center gap-1.5 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4A82] rounded-sm`}
+                title="View saved travel packages"
+              >
+                Saved
+                {savedPackagesCount > 0 && (
+                  <span
+                    className={`inline-flex items-center justify-center w-5 h-5 text-[11px] font-bold rounded-full ${
+                      overHero ? 'bg-white text-[#16222E]' : 'bg-[#0B4A82] text-white'
+                    }`}
+                  >
+                    {savedPackagesCount}
+                  </span>
+                )}
               </button>
             )}
 
