@@ -46,12 +46,12 @@ export const ShareItineraryModal: React.FC<ShareItineraryModalProps> = ({
     }
 
     const res = generateShareUrl(draft, plan);
-    if (res.success) {
-      setShareUrl(res.url);
-      setErrorMessage(null);
-    } else {
+    if ('error' in res) {
       setShareUrl('');
       setErrorMessage(res.error);
+    } else {
+      setShareUrl(res.url);
+      setErrorMessage(null);
     }
   }, [isOpen, draft, plan]);
 

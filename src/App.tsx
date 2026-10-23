@@ -110,19 +110,19 @@ function AppContent() {
       if (!payloadStr) return;
 
       const res = deserializeItinerary(payloadStr);
-      if (res.success) {
-        setSharedTripPreview({
-          isOpen: true,
-          draft: res.data.draft,
-          plan: res.data.plan,
-          error: null,
-        });
-      } else {
+      if ('error' in res) {
         setSharedTripPreview({
           isOpen: true,
           draft: null,
           plan: null,
           error: res.error,
+        });
+      } else {
+        setSharedTripPreview({
+          isOpen: true,
+          draft: res.data.draft,
+          plan: res.data.plan,
+          error: null,
         });
       }
     };
