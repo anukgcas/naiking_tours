@@ -129,10 +129,10 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
               <Compass className="w-3.5 h-3.5" />
               <span>Explore Destinations</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-[#16222E]">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#16222E]">
               Signature Destinations
             </h2>
-            <p className="mt-2 text-sm font-medium sm:text-base text-[#6B7280]">
+            <p className="mt-2 text-sm font-normal sm:text-base text-[#4B5563]">
               Pick a place, then shape every day of it your way
             </p>
           </div>
@@ -142,14 +142,14 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
             <div className="hidden md:flex lg:hidden items-center gap-2 mr-2">
               <button
                 onClick={() => scroll('left')}
-                className="w-9 h-9 rounded-full border border-[#16222E]/10 bg-white hover:bg-[#F6F8FA] flex items-center justify-center text-[#16222E] transition-colors shadow-2xs cursor-pointer"
+                className="w-9 h-9 rounded-full border border-[#16222E]/15 bg-white hover:bg-[#F6F8FA] flex items-center justify-center text-[#16222E] transition-colors shadow-2xs cursor-pointer"
                 aria-label="Scroll destinations left"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={() => scroll('right')}
-                className="w-9 h-9 rounded-full border border-[#16222E]/10 bg-white hover:bg-[#F6F8FA] flex items-center justify-center text-[#16222E] transition-colors shadow-2xs cursor-pointer"
+                className="w-9 h-9 rounded-full border border-[#16222E]/15 bg-white hover:bg-[#F6F8FA] flex items-center justify-center text-[#16222E] transition-colors shadow-2xs cursor-pointer"
                 aria-label="Scroll destinations right"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -158,7 +158,7 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
 
             <button
               onClick={onStartCustomising}
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-white border border-[#16222E]/10 text-[14px] font-semibold text-[#000000] hover:border-[#16222E]/25 hover:bg-[#16222E]/[0.025] transition-colors duration-200 group cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-white border border-[#16222E]/20 text-[14px] font-bold text-[#16222E] hover:border-[#0B4A82] hover:text-[#0B4A82] hover:bg-[#F6F8FA] transition-colors duration-200 group cursor-pointer shadow-2xs"
             >
               <span>Customise From Scratch</span>
               <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 ease-out group-hover:translate-x-1" />
@@ -173,10 +173,10 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
               key={f.id}
               type="button"
               onClick={() => setActiveFilter(f.id)}
-              className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer shrink-0 ${
+              className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer shrink-0 ${
                 activeFilter === f.id
                   ? 'bg-[#16222E] text-white shadow-xs'
-                  : 'bg-white border border-[#16222E]/10 text-[#6B7280] hover:text-[#16222E] hover:bg-[#F6F8FA]'
+                  : 'bg-white border border-[#16222E]/15 text-[#4B5563] hover:text-[#16222E] hover:border-[#16222E]/30 hover:bg-[#F6F8FA]'
               }`}
             >
               {f.label}
@@ -214,25 +214,25 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
                     alt={`${dest.name}, ${dest.country}`}
                     referrerPolicy="no-referrer"
                     data-tilt-img
-                    className="w-full h-full object-cover [transform-origin:center] will-change-transform"
+                    className="w-full h-full object-cover [transform-origin:center] will-change-transform contrast-[1.04] saturate-[1.06]"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
                 </div>
 
                 {/* Stays from badge */}
                 {meta?.startPrice && (
-                  <div className="absolute top-4 right-4 z-10 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/25 text-[11px] font-semibold text-white shadow-sm">
+                  <div className="absolute top-4 right-4 z-10 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/30 text-[11px] font-bold text-white shadow-sm">
                     From {meta.startPrice}
                   </div>
                 )}
 
                 <div className="absolute bottom-5 left-5 right-5 z-10 text-white">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[#9DD3D0]">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#8CC7C4]">
                     {meta?.country ?? dest.country}
                   </p>
-                  <h3 className="mt-0.5 text-xl sm:text-2xl font-bold leading-tight drop-shadow-sm">{dest.name}</h3>
-                  <p className="mt-1 text-xs text-white/95 line-clamp-1">{meta?.tag ?? dest.tagline}</p>
-                  <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-[#9DD3D0] group-hover:text-white transition-colors">
+                  <h3 className="mt-0.5 text-xl sm:text-2xl font-extrabold leading-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">{dest.name}</h3>
+                  <p className="mt-1 text-xs text-white/95 font-medium line-clamp-1">{meta?.tag ?? dest.tagline}</p>
+                  <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-[#8CC7C4] group-hover:text-white transition-colors drop-shadow-sm">
                     Plan This Trip
                     <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 ease-out group-hover:translate-x-1" />
                   </span>

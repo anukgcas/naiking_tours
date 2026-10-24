@@ -19,8 +19,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   savedPackagesCount = 0,
 }) => {
   const tabClass = (active: boolean) =>
-    `flex flex-col items-center gap-1 text-[11px] font-medium py-1 px-2 transition-colors cursor-pointer ${
-      active ? 'text-[#0B4A82]' : 'text-[#6B7280]'
+    `flex flex-col items-center gap-1 text-[11px] py-1 px-2 transition-colors cursor-pointer ${
+      active ? 'text-[#0B4A82] font-bold' : 'text-[#4B5563] font-medium'
     }`;
 
   return (

@@ -60,21 +60,21 @@ export const DISTINCTION_PILLARS: DistinctionPillar[] = [
 
 const PillarCard: React.FC<DistinctionPillar> = ({ category, title, commitment, standard, icon: Icon }) => {
   return (
-    <figure className="w-[300px] sm:w-[360px] shrink-0 mr-5 rounded-3xl bg-[#F6F8FA] border border-[#16222E]/8 p-6 flex flex-col justify-between">
+    <figure className="w-[300px] sm:w-[360px] shrink-0 mr-5 rounded-3xl bg-[#F6F8FA] border border-[#16222E]/12 p-6 flex flex-col justify-between shadow-[0_4px_16px_-4px_rgba(22,34,46,0.06)] hover:shadow-md hover:border-[#0B4A82]/25 transition-all duration-300">
       <div>
         <div className="flex items-center justify-between">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#16222E]/8 text-[12px] font-semibold text-[#0B4A82]">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#0B4A82]/15 text-[12px] font-bold text-[#0B4A82] shadow-2xs">
             <Icon className="w-3.5 h-3.5 text-[#0B4A82]" />
             {category}
           </span>
-          <span className="text-[11px] font-medium text-[#6B7280] tracking-wide uppercase">Commitment</span>
+          <span className="text-[11px] font-bold text-[#4B5563] tracking-wider uppercase">Commitment</span>
         </div>
         <h3 className="mt-4 text-base font-bold text-[#16222E]">{title}</h3>
-        <blockquote className="mt-2 text-[14px] leading-relaxed text-[#4B5563]">“{commitment}”</blockquote>
+        <blockquote className="mt-2 text-[14px] leading-relaxed text-[#2D3748] font-normal">“{commitment}”</blockquote>
       </div>
-      <figcaption className="mt-6 pt-4 border-t border-[#16222E]/8 flex items-center justify-between text-xs">
-        <span className="font-semibold text-[#16222E]">{standard}</span>
-        <span className="text-[#0B4A82] font-medium flex items-center gap-1">
+      <figcaption className="mt-6 pt-4 border-t border-[#16222E]/10 flex items-center justify-between text-xs">
+        <span className="font-bold text-[#16222E]">{standard}</span>
+        <span className="text-[#0B4A82] font-bold flex items-center gap-1">
           <ShieldCheck className="w-3.5 h-3.5 text-[#0B4A82]" /> Westack Standard
         </span>
       </figcaption>
@@ -87,7 +87,7 @@ export const WhyNaiking: React.FC = () => {
     <section id="why-naiking" className="py-16 lg:py-12 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto text-center mb-10 lg:mb-14">
-          <span className="text-base font-semibold text-[#0B4A82]">
+          <span className="text-base font-bold text-[#0B4A82]">
             The Naiking Distinction
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#16222E] mt-2 text-balance">

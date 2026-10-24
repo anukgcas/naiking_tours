@@ -38,23 +38,23 @@ export const StandardVsNaiking: React.FC = () => {
         <div className="grid lg:grid-cols-[2fr_3fr] gap-10 lg:gap-20 items-start">
           {/* Left: editorial introduction */}
           <div className="lg:sticky lg:top-32">
-            <span className="text-base font-semibold text-[#0B4A82]">
+            <span className="text-base font-bold text-[#0B4A82]">
               The Naiking Standard
             </span>
-            <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight leading-[1.1] text-[#16222E] text-balance">
+            <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-[1.1] text-[#16222E] text-balance">
               Why discerning travellers choose quiet luxury
             </h2>
-            <p className="mt-5 max-w-md text-sm sm:text-base leading-relaxed text-[#4B5563]">
+            <p className="mt-5 max-w-md text-sm sm:text-base leading-relaxed text-[#374151]">
               The difference between checking off a tourist checklist and feeling truly renewed
             </p>
           </div>
 
           {/* Right: interactive index */}
-          <ol className="border-t border-[#16222E]/12 lg:min-h-[440px]">
+          <ol className="border-t border-[#16222E]/15 lg:min-h-[440px]">
             {PRINCIPLES.map((p, i) => {
               const isActive = active === i;
               return (
-                <li key={p.title} className="border-b border-[#16222E]/12">
+                <li key={p.title} className="border-b border-[#16222E]/15">
                   <button
                     type="button"
                     id={`principle-${i}`}
@@ -62,7 +62,7 @@ export const StandardVsNaiking: React.FC = () => {
                     aria-controls={`principle-panel-${i}`}
                     onClick={() => setActive((curr) => (curr === i ? null : i))}
                     className={`group relative w-full text-left cursor-pointer overflow-hidden px-4 sm:px-6 py-6 sm:py-7 transition-colors duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0B4A82] motion-reduce:transition-none ${
-                      isActive ? 'bg-[#EDF1F5]/70' : 'bg-transparent hover:bg-[#F6F8FA]/60'
+                      isActive ? 'bg-[#EDF1F5]' : 'bg-transparent hover:bg-[#F6F8FA]'
                     }`}
                   >
                     {/* Accent rule */}
@@ -74,8 +74,8 @@ export const StandardVsNaiking: React.FC = () => {
                     />
                     <div className="relative flex items-start gap-4 sm:gap-8">
                       <span
-                        className={`w-7 shrink-0 pt-1 text-xs font-semibold tracking-widest tabular-nums transition-[transform,color] duration-500 ease-out motion-reduce:transition-none ${
-                          isActive ? 'text-[#0B4A82] translate-x-1 motion-reduce:translate-x-0' : 'text-[#9CA3AF]'
+                        className={`w-7 shrink-0 pt-1 text-xs font-bold tracking-widest tabular-nums transition-[transform,color] duration-500 ease-out motion-reduce:transition-none ${
+                          isActive ? 'text-[#0B4A82] translate-x-1 motion-reduce:translate-x-0' : 'text-[#4B5563]'
                         }`}
                       >
                         0{i + 1}
@@ -85,8 +85,8 @@ export const StandardVsNaiking: React.FC = () => {
                         <h3
                           className={`text-base sm:text-lg transition-[transform,color] duration-500 ease-out motion-reduce:transition-none ${
                             isActive
-                              ? 'font-semibold text-[#16222E] translate-x-1.5 motion-reduce:translate-x-0'
-                              : 'font-medium text-[#16222E]/70'
+                              ? 'font-bold text-[#16222E] translate-x-1.5 motion-reduce:translate-x-0'
+                              : 'font-semibold text-[#16222E]/85 group-hover:text-[#0B4A82]'
                           }`}
                         >
                           {p.title}
@@ -107,15 +107,15 @@ export const StandardVsNaiking: React.FC = () => {
                                 isActive ? 'translate-y-0' : 'translate-y-2 motion-reduce:translate-y-0'
                               }`}
                             >
-                              <p className="max-w-md text-sm sm:text-[16px] leading-relaxed text-[#4B5563]">{p.body}</p>
-                              <p className="mt-3 text-sm sm:text-[16px] leading-relaxed text-[#4B5563]">{p.phrase}</p>
+                              <p className="max-w-md text-sm sm:text-[16px] leading-relaxed text-[#2D3748]">{p.body}</p>
+                              <p className="mt-3 text-sm sm:text-[16px] leading-relaxed text-[#0B4A82] font-semibold">{p.phrase}</p>
                             </div>
                           </div>
                         </div>
                       </div>
 
                       {/* Arrow ⇄ minus indicator */}
-                      <span className="relative mt-1 w-5 h-5 shrink-0 text-[#16222E]/60" aria-hidden="true">
+                      <span className="relative mt-1 w-5 h-5 shrink-0 text-[#16222E]/70" aria-hidden="true">
                         <ArrowRight
                           className={`absolute inset-0 w-5 h-5 transition-[transform,opacity] duration-500 ease-out group-hover:translate-x-1.5 motion-reduce:transition-opacity motion-reduce:group-hover:translate-x-0 ${
                             isActive ? 'opacity-0' : 'opacity-100'

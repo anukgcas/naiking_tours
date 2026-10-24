@@ -31,9 +31,9 @@ export const Header: React.FC<HeaderProps> = ({
   // Transparent over hero photo at top of home page
   const overHero = !isScrolled && activeTab === 'home';
   const linkIdle = overHero
-    ? 'text-white/80 hover:text-white'
-    : 'text-[#6B7280] hover:text-[#16222E]';
-  const linkActive = overHero ? 'text-white' : 'text-[#16222E]';
+    ? 'text-white/90 hover:text-white drop-shadow-sm'
+    : 'text-[#4B5563] hover:text-[#16222E]';
+  const linkActive = overHero ? 'text-white font-bold drop-shadow-sm' : 'text-[#16222E] font-bold';
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 639px)');
@@ -59,7 +59,7 @@ export const Header: React.FC<HeaderProps> = ({
           className={`relative flex items-center justify-between h-[64px] lg:h-[76px] px-5 lg:px-8 rounded-full border backdrop-blur-md transition-all duration-500 ease-in-out ${
             overHero
               ? 'bg-white/0 border-white/0 shadow-none'
-              : 'bg-white/95 border-white/90 shadow-md'
+              : 'bg-white/98 border-[#16222E]/10 shadow-[0_4px_20px_-4px_rgba(22,34,46,0.08)]'
           }`}
         >
           {/* Left: Brand Logo */}

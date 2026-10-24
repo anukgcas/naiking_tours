@@ -32,25 +32,25 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Brand Col */}
           <div className="md:col-span-4 space-y-3">
             <NLogo size="lg" variant="light" animated />
-            <p className="text-[16px] text-[#9AA7B4] max-w-sm leading-[1.75]">
+            <p className="text-[16px] text-[#B8C5D3] max-w-sm leading-[1.75]">
               Quiet luxury travel agency specializing in private boutique retreats, bespoke
               itineraries, and chauffeured expeditions across the globe
             </p>
-            <div className="pt-2 text-[15px] text-[#7A8794]">
+            <div className="pt-2 text-[15px] text-[#8DA0B3]">
               <span>Licensed Luxury Tour Operator - IATA Accredited</span>
             </div>
           </div>
 
           {/* Quick Links */}
           <div className="md:col-span-2 space-y-4">
-            <h4 className="text-[17px] font-medium text-[#EDF1F5]">
+            <h4 className="text-[17px] font-bold text-white tracking-wide">
               Navigation
             </h4>
-            <ul className="space-y-2.5 text-[15px] text-[#9AA7B4]">
+            <ul className="space-y-2.5 text-[15px] text-[#B8C5D3]">
               <li>
                 <button
                   onClick={() => onNavigate('home')}
-                  className="inline-block hover:text-[#EDF1F5] hover:translate-x-0.5 motion-reduce:hover:translate-x-0 transition duration-200 ease-out cursor-pointer"
+                  className="inline-block hover:text-white hover:translate-x-0.5 motion-reduce:hover:translate-x-0 transition duration-200 ease-out cursor-pointer"
                 >
                   Home
                 </button>
@@ -58,7 +58,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={() => onNavigate('plan')}
-                  className="inline-block hover:text-[#EDF1F5] hover:translate-x-0.5 motion-reduce:hover:translate-x-0 transition duration-200 ease-out cursor-pointer"
+                  className="inline-block hover:text-white hover:translate-x-0.5 motion-reduce:hover:translate-x-0 transition duration-200 ease-out cursor-pointer"
                 >
                   Customise Your Trip
                 </button>
@@ -66,7 +66,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={onOpenMyTrips}
-                  className="inline-block hover:text-[#EDF1F5] hover:translate-x-0.5 motion-reduce:hover:translate-x-0 transition duration-200 ease-out cursor-pointer"
+                  className="inline-block hover:text-white hover:translate-x-0.5 motion-reduce:hover:translate-x-0 transition duration-200 ease-out cursor-pointer"
                 >
                   My Trips
                 </button>
@@ -74,7 +74,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={() => onNavigate('why')}
-                  className="inline-block hover:text-[#EDF1F5] hover:translate-x-0.5 motion-reduce:hover:translate-x-0 transition duration-200 ease-out cursor-pointer"
+                  className="inline-block hover:text-white hover:translate-x-0.5 motion-reduce:hover:translate-x-0 transition duration-200 ease-out cursor-pointer"
                 >
                   Why Naiking
                 </button>
@@ -82,7 +82,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={onOpenPlanner}
-                  className="inline-block hover:text-[#0B4A82] hover:translate-x-0.5 motion-reduce:hover:translate-x-0 transition duration-200 ease-out cursor-pointer"
+                  className="inline-block hover:text-[#8CC7C4] hover:translate-x-0.5 motion-reduce:hover:translate-x-0 transition duration-200 ease-out cursor-pointer font-medium"
                 >
                   Plan a Trip
                 </button>
@@ -92,37 +92,37 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Destinations */}
           <div className="md:col-span-2 space-y-4">
-            <h4 className="text-[17px] font-medium  text-[#EDF1F5]">
+            <h4 className="text-[17px] font-bold text-white tracking-wide">
               Destinations
             </h4>
-            <ul className="space-y-2.5 text-[15px] text-[#9AA7B4]">
+            <ul className="space-y-2.5 text-[15px] text-[#B8C5D3]">
               <li>
-                <span className="inline-block hover:text-[#EDF1F5] transition-colors duration-200 ease-out cursor-pointer">Bali, Indonesia</span>
+                <span className="inline-block hover:text-white transition-colors duration-200 ease-out cursor-pointer">Bali, Indonesia</span>
               </li>
               <li>
-                <span className="inline-block hover:text-[#EDF1F5] transition-colors duration-200 ease-out cursor-pointer">Dubai, UAE</span>
+                <span className="inline-block hover:text-white transition-colors duration-200 ease-out cursor-pointer">Dubai, UAE</span>
               </li>
               <li>
-                <span className="inline-block hover:text-[#EDF1F5] transition-colors duration-200 ease-out cursor-pointer">Maldives Atolls</span>
+                <span className="inline-block hover:text-white transition-colors duration-200 ease-out cursor-pointer">Maldives Atolls</span>
               </li>
               <li>
-                <span className="inline-block hover:text-[#EDF1F5] transition-colors duration-200 ease-out cursor-pointer">Goa Heritage</span>
+                <span className="inline-block hover:text-white transition-colors duration-200 ease-out cursor-pointer">Goa Heritage</span>
               </li>
               <li>
-                <span className="inline-block hover:text-[#EDF1F5] transition-colors duration-200 ease-out cursor-pointer">Manali Alpine</span>
+                <span className="inline-block hover:text-white transition-colors duration-200 ease-out cursor-pointer">Manali Alpine</span>
               </li>
               <li>
-                <span className="inline-block hover:text-[#EDF1F5] transition-colors duration-200 ease-out cursor-pointer">Singapore City</span>
+                <span className="inline-block hover:text-white transition-colors duration-200 ease-out cursor-pointer">Singapore City</span>
               </li>
             </ul>
           </div>
 
           {/* Seasonal Journal Dispatch */}
           <div className="md:col-span-4 space-y-4">
-            <h4 className="text-[17px] font-medium text-[#EDF1F5]">
+            <h4 className="text-[17px] font-bold text-white tracking-wide">
               The Unhurried Dispatch
             </h4>
-            <p className="text-[16px] text-[#9AA7B4] leading-[1.75] max-w-xs">
+            <p className="text-[16px] text-[#B8C5D3] leading-[1.75] max-w-xs">
               Curated seasonal escapes, private villa openings, and quiet travel essays. Never spam
             </p>
 
@@ -133,18 +133,18 @@ export const Footer: React.FC<FooterProps> = ({
                 placeholder="Enter your email..."
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 pr-14 text-[16px] rounded-xl bg-white/[0.04] border border-white/12 text-[#EDF1F5] placeholder-[#7A8794] focus:outline-none focus:border-[#0B4A82]"
+                className="w-full px-4 py-3 pr-14 text-[16px] rounded-xl bg-white/[0.08] border border-white/20 text-white placeholder-[#8DA0B3] focus:outline-none focus:border-[#1D7BA6] focus:bg-white/[0.12] transition-colors"
               />
               <button
                 type="submit"
-                className="group absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg bg-[#0B4A82] hover:bg-[#0E7C86] text-white flex items-center justify-center transition-colors duration-200 ease-out cursor-pointer"
+                className="group absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg bg-[#0B4A82] hover:bg-[#1D7BA6] text-white flex items-center justify-center transition-colors duration-200 ease-out cursor-pointer shadow-xs"
                 aria-label="Subscribe to newsletter"
               >
                 {subscribed ? <Check className="w-4 h-4" /> : <ArrowRight className="w-4 h-4 transition-transform duration-200 ease-out group-hover:translate-x-1 motion-reduce:group-hover:translate-x-0" />}
               </button>
             </form>
             {subscribed && (
-              <p className="text-[15px] text-[#EDF1F5]">
+              <p className="text-[15px] text-[#8CC7C4] font-medium">
                 ✓ Thank you. You are subscribed to the seasonal dispatch.
               </p>
             )}
@@ -152,16 +152,16 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
 
         {/* Bottom copyright row */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[15px] text-[#8793A0] gap-4">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[15px] text-[#9AA7B4] gap-4">
           <p>© {new Date().getFullYear()} Naiking Tours Inc. All rights reserved</p>
           <div className="flex items-center gap-6">
-            <span className="hover:text-[#EDF1F5] transition-colors duration-200 ease-out cursor-pointer">
+            <span className="hover:text-white transition-colors duration-200 ease-out cursor-pointer">
               Privacy Protocol
             </span>
-            <span className="hover:text-[#EDF1F5] transition-colors duration-200 ease-out cursor-pointer">
+            <span className="hover:text-white transition-colors duration-200 ease-out cursor-pointer">
               Terms of Booking
             </span>
-            <span className="text-[#EDF1F5] hover:text-[#ffffff] transition-colors duration-200 ease-out cursor-pointer">
+            <span className="text-white hover:text-[#8CC7C4] transition-colors duration-200 ease-out cursor-pointer font-medium">
               Concierge Contact
             </span>
           </div>
