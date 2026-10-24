@@ -47,14 +47,11 @@ const MONTH_NAMES = [
 ];
 const DAY_LABELS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
-// Guest categories: adults 12+, children 6-12, infants under 6
+// Guest categories: adults 12+, children 6-12, infants under 6, rooms 0-10
 const MAX_ADULTS = 12;
 const MAX_CHILDREN = 8;
 const MAX_INFANTS = 4;
-
-/** Rooms follow the party: 2 adults per room, and no more than 4 guests (infants excluded) per room. */
-const roomsFor = (adults: number, children: number) =>
-  Math.max(1, Math.ceil(adults / 2), Math.ceil((adults + children) / 4));
+const MAX_ROOMS = 10;
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
@@ -231,8 +228,6 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
     infants: 0,
     rooms: prefill ? rooms : 0,
   });
-  // Rooms follow the party automatically until the visitor adjusts them by hand.
-  const [roomsManual, setRoomsManual] = useState(false);
 
   const [validationError, setValidationError] = useState<string | null>(null);
   const [activePopup, setActivePopup] = useState<Popup>(null);
@@ -301,43 +296,49 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
     const a = Math.min(MAX_ADULTS, Math.max(0, nextAdults));
     const c = Math.min(MAX_CHILDREN, Math.max(0, nextChildren));
     const i = Math.min(MAX_INFANTS, Math.max(0, nextInfants));
-    const needed = a >= 1 ? roomsFor(a, c) : 0;
-    // a hand-picked room count is kept as long as it still fits the party (one adult per room at most)
-    const nextRooms = a >= 1 && roomsManual ? Math.min(Math.max(party.rooms, needed), a) : needed;
-    setParty({ adults: a, children: c, infants: i, rooms: nextRooms });
-    if (a >= 1) {
+    setParty((p) => ({ ...p, adults: a, children: c, infants: i }));
+    if (a >= 1 || party.rooms > 0) {
       markPicked('guests');
-      setGuests(nextRooms, a, c);
     } else {
-      // no adult yet: the guests field stays unfilled until one is added
       unpick('guests');
     }
+    setGuests(party.rooms, a, c);
   };
 
   const changeRooms = (nextRooms: number) => {
-    if (party.adults < 1) return;
-    const needed = roomsFor(party.adults, party.children);
-    const r = Math.min(party.adults, Math.max(needed, nextRooms));
-    setRoomsManual(r !== needed);
+    const r = Math.min(MAX_ROOMS, Math.max(0, nextRooms));
     setParty((p) => ({ ...p, rooms: r }));
-    markPicked('guests');
+    if (r > 0 || party.adults >= 1) {
+      markPicked('guests');
+    } else {
+      unpick('guests');
+    }
     setGuests(r, party.adults, party.children);
   };
 
-  const guestSummary = [
-    plural(party.adults, 'Adult', 'Adults'),
-    party.children > 0 ? plural(party.children, 'Child', 'Children') : null,
-    party.infants > 0 ? plural(party.infants, 'Infant', 'Infants') : null,
-  ]
-    .filter(Boolean)
-    .join(', ');
+  const guestSummary =
+    party.adults > 0 || party.children > 0 || party.infants > 0
+      ? [
+          plural(party.adults, 'Adult', 'Adults'),
+          party.children > 0 ? plural(party.children, 'Child', 'Children') : null,
+          party.infants > 0 ? plural(party.infants, 'Infant', 'Infants') : null,
+        ]
+          .filter(Boolean)
+          .join(', ')
+      : 'No guests selected';
 
   const handleLaunchPlanning = () => {
     const missing: { popup: Exclude<Popup, null>; label: string }[] = [];
     if (!picked.dest) missing.push({ popup: 'dest', label: 'destination' });
     if (!picked.start) missing.push({ popup: 'start', label: 'trip start date' });
     if (!picked.end) missing.push({ popup: 'end', label: 'trip end date' });
-    if (!picked.guests) missing.push({ popup: 'guests', label: 'guests (at least one adult)' });
+    if (!picked.guests || (party.adults < 1 && party.rooms < 1)) {
+      missing.push({ popup: 'guests', label: 'guests & rooms' });
+    } else if (party.adults < 1) {
+      missing.push({ popup: 'guests', label: 'guests (at least one adult)' });
+    } else if (party.rooms < 1) {
+      missing.push({ popup: 'guests', label: 'rooms (at least one room)' });
+    }
     if (missing.length > 0) {
       setValidationError(
         `Please choose your ${missing.map((m) => m.label).join(', ').replace(/, ([^,]*)$/, ' and $1')} to continue.`,
@@ -358,11 +359,11 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
       onCraftItinerary();
     } else if (onStartPlanning) {
       const travellerType: TravellerType =
-        adults === 1 && children === 0
+        party.adults === 1 && party.children === 0
           ? 'solo'
-          : adults === 2 && children === 0 && rooms === 1
+          : party.adults === 2 && party.children === 0 && party.rooms === 1
           ? 'couple'
-          : children > 0
+          : party.children > 0
           ? 'family'
           : 'friends';
 
@@ -371,9 +372,9 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
           destinationId: selectedDestId,
           aiDestination: false,
           travellerType,
-          adults,
-          children,
-          rooms,
+          adults: party.adults,
+          children: party.children,
+          rooms: party.rooms,
           checkIn: departureDate,
           checkOut: endDate,
           interests,
@@ -619,7 +620,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                     {picked.guests ? guestSummary : hint("Who's travelling?")}
                   </div>
                   <div className="text-[11px] text-[#4B5563] truncate leading-tight">
-                    {picked.guests ? plural(party.rooms, 'Room', 'Rooms') : 'Add guests, rooms follow'}
+                    {picked.guests ? plural(party.rooms, 'Room', 'Rooms') : 'Select guests & rooms'}
                   </div>
                 </div>
               </div>
@@ -634,7 +635,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                     { key: 'adults', label: 'Adults', sub: 'Age 12 and above', value: party.adults, min: party.children > 0 || party.infants > 0 ? 1 : 0, max: MAX_ADULTS },
                     { key: 'children', label: 'Children', sub: 'Age 6 to 12', value: party.children, min: 0, max: MAX_CHILDREN },
                     { key: 'infants', label: 'Infants', sub: 'Below 6 years', value: party.infants, min: 0, max: MAX_INFANTS },
-                    { key: 'rooms', label: 'Rooms', sub: 'Added automatically, adjustable', value: party.rooms, min: party.adults >= 1 ? roomsFor(party.adults, party.children) : 0, max: party.adults },
+                    { key: 'rooms', label: 'Rooms', sub: 'Accommodation rooms', value: party.rooms, min: 0, max: MAX_ROOMS },
                   ].map((row) => {
                     const apply = (delta: number) => {
                       const v = row.value + delta;
@@ -680,8 +681,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                 <p className="mt-4 flex items-start gap-2 text-[10px] text-[#6B7280] leading-snug">
                   <BedDouble className="w-3.5 h-3.5 text-[#0E7C86] shrink-0" />
                   <span>
-                    Rooms update as you add guests: up to 2 adults per room, 4 guests when children are travelling.
-                    Infants stay free.
+                    Select the number of rooms needed for your accommodation. Infants stay free.
                   </span>
                 </p>
 
