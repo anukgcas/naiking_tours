@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { PlanState, TripDraft } from '../types';
 import { generateShareUrl } from '../services/shareService';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 import { Check, Copy, Link, Printer, Share2, Shield, X, AlertCircle } from 'lucide-react';
 import { getDestination, tripDays } from '../data/planner';
 import { CURATED_PACKAGES } from './CuratedPackages';
@@ -27,6 +28,11 @@ export const ShareItineraryModal: React.FC<ShareItineraryModalProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [fallbackMode, setFallbackMode] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const containerRef = useFocusTrap({
+    isOpen,
+    onEscape: onClose,
+  });
 
   const dest = getDestination(draft.destinationId);
   const days = tripDays(draft);
@@ -104,6 +110,7 @@ export const ShareItineraryModal: React.FC<ShareItineraryModalProps> = ({
 
   return (
     <div
+      ref={containerRef}
       role="dialog"
       aria-modal="true"
       aria-labelledby="share-modal-title"
@@ -111,7 +118,7 @@ export const ShareItineraryModal: React.FC<ShareItineraryModalProps> = ({
     >
       <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-[#16222E]/10 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Modal Header */}
-        <div className="p-5 border-b border-[#16222E]/8 flex items-center justify-between bg-[#F6F8FA]">
+        <div className="p-4 sm:p-5 border-b border-[#16222E]/8 flex items-center justify-between bg-[#F6F8FA]">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-[#EEF4F8] text-[#0B4A82] flex items-center justify-center shrink-0">
               <Share2 className="w-4 h-4" />
@@ -127,7 +134,7 @@ export const ShareItineraryModal: React.FC<ShareItineraryModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="p-1.5 rounded-full text-[#6B7280] hover:bg-[#16222E]/8 hover:text-[#16222E] transition cursor-pointer"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-[#6B7280] hover:bg-[#16222E]/8 hover:text-[#16222E] focus:outline-none focus:ring-2 focus:ring-[#0B4A82] transition cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>

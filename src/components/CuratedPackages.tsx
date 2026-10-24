@@ -224,7 +224,7 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({
                           e.stopPropagation();
                           toggleSavePackage(pkg.id);
                         }}
-                        className={`p-1.5 rounded-full backdrop-blur-md transition-all duration-200 cursor-pointer ${
+                        className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-white ${
                           isSaved
                             ? 'bg-[#0B4A82] text-white shadow-sm ring-2 ring-white/50'
                             : 'bg-black/40 text-white/90 hover:bg-black/60 hover:text-white'
@@ -232,7 +232,7 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({
                         aria-label={isSaved ? `Remove ${pkg.name} from saved` : `Save ${pkg.name} for later`}
                         title={isSaved ? 'Saved for Later' : 'Save for Later'}
                       >
-                        <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-current' : ''}`} />
+                        <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
                       </button>
                     </div>
 
@@ -285,11 +285,12 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({
                     <button
                       type="button"
                       onClick={() => onEnquirePackage(pkg)}
-                      className="inline-flex items-center justify-center gap-1.5 py-3 px-3.5 sm:px-4 rounded-2xl border border-[#16222E]/15 bg-white text-[#16222E] font-semibold text-sm hover:bg-[#F6F8FA] hover:border-[#16222E]/30 active:scale-[0.98] transition-all duration-200 cursor-pointer shrink-0"
+                      className="min-h-[44px] inline-flex items-center justify-center gap-1.5 py-2.5 px-3.5 sm:px-4 rounded-2xl border border-[#16222E]/15 bg-white text-[#16222E] font-semibold text-sm hover:bg-[#F6F8FA] hover:border-[#16222E]/30 focus:outline-none focus:ring-2 focus:ring-[#0B4A82] active:scale-[0.98] transition-all duration-200 cursor-pointer shrink-0"
+                      aria-label={`Enquire about ${pkg.name}`}
                       title="Ask questions or request a callback for this package"
                     >
                       <MessageSquare className="w-4 h-4 text-[#0B4A82]" />
-                      <span className="hidden sm:inline">Enquire</span>
+                      <span>Enquire</span>
                     </button>
                   )}
                   <button

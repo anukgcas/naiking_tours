@@ -216,12 +216,12 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
                     data-tilt-img
                     className="w-full h-full object-cover [transform-origin:center] will-change-transform"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
                 </div>
 
                 {/* Stays from badge */}
                 {meta?.startPrice && (
-                  <div className="absolute top-4 right-4 z-10 px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/20 text-[11px] font-semibold text-white">
+                  <div className="absolute top-4 right-4 z-10 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/25 text-[11px] font-semibold text-white shadow-sm">
                     From {meta.startPrice}
                   </div>
                 )}
@@ -230,8 +230,8 @@ export const SignatureDestinations: React.FC<SignatureDestinationsProps> = ({
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-[#9DD3D0]">
                     {meta?.country ?? dest.country}
                   </p>
-                  <h3 className="mt-0.5 text-xl sm:text-2xl font-bold leading-tight">{dest.name}</h3>
-                  <p className="mt-1 text-xs text-white/80 line-clamp-1">{meta?.tag ?? dest.tagline}</p>
+                  <h3 className="mt-0.5 text-xl sm:text-2xl font-bold leading-tight drop-shadow-sm">{dest.name}</h3>
+                  <p className="mt-1 text-xs text-white/95 line-clamp-1">{meta?.tag ?? dest.tagline}</p>
                   <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-[#9DD3D0] group-hover:text-white transition-colors">
                     Plan This Trip
                     <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 ease-out group-hover:translate-x-1" />

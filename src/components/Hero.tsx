@@ -245,8 +245,8 @@ export const Hero: React.FC<HeroProps> = ({
             />
           </AnimatePresence>
           {/* Readability gradients */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0E1822]/75 via-[#0E1822]/35 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0E1822]/90 via-transparent to-[#0E1822]/30" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0E1822]/85 via-[#0E1822]/45 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0E1822]/95 via-[#0E1822]/40 to-[#0E1822]/20" />
         </div>
 
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden motion-reduce:hidden">
@@ -314,7 +314,7 @@ export const Hero: React.FC<HeroProps> = ({
                 <span className="mt-1 text-2xl sm:text-3xl font-bold block leading-tight">
                   {currentReel.name}
                 </span>
-                <span className="mt-2 text-xs sm:text-sm leading-relaxed text-white/80 block">
+                <span className="mt-2 text-xs sm:text-sm leading-relaxed text-white/95 block">
                   {currentReel.highlight}
                 </span>
                 <button
@@ -388,7 +388,7 @@ export const Hero: React.FC<HeroProps> = ({
                       {active && (
                         <span className="block pt-2 text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.6)]">
                           <span className="block text-sm font-semibold leading-tight">{reel.name}</span>
-                          <span className="block mt-0.5 text-xs text-white/80 truncate">{reel.tags}</span>
+                          <span className="block mt-0.5 text-xs text-white/95 truncate">{reel.tags}</span>
                         </span>
                       )}
                     </motion.button>

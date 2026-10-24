@@ -42,8 +42,14 @@ import {
   tripDays,
 } from '../data/planner';
 import { StepIndicator } from './StepIndicator';
-import { ShareItineraryModal } from './ShareItineraryModal';
-import { PrintableItinerary } from './PrintableItinerary';
+
+const LazyPrintableItinerary = React.lazy(() =>
+  import('./PrintableItinerary').then((m) => ({ default: m.PrintableItinerary }))
+);
+
+const LazyShareItineraryModal = React.lazy(() =>
+  import('./ShareItineraryModal').then((m) => ({ default: m.ShareItineraryModal }))
+);
 
 export interface ContactDetails {
   name: string;
@@ -230,12 +236,26 @@ const DayCard: React.FC<DayCardProps> = ({
                     <Clock className="w-3.5 h-3.5 text-[#9CA3AF]" /> Activities ({items.length})
                   </h4>
                   <ul className="relative mt-3 pl-6 space-y-3">
-                    <span aria-hidden className="absolute left-[5px] top-3 bottom-3 w-px bg-[#16222E]/12" />
-                    {items.map((a) => {
+                    {items.map((a, idx) => {
+                      const isFirst = idx === 0;
+                      const isLast = idx === items.length - 1;
+                      const isSingle = items.length <= 1;
                       const city = cityOfActivity(destId, a.id);
                       const style = CATEGORY_STYLES[a.category];
                       return (
                         <li key={a.id} className="relative">
+                          {!isSingle && (
+                            <span
+                              aria-hidden
+                              className={`absolute -left-[19px] w-px bg-[#16222E]/12 ${
+                                isFirst
+                                  ? 'top-[29px] -bottom-3'
+                                  : isLast
+                                  ? 'top-0 h-[29px]'
+                                  : 'top-0 -bottom-3'
+                              }`}
+                            />
+                          )}
                           <span aria-hidden className="absolute -left-6 top-6 w-[11px] h-[11px] rounded-full bg-[#16222E]/15 ring-2 ring-white" />
                           <div className="flex gap-3 sm:gap-4 p-3 rounded-2xl bg-[#F6F8FA]/70 border border-[#16222E]/8">
                             <ActivityThumb activity={a} />
@@ -654,9 +674,11 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                   value={contact.name}
                   onChange={(e) => setContact({ ...contact, name: e.target.value })}
                   autoComplete="name"
+                  aria-invalid={errors.name ? 'true' : undefined}
+                  aria-describedby={errors.name ? 'ov-name-error' : undefined}
                   className={inputClass(errors.name)}
                 />
-                {errors.name && <p className="mt-1 text-[11px] text-rose-600">{errors.name}</p>}
+                {errors.name && <p id="ov-name-error" role="alert" className="mt-1 text-[11px] text-rose-600">{errors.name}</p>}
               </div>
               <div>
                 <label htmlFor="ov-phone" className="text-xs font-semibold text-[#16222E]">Phone</label>
@@ -666,9 +688,11 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                   value={contact.phone}
                   onChange={(e) => setContact({ ...contact, phone: e.target.value })}
                   autoComplete="tel"
+                  aria-invalid={errors.phone ? 'true' : undefined}
+                  aria-describedby={errors.phone ? 'ov-phone-error' : undefined}
                   className={inputClass(errors.phone)}
                 />
-                {errors.phone && <p className="mt-1 text-[11px] text-rose-600">{errors.phone}</p>}
+                {errors.phone && <p id="ov-phone-error" role="alert" className="mt-1 text-[11px] text-rose-600">{errors.phone}</p>}
               </div>
               <div>
                 <label htmlFor="ov-email" className="text-xs font-semibold text-[#16222E]">Email</label>
@@ -678,9 +702,11 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                   value={contact.email}
                   onChange={(e) => setContact({ ...contact, email: e.target.value })}
                   autoComplete="email"
+                  aria-invalid={errors.email ? 'true' : undefined}
+                  aria-describedby={errors.email ? 'ov-email-error' : undefined}
                   className={inputClass(errors.email)}
                 />
-                {errors.email && <p className="mt-1 text-[11px] text-rose-600">{errors.email}</p>}
+                {errors.email && <p id="ov-email-error" role="alert" className="mt-1 text-[11px] text-rose-600">{errors.email}</p>}
               </div>
 
               <button
@@ -699,17 +725,23 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
       </div>
     </section>
 
-    <ShareItineraryModal
-      draft={draft}
-      plan={plan}
-      isOpen={isShareModalOpen}
-      onClose={() => setIsShareModalOpen(false)}
-      onPrint={handlePrint}
-      onShowToast={onShowToast}
-    />
+    {isShareModalOpen && (
+      <React.Suspense fallback={null}>
+        <LazyShareItineraryModal
+          draft={draft}
+          plan={plan}
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          onPrint={handlePrint}
+          onShowToast={onShowToast}
+        />
+      </React.Suspense>
+    )}
 
     <div className="hidden print:block">
-      <PrintableItinerary draft={draft} plan={plan} />
+      <React.Suspense fallback={null}>
+        <LazyPrintableItinerary draft={draft} plan={plan} />
+      </React.Suspense>
     </div>
   </>
   );

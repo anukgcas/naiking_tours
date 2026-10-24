@@ -1,20 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Loader } from './components/Loader';
 import { CraftingOverlay } from './components/CraftingOverlay';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
-import { CuratedPackages, CuratedPackage } from './components/CuratedPackages';
+import { CuratedPackages } from './components/CuratedPackages';
+import type { CuratedPackage } from './components/CuratedPackages';
 import { SignatureDestinations } from './components/SignatureDestinations';
 import { HowItWorks } from './components/HowItWorks';
 import { StandardVsNaiking } from './components/StandardVsNaiking';
-import { TripWizard } from './components/TripWizard';
-import { TripPlanner } from './components/TripPlanner';
-import { TripOverview, ContactDetails } from './components/TripOverview';
-import { MyTripsDrawer } from './components/MyTripsDrawer';
+import type { ContactDetails } from './components/TripOverview';
 import { WhyNaiking } from './components/WhyNaiking';
 import { Footer } from './components/Footer';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { ScrollToTop } from './components/ScrollToTop';
+import { LazyErrorBoundary } from './components/LazyErrorBoundary';
 import { SIGNATURE_DESTINATIONS } from './data/mockData';
 import {
   PLANNER_DESTINATIONS,
@@ -26,30 +25,80 @@ import { TripBooking, TripDraft, PlanState } from './types';
 import { Check } from 'lucide-react';
 import { TripProvider, useTrip } from './context/TripContext';
 import { SavedPackagesProvider, useSavedPackages } from './context/SavedPackagesContext';
-import { SavedPackagesDrawer } from './components/SavedPackagesDrawer';
-import { PackageEnquiryModal } from './components/PackageEnquiryModal';
-import { SharedItineraryPreviewModal } from './components/SharedItineraryPreviewModal';
-import { PrintableItinerary } from './components/PrintableItinerary';
 import { getSharePayloadFromUrl, deserializeItinerary } from './services/shareService';
+
+const LazyMyTripsDrawer = React.lazy(() =>
+  import('./components/MyTripsDrawer').then((m) => ({ default: m.MyTripsDrawer }))
+);
+const LazySavedPackagesDrawer = React.lazy(() =>
+  import('./components/SavedPackagesDrawer').then((m) => ({ default: m.SavedPackagesDrawer }))
+);
+const LazyPackageEnquiryModal = React.lazy(() =>
+  import('./components/PackageEnquiryModal').then((m) => ({ default: m.PackageEnquiryModal }))
+);
+const LazySharedItineraryPreviewModal = React.lazy(() =>
+  import('./components/SharedItineraryPreviewModal').then((m) => ({ default: m.SharedItineraryPreviewModal }))
+);
+const LazyPrintableItinerary = React.lazy(() =>
+  import('./components/PrintableItinerary').then((m) => ({ default: m.PrintableItinerary }))
+);
+const LazyTripWizard = React.lazy(() =>
+  import('./components/TripWizard').then((m) => ({ default: m.TripWizard }))
+);
+const LazyTripPlanner = React.lazy(() =>
+  import('./components/TripPlanner').then((m) => ({ default: m.TripPlanner }))
+);
+const LazyTripOverview = React.lazy(() =>
+  import('./components/TripOverview').then((m) => ({ default: m.TripOverview }))
+);
 
 type Tab = 'home' | 'why' | 'start' | 'plan' | 'overview';
 
-function AppContent() {
-  const [showLoader, setShowLoader] = useState(true);
+const SPLASH_STORAGE_KEY = 'westack_splash_shown';
 
-  // Keep the page parked at the top behind the splash so the home page opens fresh when it lifts
+function shouldShowInitialLoader(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return false;
+    }
+    return !sessionStorage.getItem(SPLASH_STORAGE_KEY);
+  } catch {
+    return false;
+  }
+}
+
+function AppContent() {
+  const [showLoader, setShowLoader] = useState(shouldShowInitialLoader);
+
+  const handleLoaderComplete = useCallback(() => {
+    try {
+      sessionStorage.setItem(SPLASH_STORAGE_KEY, 'true');
+    } catch {
+      // Ignore in storage-restricted environments
+    }
+    setShowLoader(false);
+  }, []);
+
+  // Lock scroll cleanly while loader is visible and always release on completion or unmount
   useEffect(() => {
     if (!showLoader) return;
-    const prev = window.history.scrollRestoration;
+    const prevScrollRestoration = window.history.scrollRestoration;
     window.history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
+
     const html = document.documentElement;
-    const overflow = html.style.overflow;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+
     html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+
     return () => {
-      html.style.overflow = overflow;
-      window.history.scrollRestoration = prev;
-      window.scrollTo(0, 0);
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+      window.history.scrollRestoration = prevScrollRestoration;
     };
   }, [showLoader]);
   const [activeTab, setActiveTab] = useState<Tab>('home');
@@ -336,7 +385,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#16222E] font-sans">
-      {showLoader && <Loader onComplete={() => setShowLoader(false)} />}
+      {showLoader && <Loader onComplete={handleLoaderComplete} />}
       {crafting && (
         <CraftingOverlay
           destination={getDestination(draft.destinationId)?.name ?? 'your'}
@@ -365,34 +414,79 @@ function AppContent() {
 
       <main className="flex-1">
         {view === 'start' ? (
-          <TripWizard
-            key={wizardKey}
-            initialDraft={draft}
-            initialStep={wizardStep}
-            onComplete={handleWizardComplete}
-            onExit={() => goTo('home')}
-          />
+          <LazyErrorBoundary
+            fallbackTitle="Tour Designer Unavailable"
+            fallbackMessage="Failed to load the tour customization wizard. Please try refreshing or return home."
+          >
+            <React.Suspense
+              fallback={
+                <div className="min-h-screen bg-[#0E1822] text-white flex flex-col items-center justify-center p-6 text-center">
+                  <div className="w-10 h-10 rounded-full border-2 border-white/20 border-t-[#8CC7C4] animate-spin mb-4" />
+                  <p className="text-base font-serif tracking-wide text-white/90">Loading Bespoke Tour Designer...</p>
+                  <p className="text-xs text-white/50 mt-1">Configuring personalized destination parameters</p>
+                </div>
+              }
+            >
+              <LazyTripWizard
+                key={wizardKey}
+                initialDraft={draft}
+                initialStep={wizardStep}
+                onComplete={handleWizardComplete}
+                onExit={() => goTo('home')}
+              />
+            </React.Suspense>
+          </LazyErrorBoundary>
         ) : view === 'plan' && plan ? (
-          <TripPlanner
-            draft={draft}
-            plan={plan}
-            onPlanChange={setPlan}
-            onStayTierChange={(stayTier) => updateDraft({ stayTier })}
-            onEditDetails={handleEditDetails}
-            onContinue={() => goTo('overview')}
-            onShowToast={showToast}
-          />
+          <LazyErrorBoundary
+            fallbackTitle="Itinerary Workspace Unavailable"
+            fallbackMessage="Failed to load your itinerary planning console. Your draft and preferences remain safe."
+          >
+            <React.Suspense
+              fallback={
+                <div className="min-h-[60vh] flex flex-col items-center justify-center p-12 text-[#16222E] text-center">
+                  <div className="w-10 h-10 rounded-full border-2 border-[#16222E]/10 border-t-[#0B4A82] animate-spin mb-4" />
+                  <p className="text-base font-semibold text-[#16222E]">Loading Itinerary Studio...</p>
+                  <p className="text-sm text-[#4B5563] mt-1">Preparing timeline and luxury experience catalogue</p>
+                </div>
+              }
+            >
+              <LazyTripPlanner
+                draft={draft}
+                plan={plan}
+                onPlanChange={setPlan}
+                onStayTierChange={(stayTier) => updateDraft({ stayTier })}
+                onEditDetails={handleEditDetails}
+                onContinue={() => goTo('overview')}
+                onShowToast={showToast}
+              />
+            </React.Suspense>
+          </LazyErrorBoundary>
         ) : view === 'overview' && plan ? (
-          <TripOverview
-            draft={draft}
-            plan={plan}
-            onEditPlan={() => goTo('plan')}
-            onPlanChange={setPlan}
-            onConfirm={handleConfirmTrip}
-            onViewTrips={() => setIsMyTripsOpen(true)}
-            onPlanAnother={handlePlanAnother}
-            onShowToast={showToast}
-          />
+          <LazyErrorBoundary
+            fallbackTitle="Quotation Overview Unavailable"
+            fallbackMessage="Failed to load quotation details. Your saved itinerary and cost calculations remain safe."
+          >
+            <React.Suspense
+              fallback={
+                <div className="min-h-[60vh] flex flex-col items-center justify-center p-12 text-[#16222E] text-center">
+                  <div className="w-10 h-10 rounded-full border-2 border-[#16222E]/10 border-t-[#0B4A82] animate-spin mb-4" />
+                  <p className="text-base font-semibold text-[#16222E]">Loading Quotation & Overview...</p>
+                  <p className="text-sm text-[#4B5563] mt-1">Calculating luxury stay tiers and private chauffeured transit</p>
+                </div>
+              }
+            >
+              <LazyTripOverview
+                draft={draft}
+                plan={plan}
+                onEditPlan={() => goTo('plan')}
+                onPlanChange={setPlan}
+                onConfirm={handleConfirmTrip}
+                onViewTrips={() => setIsMyTripsOpen(true)}
+                onPlanAnother={handlePlanAnother}
+                onShowToast={showToast}
+              />
+            </React.Suspense>
+          </LazyErrorBoundary>
         ) : (
           <>
             <Hero
@@ -445,61 +539,84 @@ function AppContent() {
         </>
       )}
 
-      <MyTripsDrawer
-        isOpen={isMyTripsOpen}
-        onClose={() => setIsMyTripsOpen(false)}
-        trips={bookedTrips}
-        onPlanTrip={() => {
-          setIsMyTripsOpen(false);
-          startNewTrip();
-          goTo('home');
-        }}
-        onSelectTrip={handleSelectSavedTrip}
-      />
+      {isMyTripsOpen && (
+        <React.Suspense fallback={null}>
+          <LazyMyTripsDrawer
+            isOpen={isMyTripsOpen}
+            onClose={() => setIsMyTripsOpen(false)}
+            trips={bookedTrips}
+            onPlanTrip={() => {
+              setIsMyTripsOpen(false);
+              startNewTrip();
+              goTo('home');
+            }}
+            onSelectTrip={handleSelectSavedTrip}
+          />
+        </React.Suspense>
+      )}
 
-      <SavedPackagesDrawer
-        isOpen={isSavedPackagesOpen}
-        onClose={() => setIsSavedPackagesOpen(false)}
-        savedPackages={savedPackages}
-        onRemovePackage={(pkgId) => {
-          removePackage(pkgId);
-          showToast('Package removed from saved wishlist.');
-        }}
-        onSelectPackage={(pkg) => {
-          setIsSavedPackagesOpen(false);
-          handleSelectPackage(pkg);
-        }}
-        onEnquirePackage={(pkg) => {
-          setIsSavedPackagesOpen(false);
-          setEnquiryPackage(pkg);
-        }}
-        onExplorePackages={scrollToPackages}
-      />
+      {isSavedPackagesOpen && (
+        <React.Suspense fallback={null}>
+          <LazySavedPackagesDrawer
+            isOpen={isSavedPackagesOpen}
+            onClose={() => setIsSavedPackagesOpen(false)}
+            savedPackages={savedPackages}
+            onRemovePackage={(pkgId) => {
+              removePackage(pkgId);
+              showToast('Package removed from saved wishlist.');
+            }}
+            onSelectPackage={(pkg) => {
+              setIsSavedPackagesOpen(false);
+              handleSelectPackage(pkg);
+            }}
+            onEnquirePackage={(pkg) => {
+              setIsSavedPackagesOpen(false);
+              setEnquiryPackage(pkg);
+            }}
+            onExplorePackages={scrollToPackages}
+          />
+        </React.Suspense>
+      )}
 
-      <PackageEnquiryModal
-        pkg={enquiryPackage}
-        isOpen={Boolean(enquiryPackage)}
-        onClose={() => setEnquiryPackage(null)}
-      />
+      {Boolean(enquiryPackage) && (
+        <React.Suspense fallback={null}>
+          <LazyPackageEnquiryModal
+            pkg={enquiryPackage}
+            isOpen={Boolean(enquiryPackage)}
+            onClose={() => setEnquiryPackage(null)}
+          />
+        </React.Suspense>
+      )}
 
-      <SharedItineraryPreviewModal
-        isOpen={sharedTripPreview.isOpen}
-        draft={sharedTripPreview.draft}
-        plan={sharedTripPreview.plan}
-        errorMessage={sharedTripPreview.error}
-        onContinuePlanning={handleAdoptSharedItinerary}
-        onPrint={() => window.print()}
-        onDismiss={handleDismissSharedPreview}
-      />
+      {sharedTripPreview.isOpen && (
+        <React.Suspense fallback={null}>
+          <LazySharedItineraryPreviewModal
+            isOpen={sharedTripPreview.isOpen}
+            draft={sharedTripPreview.draft}
+            plan={sharedTripPreview.plan}
+            errorMessage={sharedTripPreview.error}
+            onContinuePlanning={handleAdoptSharedItinerary}
+            onPrint={() => window.print()}
+            onDismiss={handleDismissSharedPreview}
+          />
+        </React.Suspense>
+      )}
 
       {sharedTripPreview.isOpen && sharedTripPreview.draft && sharedTripPreview.plan && (
         <div className="hidden print:block">
-          <PrintableItinerary draft={sharedTripPreview.draft} plan={sharedTripPreview.plan} />
+          <React.Suspense fallback={null}>
+            <LazyPrintableItinerary draft={sharedTripPreview.draft} plan={sharedTripPreview.plan} />
+          </React.Suspense>
         </div>
       )}
 
       {toastMessage && (
-        <div className="fixed bottom-20 md:bottom-8 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-[#16222E] text-[#F6F8FA] text-xs sm:text-sm font-medium shadow-2xl flex items-center gap-2 border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-200">
+        <div
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className="fixed bottom-20 md:bottom-8 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-[#16222E] text-[#F6F8FA] text-xs sm:text-sm font-medium shadow-2xl flex items-center gap-2 border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-200"
+        >
           <div className="w-4 h-4 rounded-full bg-[#0B4A82] flex items-center justify-center text-white shrink-0">
             <Check className="w-2.5 h-2.5" />
           </div>

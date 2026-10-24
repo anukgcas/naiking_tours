@@ -161,7 +161,7 @@ export const Footer: React.FC<FooterProps> = ({
             <span className="hover:text-[#EDF1F5] transition-colors duration-200 ease-out cursor-pointer">
               Terms of Booking
             </span>
-            <span className="text-[#EDF1F5  ] hover:text-[#ffffff] transition-colors duration-200 ease-out cursor-pointer">
+            <span className="text-[#EDF1F5] hover:text-[#ffffff] transition-colors duration-200 ease-out cursor-pointer">
               Concierge Contact
             </span>
           </div>

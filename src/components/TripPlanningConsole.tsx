@@ -60,8 +60,8 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 
 // Shared glass styling
 const FIELD_IDLE =
-  'bg-white/45 backdrop-blur-md border-white/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] hover:bg-white/70 hover:border-white/90';
-const FIELD_OPEN = 'bg-white/80 border-[#0E7C86] shadow-[0_0_0_3px_rgba(14,124,134,0.18)]';
+  'bg-white/75 backdrop-blur-md border-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] hover:bg-white/90 hover:border-white';
+const FIELD_OPEN = 'bg-white/90 border-[#0E7C86] shadow-[0_0_0_3px_rgba(14,124,134,0.18)]';
 const POPOVER =
   'absolute top-[92px] bg-white/95 backdrop-blur-2xl backdrop-saturate-150 border border-white/70 ring-1 ring-inset ring-white/40 rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150';
 const STEP_BTN =
@@ -391,19 +391,19 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
     }`;
 
   const fieldLabel = (text: string, popup: Exclude<Popup, null>) => (
-    <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B7280] flex items-center justify-between">
+    <span className="text-[11px] font-bold uppercase tracking-wider text-[#4B5563] flex items-center justify-between">
       <span>{text}</span>
       <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activePopup === popup ? 'rotate-180' : ''}`} />
     </span>
   );
 
-  const hint = (text: string) => <span className="text-[#6B7280] font-normal">{text}</span>;
+  const hint = (text: string) => <span className="text-[#374151] font-medium">{text}</span>;
 
   const toggle = (popup: Exclude<Popup, null>) => setActivePopup(activePopup === popup ? null : popup);
 
   return (
     <div ref={containerRef} className="relative w-full max-w-6xl mx-auto z-30" aria-label="Holiday planning console">
-      <div className="bg-gradient-to-br from-white/70 via-white/55 to-white/40 backdrop-blur-2xl backdrop-saturate-150 border border-white/60 ring-1 ring-inset ring-white/50 rounded-3xl p-4 sm:p-6 shadow-[0_24px_60px_-18px_rgba(22,34,46,0.45),inset_0_1px_0_rgba(255,255,255,0.7)] text-[#16222E]">
+      <div className="bg-gradient-to-br from-white/85 via-white/75 to-white/60 backdrop-blur-2xl backdrop-saturate-150 border border-white/70 ring-1 ring-inset ring-white/50 rounded-3xl p-4 sm:p-6 shadow-[0_24px_60px_-18px_rgba(22,34,46,0.45),inset_0_1px_0_rgba(255,255,255,0.7)] text-[#16222E]">
         {/* Top Header Label */}
         <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-[#16222E]/10">
           <div className="flex items-center gap-2">
@@ -412,7 +412,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
               Holiday Packages & Customiser
             </span>
           </div>
-          <span className="text-xs text-[#6B7280] hidden sm:inline">Directly seeds your bespoke itinerary</span>
+          <span className="text-xs text-[#4B5563] hidden sm:inline">Directly seeds your bespoke itinerary</span>
         </div>
 
         {/* 4 fields: destination, start date, end date, guests & rooms */}
@@ -433,7 +433,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                   <div className="text-sm font-semibold truncate leading-tight">
                     {picked.dest ? selectedDest.name : hint('Where to?')}
                   </div>
-                  <div className="text-[11px] text-[#6B7280] truncate leading-tight">
+                  <div className="text-[11px] text-[#4B5563] truncate leading-tight">
                     {picked.dest ? selectedDest.country : 'Choose a destination'}
                   </div>
                 </div>
@@ -500,7 +500,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                   <div className="text-sm font-semibold truncate leading-tight">
                     {picked.start ? formatDate(departureDate) : hint('Select date')}
                   </div>
-                  <div className="text-[11px] text-[#6B7280] truncate leading-tight">
+                  <div className="text-[11px] text-[#4B5563] truncate leading-tight">
                     {picked.start ? 'Departure' : 'When do you leave?'}
                   </div>
                 </div>
@@ -519,7 +519,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                   onSelect={pickStart}
                   footer={
                     <div className="mt-3 pt-3 border-t border-[#16222E]/10">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6B7280] mb-1.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#4B5563] mb-1.5">
                         Quick select
                       </p>
                       <div className="flex gap-1.5">
@@ -568,7 +568,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                   <div className="text-sm font-semibold truncate leading-tight">
                     {picked.end ? formatDate(endDate) : hint('Select date')}
                   </div>
-                  <div className="text-[11px] text-[#6B7280] truncate leading-tight">
+                  <div className="text-[11px] text-[#4B5563] truncate leading-tight">
                     {picked.end ? plural(durationNights, 'night', 'nights') : 'When do you return?'}
                   </div>
                 </div>
@@ -593,7 +593,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                   rangeTo={picked.end ? endDate : null}
                   onSelect={pickEnd}
                   footer={
-                    <p className="mt-3 pt-3 border-t border-[#16222E]/10 text-[10px] text-[#6B7280]">
+                    <p className="mt-3 pt-3 border-t border-[#16222E]/10 text-[10px] text-[#4B5563]">
                       We plan up to {MAX_TRIP_DAYS} days per trip.
                     </p>
                   }
@@ -618,7 +618,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                   <div className="text-sm font-semibold truncate leading-tight">
                     {picked.guests ? guestSummary : hint("Who's travelling?")}
                   </div>
-                  <div className="text-[11px] text-[#6B7280] truncate leading-tight">
+                  <div className="text-[11px] text-[#4B5563] truncate leading-tight">
                     {picked.guests ? plural(party.rooms, 'Room', 'Rooms') : 'Add guests, rooms follow'}
                   </div>
                 </div>

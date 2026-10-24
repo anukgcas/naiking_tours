@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Calendar, Users, ChevronDown, Compass, ArrowRight } from 'lucide-react';
 import { TripBooking } from '../types';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 
 interface MyTripsDrawerProps {
   isOpen: boolean;
@@ -20,6 +21,11 @@ export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
+  const containerRef = useFocusTrap<HTMLDivElement>({
+    isOpen,
+    onClose,
+  });
+
   if (!isOpen) return null;
 
   const upcomingTrips = trips.filter(
@@ -30,19 +36,29 @@ export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
   const currentList = activeTab === 'upcoming' ? upcomingTrips : pastTrips;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/40 backdrop-blur-xs flex justify-end animate-in fade-in duration-200">
-      <div className="w-full sm:max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-[#16222E]/10 animate-in slide-in-from-right duration-300">
+    <div
+      className="fixed inset-0 z-50 overflow-hidden bg-black/40 backdrop-blur-xs flex justify-end animate-in fade-in duration-200"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="my-trips-title"
+      onClick={onClose}
+    >
+      <div
+        ref={containerRef}
+        className="w-full sm:max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-[#16222E]/10 animate-in slide-in-from-right duration-300"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="px-5 sm:px-7 pt-7 pb-6 border-b border-[#16222E]/8 flex items-start justify-between gap-4 bg-white">
           <div>
-            <h3 className="text-2xl font-semibold tracking-tight text-[#16222E]">My Trips</h3>
+            <h3 id="my-trips-title" className="text-2xl font-semibold tracking-tight text-[#16222E]">My Trips</h3>
             <p className="mt-1 text-[14px] text-[#6B7280] font-medium">
               Your custom journeys and concierge itineraries
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 -mr-2 rounded-full hover:bg-[#16222E]/5 text-[#6B7280] hover:text-[#16222E] transition-colors duration-200 cursor-pointer"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2 rounded-full hover:bg-[#16222E]/5 text-[#6B7280] hover:text-[#16222E] focus-visible:ring-2 focus-visible:ring-[#0B4A82] focus-visible:outline-none transition-colors duration-200 cursor-pointer"
             aria-label="Close My Trips"
           >
             <X className="w-5 h-5" />

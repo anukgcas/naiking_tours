@@ -51,10 +51,20 @@ import {
 import { Day1Arrival } from './Day1Arrival';
 import { LastDayDeparture } from './LastDayDeparture';
 import { StepIndicator } from './StepIndicator';
-import { RouteMap } from './RouteMap';
 import { CURATED_PACKAGES } from './CuratedPackages';
-import { ShareItineraryModal } from './ShareItineraryModal';
-import { PrintableItinerary } from './PrintableItinerary';
+import { LazyErrorBoundary } from './LazyErrorBoundary';
+
+const LazyPrintableItinerary = React.lazy(() =>
+  import('./PrintableItinerary').then((m) => ({ default: m.PrintableItinerary }))
+);
+
+const LazyRouteMap = React.lazy(() =>
+  import('./RouteMap').then((m) => ({ default: m.RouteMap }))
+);
+
+const LazyShareItineraryModal = React.lazy(() =>
+  import('./ShareItineraryModal').then((m) => ({ default: m.ShareItineraryModal }))
+);
 
 interface TripPlannerProps {
   draft: TripDraft;
@@ -437,13 +447,40 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
       <div>
         <ol>
           {rows.map((row, ri) => {
-            const last = ri === rows.length - 1;
-            const spine = (node: React.ReactNode) => (
-              <div className="relative w-5 shrink-0 flex justify-center">
-                <span aria-hidden className={`absolute left-1/2 -translate-x-1/2 w-px bg-[#16222E]/15 top-0 ${last ? 'h-5' : 'bottom-0'}`} />
-                {node}
-              </div>
-            );
+            const isFirst = ri === 0;
+            const isLast = ri === rows.length - 1;
+            const isSingle = rows.length <= 1;
+
+            const spine = (node: React.ReactNode, isTransfer = false) => {
+              if (isSingle) {
+                return (
+                  <div className="relative w-5 shrink-0 flex justify-center">
+                    {node}
+                  </div>
+                );
+              }
+              const lineClass = isTransfer
+                ? isFirst
+                  ? 'top-3 bottom-0'
+                  : isLast
+                  ? 'top-0 h-3'
+                  : 'top-0 bottom-0'
+                : isFirst
+                ? 'top-[19px] bottom-0'
+                : isLast
+                ? 'top-0 h-[19px]'
+                : 'top-0 bottom-0';
+
+              return (
+                <div className="relative w-5 shrink-0 flex justify-center">
+                  <span
+                    aria-hidden
+                    className={`absolute left-1/2 -translate-x-1/2 w-px bg-[#16222E]/15 ${lineClass}`}
+                  />
+                  {node}
+                </div>
+              );
+            };
 
             if (row.kind === 'transfer') {
               return (
@@ -452,7 +489,8 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                   {spine(
                     <span className="relative z-10 mt-0.5 w-5 h-5 rounded-full bg-[#EEF4F8] text-[#0B4A82] flex items-center justify-center">
                       <Car className="w-4 h-4" />
-                    </span>
+                    </span>,
+                    true
                   )}
                   <p className="flex-1 min-w-0 pb-3 text-[14px] text-[#6B7280]">{row.label}</p>
                 </li>
@@ -544,32 +582,32 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                         </span>
                       </div>
                     </div>
-                    <div className="flex flex-col sm:flex-row items-center gap-0.5 shrink-0 -mr-1">
+                    <div className="flex items-center gap-1 shrink-0 -mr-1">
                       <button
                         type="button"
                         disabled={dayIndex === 0}
                         onClick={() => move(a.id, dayIndex, dayIndex - 1)}
-                        className="p-1 rounded-md text-[#6B7280] hover:bg-[#F6F8FA] disabled:opacity-30 cursor-pointer"
+                        className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-[#6B7280] hover:bg-[#F6F8FA] hover:text-[#16222E] focus:outline-none focus:ring-2 focus:ring-[#0B4A82] disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
                         aria-label={`Move ${a.name} to previous day`}
                       >
-                        <ChevronLeft className="w-3.5 h-3.5" />
+                        <ChevronLeft className="w-4 h-4" />
                       </button>
                       <button
                         type="button"
                         disabled={dayIndex === days - 1}
                         onClick={() => move(a.id, dayIndex, dayIndex + 1)}
-                        className="p-1 rounded-md text-[#6B7280] hover:bg-[#F6F8FA] disabled:opacity-30 cursor-pointer"
+                        className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-[#6B7280] hover:bg-[#F6F8FA] hover:text-[#16222E] focus:outline-none focus:ring-2 focus:ring-[#0B4A82] disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
                         aria-label={`Move ${a.name} to next day`}
                       >
-                        <ChevronRight className="w-3.5 h-3.5" />
+                        <ChevronRight className="w-4 h-4" />
                       </button>
                       <button
                         type="button"
                         onClick={() => move(a.id, dayIndex, 'ideas')}
-                        className="p-1 rounded-md text-[#9CA3AF] hover:text-[#0B4A82] hover:bg-[#0B4A82]/8 cursor-pointer"
+                        className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-[#9CA3AF] hover:text-[#0B4A82] hover:bg-[#0B4A82]/8 focus:outline-none focus:ring-2 focus:ring-[#0B4A82] cursor-pointer transition-colors"
                         aria-label={`Remove ${a.name} from Day ${dayIndex + 1}`}
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -639,7 +677,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
           <button
             type="button"
             onClick={focusIdeas}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-dashed border-[#16222E]/20 text-md font-semibold text-[#6B7280] hover:border-[#0B4A82] hover:text-[#0B4A82] cursor-pointer"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-dashed border-[#16222E]/20 text-sm font-semibold text-[#6B7280] hover:border-[#0B4A82] hover:text-[#0B4A82] cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" /> Add activity
           </button>
@@ -716,7 +754,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                 <p className="mt-1 text-[15px] text-white/75" aria-live="polite">
                   {aiNote ?? insights[0]}
                 </p>
-                {!aiNote && insights[1] && <p className="mt-0.5 text-  text-white/55">{insights[1]}</p>}
+                {!aiNote && insights[1] && <p className="mt-0.5 text-sm text-white/55">{insights[1]}</p>}
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -757,7 +795,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-md font-semibold text-white/70 hover:text-white hover:bg-white/10 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-semibold text-white/70 hover:text-white hover:bg-white/10 cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" /> Clear
                 </button>
@@ -766,18 +804,18 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
           </div>
         </div>
 
-        {/* 3-column dashboard */}
-        <div className="mt-6 grid grid-cols-1 xl:grid-cols-[21rem_minmax(0,1fr)_20rem] gap-5 items-start">
+        {/* Responsive planner dashboard: 1-col on mobile (<1024px), 2-col on tablet/small laptop (1024px–1279px), 3-col on desktop (1280px+) */}
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 xl:grid-cols-[21rem_minmax(0,1fr)_20rem] gap-5 items-start">
           {/* LEFT: Ideas browser (all ideas listed, page scrolls naturally) */}
           <aside
             onDragOver={(e) => allowDrop(e, 'ideas')}
             onDrop={(e) => dropOn(e, 'ideas')}
-            className={`order-2 xl:order-1 xl:sticky xl:top-24 flex flex-col rounded-2xl border bg-white p-3.5 max-h-[70vh] xl:max-h-[calc(100vh-7rem)] ${
+            className={`order-2 lg:order-1 lg:col-span-5 xl:col-span-1 xl:order-1 lg:sticky lg:top-24 flex flex-col rounded-2xl border bg-white p-3.5 max-h-[70vh] lg:max-h-[calc(100vh-7rem)] ${
               overColumn === 'ideas' && drag?.from !== 'ideas' ? 'border-[#0B4A82] bg-[#0B4A82]/5' : 'border-[#16222E]/10'
             }`}
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-md font-bold text-[#16222E]">Ideas in {dest.name}</h2>
+              <h2 className="text-base font-bold text-[#16222E]">Ideas in {dest.name}</h2>
               <span className="text-[15px] text-[#6B7280]">{ideas.length} available</span>
             </div>
             <div className="mt-3 flex flex-wrap gap-1">
@@ -805,13 +843,13 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search activities, places or experiences…"
                 aria-label="Search ideas"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white border border-[#16222E]/10 text-14px font-regular text-[#16222E] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#0B4A82]"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white border border-[#16222E]/10 text-sm font-normal text-[#16222E] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#0B4A82]"
               />
             </div>
 
             <div className="mt-3 -mr-1.5 pr-1.5 pt-0.5 flex-1 min-h-0 overflow-y-auto overscroll-contain space-y-2">
               {ideas.length === 0 && (
-                <p className="text-md text-[#6B7280] py-6 text-center">
+                <p className="text-sm text-[#6B7280] py-6 text-center">
                   {search.trim()
                     ? 'No ideas match your search.'
                     : filter === 'All'
@@ -923,7 +961,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
 
 
           {/* CENTER: itinerary, main focus */}
-          <div className="order-1 xl:order-2 min-w-0">
+          <div className="order-1 lg:order-2 lg:col-span-7 xl:col-span-1 xl:order-2 min-w-0">
             {/* Day accordion — every day is listed compactly; expanding reveals its full itinerary */}
             <div className="space-y-3">
               {plan.days.map((_, di) => {
@@ -953,7 +991,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                     )}
                     {isGroupStart && (
                       <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-3 bg-gradient-to-r from-[#E8F0F5] to-[#DCE7EF] border-b border-[#1D7BA6]/20">
-                        <h3 className="text-md font-semibold text-[#16222E]">
+                        <h3 className="text-base font-semibold text-[#16222E]">
                           {group.title}{' '}
                           <span className="text-[#0B4A82]">
                             / {group.nights} night{group.nights === 1 ? '' : 's'}
@@ -978,7 +1016,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                           className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3 text-left cursor-pointer"
                         >
                           <span
-                            className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-md font-bold ${
+                            className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold ${
                               isActive ? 'bg-[#16222E] text-white' : 'bg-[#16222E]/6 text-[#16222E]'
                             }`}
                           >
@@ -1059,9 +1097,9 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
           </div>
 
           {/* RIGHT: compact pricing, trip summary, route */}
-          <div className="order-3 space-y-4 xl:sticky xl:top-24">
+          <div className="order-3 lg:order-3 lg:col-span-12 xl:col-span-1 xl:order-3 xl:sticky xl:top-24 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-1 gap-5">
             <div className="rounded-2xl border border-[#16222E]/10 bg-white p-4">
-              <h2 className="text-md font-semibold text-[#6B7280]">Trip summary</h2>
+              <h2 className="text-base font-semibold text-[#6B7280]">Trip summary</h2>
               <div className="mt-3 space-y-2.5 text-[15px]">
                 <div className="flex items-center justify-between">
                   <span className="text-[#6B7280]">Dates</span>
@@ -1091,12 +1129,27 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
             {/* Your route */}
             <div className="rounded-2xl border border-[#16222E]/10 bg-white p-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-md font-semibold text-[#16222E]">Your route</h2>
+                <h2 className="text-base font-semibold text-[#16222E]">Your route</h2>
                 <span className="text-[16px] font-semibold text-[#16222E]">
                   {stops.length || 1} {stops.length > 1 ? 'cities' : 'city'} / {days - 1} nights
                 </span>
               </div>
-              <RouteMap stops={stops} />
+              <LazyErrorBoundary
+                className="relative mt-3 h-56 rounded-xl overflow-hidden border border-[#16222E]/10 bg-[#EDF1F5] flex flex-col items-center justify-center p-4 text-center gap-2"
+                fallbackTitle="Interactive Route Map Unavailable"
+                fallbackMessage="Map tiles could not be loaded. Your journey stops and schedule remain unaffected."
+              >
+                <React.Suspense
+                  fallback={
+                    <div className="relative mt-3 h-56 rounded-xl overflow-hidden border border-[#16222E]/10 bg-[#EDF1F5] flex flex-col items-center justify-center gap-2 text-xs text-[#4B5563]">
+                      <div className="w-5 h-5 rounded-full border-2 border-[#0B4A82] border-t-transparent animate-spin" />
+                      <span>Loading interactive route map...</span>
+                    </div>
+                  }
+                >
+                  <LazyRouteMap stops={stops} />
+                </React.Suspense>
+              </LazyErrorBoundary>
               <ol className="relative mt-4">
                 <span aria-hidden className="absolute left-4 top-4 bottom-4 border-l-2 border-dashed border-[#16222E]/15" />
                 <li className="relative flex items-center gap-3 pb-4">
@@ -1132,7 +1185,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                   <span className="relative z-10 w-8 h-8 rounded-full bg-[#16222E]/6 text-[#4B4F55] flex items-center justify-center shrink-0">
                     <Plane className="w-4 h-4 rotate-45" />
                   </span>
-                  <span className="text-md text-[#6B7280]">Departure</span>
+                  <span className="text-base text-[#6B7280]">Departure</span>
                 </li>
               </ol>
             </div>
@@ -1159,7 +1212,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
             onClick={onContinue}
             disabled={totalPlanned === 0}
             tabIndex={showBar ? 0 : -1}
-            className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#16222E] hover:bg-[#0B4A82] hover:-translate-y-0.5 hover:shadow-lg text-white text-md font-semibold disabled:opacity-40 disabled:hover:bg-[#16222E] disabled:hover:translate-y-0 disabled:hover:shadow-none motion-reduce:hover:translate-y-0 transition duration-200 ease-out cursor-pointer shrink-0"
+            className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#16222E] hover:bg-[#0B4A82] hover:-translate-y-0.5 hover:shadow-lg text-white text-base font-semibold disabled:opacity-40 disabled:hover:bg-[#16222E] disabled:hover:translate-y-0 disabled:hover:shadow-none motion-reduce:hover:translate-y-0 transition duration-200 ease-out cursor-pointer shrink-0"
           >
             Review my package <ArrowRight className="w-4 h-4 transition-transform duration-200 ease-out group-hover:translate-x-[3px] motion-reduce:group-hover:translate-x-0" />
           </button>
@@ -1167,17 +1220,23 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
       </div>
     </section>
 
-    <ShareItineraryModal
-      draft={draft}
-      plan={plan}
-      isOpen={isShareModalOpen}
-      onClose={() => setIsShareModalOpen(false)}
-      onPrint={handlePrint}
-      onShowToast={onShowToast}
-    />
+    {isShareModalOpen && (
+      <React.Suspense fallback={null}>
+        <LazyShareItineraryModal
+          draft={draft}
+          plan={plan}
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          onPrint={handlePrint}
+          onShowToast={onShowToast}
+        />
+      </React.Suspense>
+    )}
 
     <div className="hidden print:block">
-      <PrintableItinerary draft={draft} plan={plan} />
+      <React.Suspense fallback={null}>
+        <LazyPrintableItinerary draft={draft} plan={plan} />
+      </React.Suspense>
     </div>
   </>
   );

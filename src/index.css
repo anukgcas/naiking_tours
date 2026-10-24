@@ -1,7 +1,22 @@
 @import "tailwindcss";
 
-/* Brand tokens from the Westack logo: navy + teal on cool slate neutrals (token names kept for compatibility) */
+/* Brand tokens from the Westack logo: navy + teal on cool slate neutrals */
 @theme {
+  --color-brand-mint: #8CC7C4;
+  --color-brand-blue: #1D7BA6;
+  --color-brand-navy: #0B4A82;
+  --color-brand-teal: #0E7C86;
+  --color-brand-charcoal: #16222E;
+  --color-brand-surface: #F6F8FA;
+  --color-brand-muted: #4B5563;
+  --color-brand-subtle: #6B7280;
+  --color-brand-border: rgba(22, 34, 46, 0.1);
+
+  /* Standardized radius tokens */
+  --radius-card: 1.5rem;
+  --radius-pill: 9999px;
+
+  /* Aliases preserved for backwards compatibility */
   --color-saffron-300: #8CC7C4;
   --color-saffron-500: #1D7BA6;
   --color-saffron-600: #0B4A82;
@@ -70,6 +85,7 @@
   animation: nk-wave 2.6s ease-in-out infinite;
 }
 
+.text-brand-gradient,
 .text-saffron-gradient {
   background-image: linear-gradient(90deg, #0B4A82 0%, #1D7BA6 40%, #0E7C86 75%, #1D7BA6 100%);
   background-size: 200% 100%;
@@ -84,6 +100,7 @@
   .nk-flag-wave,
   [class*="animate-"] {
     animation: none !important;
+    transition-duration: 0.001ms !important;
   }
 }
 

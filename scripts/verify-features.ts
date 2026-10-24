@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import { CURATED_PACKAGES } from '../src/components/CuratedPackages';
 import { validateSavedPackageItems, STORAGE_KEY_SAVED_PACKAGES } from '../src/context/SavedPackagesContext';
 import { validateEnquiryForm, submitPackageEnquiry, ENQUIRY_CATEGORIES } from '../src/services/enquiryService';
@@ -790,6 +792,208 @@ async function runTests() {
   assert(draftBeforePrint === draftAfterPrint, 'Print operation does not mutate draft state');
   assert(planBeforePrint === planAfterPrint, 'Print operation does not mutate plan state');
 
+  // ----------------------------------------------------
+  // TEST GROUP 13: Accessibility, Dialog Focus Containment & Mobile Touch Targets (Phase 2)
+  // ----------------------------------------------------
+  console.log('\n--- Test Group 13: Phase 2 Accessibility & Mobile Touch Targets ---');
+
+  const srcDir = path.resolve(process.cwd(), 'src');
+
+  // 1. Hook availability
+  const focusTrapHookPath = path.join(srcDir, 'hooks/useFocusTrap.ts');
+  assert(fs.existsSync(focusTrapHookPath), 'Phase 2: useFocusTrap hook file exists');
+  const focusTrapSrc = fs.readFileSync(focusTrapHookPath, 'utf-8');
+  assert(focusTrapSrc.includes('export function useFocusTrap'), 'useFocusTrap is exported');
+  assert(focusTrapSrc.includes('Escape'), 'useFocusTrap handles Escape key dismissal');
+  assert(focusTrapSrc.includes('Tab') && focusTrapSrc.includes('shiftKey'), 'useFocusTrap contains Tab and Shift+Tab focus trapping');
+  assert(focusTrapSrc.includes('previouslyFocusedElementRef'), 'useFocusTrap restores focus to previous active element on close');
+
+  // 2. SavedPackagesDrawer.tsx keyboard accessibility & touch targets
+  const savedPackagesDrawerSrc = fs.readFileSync(path.join(srcDir, 'components/SavedPackagesDrawer.tsx'), 'utf-8');
+  assert(savedPackagesDrawerSrc.includes('useFocusTrap'), 'SavedPackagesDrawer integrates useFocusTrap');
+  assert(savedPackagesDrawerSrc.includes('role="dialog"'), 'SavedPackagesDrawer has role="dialog"');
+  assert(savedPackagesDrawerSrc.includes('aria-modal="true"'), 'SavedPackagesDrawer has aria-modal="true"');
+  assert(savedPackagesDrawerSrc.includes('aria-labelledby="saved-packages-title"'), 'SavedPackagesDrawer has accessible title label');
+  assert(savedPackagesDrawerSrc.includes('min-w-[44px]') && savedPackagesDrawerSrc.includes('min-h-[44px]'), 'SavedPackagesDrawer close button meets 44x44px touch target');
+
+  // 3. MyTripsDrawer.tsx keyboard accessibility & touch targets
+  const myTripsDrawerSrc = fs.readFileSync(path.join(srcDir, 'components/MyTripsDrawer.tsx'), 'utf-8');
+  assert(myTripsDrawerSrc.includes('useFocusTrap'), 'MyTripsDrawer integrates useFocusTrap');
+  assert(myTripsDrawerSrc.includes('role="dialog"'), 'MyTripsDrawer has role="dialog"');
+  assert(myTripsDrawerSrc.includes('aria-modal="true"'), 'MyTripsDrawer has aria-modal="true"');
+  assert(myTripsDrawerSrc.includes('aria-labelledby="my-trips-title"'), 'MyTripsDrawer has accessible title label');
+  assert(myTripsDrawerSrc.includes('min-w-[44px]') && myTripsDrawerSrc.includes('min-h-[44px]'), 'MyTripsDrawer close button meets 44x44px touch target');
+
+  // 4. PackageEnquiryModal.tsx accessibility, live regions & form validation
+  const enquiryModalSrc = fs.readFileSync(path.join(srcDir, 'components/PackageEnquiryModal.tsx'), 'utf-8');
+  assert(enquiryModalSrc.includes('useFocusTrap'), 'PackageEnquiryModal integrates useFocusTrap');
+  assert(enquiryModalSrc.includes('role="dialog"'), 'PackageEnquiryModal has role="dialog"');
+  assert(enquiryModalSrc.includes('aria-modal="true"'), 'PackageEnquiryModal has aria-modal="true"');
+  assert(enquiryModalSrc.includes('role="alert"'), 'PackageEnquiryModal uses role="alert" for urgent error alerts');
+  assert(enquiryModalSrc.includes('aria-live="assertive"'), 'PackageEnquiryModal uses assertive live region for error state');
+  assert(enquiryModalSrc.includes('aria-live="polite"'), 'PackageEnquiryModal uses polite live region for non-urgent feedback');
+  assert(enquiryModalSrc.includes('aria-invalid='), 'PackageEnquiryModal inputs reflect validation validity state');
+  assert(enquiryModalSrc.includes('aria-describedby='), 'PackageEnquiryModal inputs associate validation errors via aria-describedby');
+  assert(enquiryModalSrc.includes('enquiry-name-error') && enquiryModalSrc.includes('enquiry-phone-error'), 'PackageEnquiryModal links specific error IDs');
+
+  // 5. SharedItineraryPreviewModal.tsx & ShareItineraryModal.tsx
+  const sharedPreviewModalSrc = fs.readFileSync(path.join(srcDir, 'components/SharedItineraryPreviewModal.tsx'), 'utf-8');
+  assert(sharedPreviewModalSrc.includes('useFocusTrap'), 'SharedItineraryPreviewModal integrates useFocusTrap');
+  assert(sharedPreviewModalSrc.includes('min-w-[44px]') && sharedPreviewModalSrc.includes('min-h-[44px]'), 'SharedItineraryPreviewModal close button meets 44x44px touch target');
+  assert(sharedPreviewModalSrc.includes('Continue to Westack'), 'SharedItineraryPreviewModal preserves Westack brand copy');
+
+  const shareModalSrc = fs.readFileSync(path.join(srcDir, 'components/ShareItineraryModal.tsx'), 'utf-8');
+  assert(shareModalSrc.includes('useFocusTrap'), 'ShareItineraryModal integrates useFocusTrap');
+  assert(shareModalSrc.includes('min-w-[44px]') && shareModalSrc.includes('min-h-[44px]'), 'ShareItineraryModal close button meets 44x44px touch target');
+
+  // 6. Mobile Touch Targets & Enquire Affordance in CuratedPackages.tsx
+  const curatedPackagesSrc = fs.readFileSync(path.join(srcDir, 'components/CuratedPackages.tsx'), 'utf-8');
+  assert(curatedPackagesSrc.includes('min-w-[44px] min-h-[44px]'), 'CuratedPackages bookmark button meets 44x44px touch target');
+  assert(curatedPackagesSrc.includes('focus:ring-2'), 'CuratedPackages bookmark button has visible focus ring');
+  assert(curatedPackagesSrc.includes('<span>Enquire</span>') && !curatedPackagesSrc.includes('<span className="hidden sm:inline">Enquire</span>'), 'CuratedPackages displays explicit readable "Enquire" label on mobile');
+
+  // 7. Day-shift chevrons in TripPlanner.tsx
+  const tripPlannerSrc = fs.readFileSync(path.join(srcDir, 'components/TripPlanner.tsx'), 'utf-8');
+  assert(tripPlannerSrc.includes('min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-[#6B7280]'), 'TripPlanner day-shift chevrons meet 44x44px touch target');
+
+  // 8. Lead traveller form validation in TripOverview.tsx
+  const tripOverviewSrc = fs.readFileSync(path.join(srcDir, 'components/TripOverview.tsx'), 'utf-8');
+  assert(tripOverviewSrc.includes('aria-invalid={errors.name ? \'true\' : undefined}'), 'TripOverview lead traveller input has aria-invalid');
+  assert(tripOverviewSrc.includes('aria-describedby={errors.name ? \'ov-name-error\' : undefined}'), 'TripOverview lead traveller input has aria-describedby');
+  assert(tripOverviewSrc.includes('id="ov-name-error" role="alert"'), 'TripOverview name error is announced via role="alert"');
+
+  // 9. Toast notification in App.tsx
+  const appSrc = fs.readFileSync(path.join(srcDir, 'App.tsx'), 'utf-8');
+  assert(appSrc.includes('role="status"'), 'App toast notification has role="status"');
+  assert(appSrc.includes('aria-live="polite"'), 'App toast notification has aria-live="polite"');
+  assert(appSrc.includes('aria-atomic="true"'), 'App toast notification has aria-atomic="true"');
+
+  // ----------------------------------------------------
+  // TEST GROUP 14: Phase 3 Responsive Layout, Contrast Hardening & Token Standardization
+  // ----------------------------------------------------
+  console.log('\n--- Test Group 14: Phase 3 Responsive Layout, Contrast & Design Tokens ---');
+
+  // 1. TripPlanner 2-column intermediate layout (1024px–1279px)
+  assert(tripPlannerSrc.includes('lg:grid-cols-12'), 'TripPlanner introduces 12-column intermediate grid for tablet/small laptop');
+  assert(tripPlannerSrc.includes('xl:grid-cols-[21rem_minmax(0,1fr)_20rem]'), 'TripPlanner preserves 3-column desktop layout at xl');
+  assert(tripPlannerSrc.includes('lg:col-span-5'), 'TripPlanner allocates 5 columns to Ideas lane on lg');
+  assert(tripPlannerSrc.includes('lg:col-span-7'), 'TripPlanner allocates 7 columns to Itinerary Days on lg');
+  assert(tripPlannerSrc.includes('lg:col-span-12'), 'TripPlanner spans Summary and Route across 12 columns at bottom on lg');
+  assert(tripPlannerSrc.includes('lg:grid-cols-2'), 'TripPlanner renders Summary and Route side-by-side in 2 cards on lg');
+
+  // 2. Contrast Hardening in TripPlanningConsole
+  const consoleSrc = fs.readFileSync(path.join(srcDir, 'components/TripPlanningConsole.tsx'), 'utf-8');
+  assert(consoleSrc.includes('bg-white/75'), 'TripPlanningConsole strengthens FIELD_IDLE background opacity to 75%');
+  assert(consoleSrc.includes('text-[#374151]'), 'TripPlanningConsole hint text uses hardened contrast color #374151');
+  assert(consoleSrc.includes('text-[#4B5563]'), 'TripPlanningConsole subtext uses hardened contrast color #4B5563');
+
+  // 3. Contrast Hardening in SignatureDestinations
+  const sigDestSrc = fs.readFileSync(path.join(srcDir, 'components/SignatureDestinations.tsx'), 'utf-8');
+  assert(sigDestSrc.includes('from-black/95 via-black/60 to-transparent'), 'SignatureDestinations strengthens bottom gradient overlay');
+  assert(sigDestSrc.includes('bg-black/40'), 'SignatureDestinations price badge uses dark translucent backdrop');
+  assert(sigDestSrc.includes('text-white/95'), 'SignatureDestinations card tagline uses 95% opacity white');
+
+  // 4. Contrast Hardening in Hero
+  const heroSrc = fs.readFileSync(path.join(srcDir, 'components/Hero.tsx'), 'utf-8');
+  assert(heroSrc.includes('from-[#0E1822]/85'), 'Hero strengthens top readability gradient');
+  assert(heroSrc.includes('from-[#0E1822]/95'), 'Hero strengthens bottom readability gradient');
+  assert(heroSrc.includes('text-white/95'), 'Hero destination strip and story text uses 95% opacity white');
+
+  // 5. WhyNaiking Reduced Motion and Contrast
+  const whyNaikingSrc = fs.readFileSync(path.join(srcDir, 'components/WhyNaiking.tsx'), 'utf-8');
+  assert(whyNaikingSrc.includes('motion-reduce:animate-none'), 'WhyNaiking marquee respects prefers-reduced-motion');
+  assert(whyNaikingSrc.includes('motion-reduce:overflow-x-auto'), 'WhyNaiking provides scrollable fallback on reduced motion');
+  assert(whyNaikingSrc.includes('text-[#4B5563]'), 'WhyNaiking guest trip info uses hardened contrast color #4B5563');
+
+  // 6. Token Standardization in index.css
+  const indexCssSrc = fs.readFileSync(path.join(srcDir, 'index.css'), 'utf-8');
+  assert(indexCssSrc.includes('--color-brand-charcoal'), 'index.css defines semantic --color-brand-charcoal');
+  assert(indexCssSrc.includes('--color-brand-surface'), 'index.css defines semantic --color-brand-surface');
+  assert(indexCssSrc.includes('--color-brand-muted'), 'index.css defines semantic --color-brand-muted');
+  assert(indexCssSrc.includes('--radius-card'), 'index.css defines standardized --radius-card');
+  assert(indexCssSrc.includes('--radius-pill'), 'index.css defines standardized --radius-pill');
+  assert(indexCssSrc.includes('.text-brand-gradient'), 'index.css defines .text-brand-gradient');
+  assert(indexCssSrc.includes('.text-saffron-gradient'), 'index.css preserves .text-saffron-gradient backward compatibility');
+  assert(indexCssSrc.includes('prefers-reduced-motion') && indexCssSrc.includes('transition-duration'), 'index.css cancels transitions for prefers-reduced-motion');
+
+  // ----------------------------------------------------
+  // TEST GROUP 15: Phase 4 Micro-Interactions, Testimonial Authenticity & Adaptive Connectors
+  // ----------------------------------------------------
+  console.log('\n--- Test Group 15: Phase 4 Micro-Interactions, Truthful Pillars & Adaptive Connectors ---');
+
+  // 1. StandardVsNaiking Accordion Fixes
+  const standardVsNaikingSrc = fs.readFileSync(path.join(srcDir, 'components/StandardVsNaiking.tsx'), 'utf-8');
+  assert(!standardVsNaikingSrc.includes('onMouseLeave'), 'StandardVsNaiking removed twitchy onMouseLeave reset');
+  assert(!standardVsNaikingSrc.includes('onBlur'), 'StandardVsNaiking removed premature onBlur collapse');
+  assert(standardVsNaikingSrc.includes('setActive((curr) => (curr === i ? null : i))'), 'StandardVsNaiking supports click toggling');
+  assert(standardVsNaikingSrc.includes('aria-expanded={isActive}'), 'StandardVsNaiking provides aria-expanded accessibility state');
+  assert(standardVsNaikingSrc.includes('aria-controls={`principle-panel-${i}`}'), 'StandardVsNaiking provides aria-controls link to panel');
+  assert(standardVsNaikingSrc.includes('role="region"'), 'StandardVsNaiking provides role="region" on expanding panels');
+  assert(standardVsNaikingSrc.includes('motion-reduce:transition-none'), 'StandardVsNaiking respects prefers-reduced-motion');
+
+  // 2. Truthful Distinction Pillars in WhyNaiking
+  assert(whyNaikingSrc.includes('DISTINCTION_PILLARS'), 'WhyNaiking defines authentic DISTINCTION_PILLARS');
+  assert(!whyNaikingSrc.includes('5 out of 5 stars'), 'WhyNaiking eliminates unverified 5-star ratings');
+  assert(!whyNaikingSrc.includes('Sep 2026'), 'WhyNaiking eliminates fabricated future customer trip dates');
+  assert(!whyNaikingSrc.includes('Ananya Iyer'), 'WhyNaiking eliminates fabricated persona names');
+  assert(whyNaikingSrc.includes('group-hover:[animation-play-state:paused]'), 'WhyNaiking pauses marquee on hover');
+  assert(whyNaikingSrc.includes('motion-reduce:animate-none'), 'WhyNaiking cancels marquee animation for reduced motion');
+
+  // 3. Adaptive Timeline Connectors in TripPlanner
+  assert(tripPlannerSrc.includes('const isFirst = ri === 0;'), 'TripPlanner tracks first item in timeline');
+  assert(tripPlannerSrc.includes('const isLast = ri === rows.length - 1;'), 'TripPlanner tracks last item in timeline');
+  assert(tripPlannerSrc.includes('const isSingle = rows.length <= 1;'), 'TripPlanner tracks single-item days in timeline');
+  assert(tripPlannerSrc.includes("'top-[19px] bottom-0'"), 'TripPlanner starts connector precisely at center of first dot');
+  assert(tripPlannerSrc.includes("'top-0 h-[19px]'"), 'TripPlanner terminates connector precisely at center of last dot');
+  assert(tripPlannerSrc.includes('if (isSingle)'), 'TripPlanner suppresses connector line when day has only 1 item');
+
+  // 4. Adaptive Timeline Connectors in TripOverview
+  const tripOverviewCode = fs.readFileSync(path.join(srcDir, 'components/TripOverview.tsx'), 'utf-8');
+  assert(tripOverviewCode.includes('const isFirst = idx === 0;'), 'TripOverview tracks first activity');
+  assert(tripOverviewCode.includes('const isLast = idx === items.length - 1;'), 'TripOverview tracks last activity');
+  assert(tripOverviewCode.includes('top-[29px] -bottom-3'), 'TripOverview starts connector at first dot and spans gap to next card');
+  assert(tripOverviewCode.includes('top-0 h-[29px]'), 'TripOverview terminates connector at center of last dot');
+
+  // ----------------------------------------------------
+  // TEST GROUP 16: Phase 5 Performance Optimization & Code-Splitting
+  // ----------------------------------------------------
+  console.log('\n--- Test Group 16: Phase 5 Performance Optimization & Code-Splitting ---');
+
+  // 1. LazyErrorBoundary component
+  const errorBoundaryPath = path.join(srcDir, 'components/LazyErrorBoundary.tsx');
+  assert(fs.existsSync(errorBoundaryPath), 'Phase 5: LazyErrorBoundary component file exists');
+  const errorBoundarySrc = fs.readFileSync(errorBoundaryPath, 'utf-8');
+  assert(errorBoundarySrc.includes('export class LazyErrorBoundary'), 'LazyErrorBoundary is exported');
+  assert(errorBoundarySrc.includes('getDerivedStateFromError'), 'LazyErrorBoundary handles errors gracefully');
+  assert(errorBoundarySrc.includes('role="alert"'), 'LazyErrorBoundary uses accessible alert role');
+  assert(errorBoundarySrc.includes('handleRetry'), 'LazyErrorBoundary provides interactive retry capability');
+
+  // 2. Dynamic Code-Splitting in TripPlanner.tsx
+  const updatedTripPlannerSrc = fs.readFileSync(path.join(srcDir, 'components/TripPlanner.tsx'), 'utf-8');
+  assert(!updatedTripPlannerSrc.includes("import { PrintableItinerary } from './PrintableItinerary';"), 'TripPlanner eliminates static import of PrintableItinerary');
+  assert(updatedTripPlannerSrc.includes("const LazyPrintableItinerary = React.lazy("), 'TripPlanner dynamically imports PrintableItinerary');
+  assert(updatedTripPlannerSrc.includes("const LazyRouteMap = React.lazy("), 'TripPlanner dynamically imports Leaflet RouteMap');
+  assert(updatedTripPlannerSrc.includes("<LazyErrorBoundary"), 'TripPlanner wraps LazyRouteMap in LazyErrorBoundary');
+
+  // 3. Dynamic Code-Splitting in TripOverview.tsx
+  const updatedTripOverviewSrc = fs.readFileSync(path.join(srcDir, 'components/TripOverview.tsx'), 'utf-8');
+  assert(!updatedTripOverviewSrc.includes("import { PrintableItinerary } from './PrintableItinerary';"), 'TripOverview eliminates static import of PrintableItinerary');
+  assert(updatedTripOverviewSrc.includes("const LazyPrintableItinerary = React.lazy("), 'TripOverview dynamically imports PrintableItinerary');
+
+  // 4. Heavy View Code-Splitting in App.tsx
+  const updatedAppSrc = fs.readFileSync(path.join(srcDir, 'App.tsx'), 'utf-8');
+  assert(updatedAppSrc.includes("const LazyTripWizard = React.lazy("), 'App dynamically imports TripWizard');
+  assert(updatedAppSrc.includes("const LazyTripPlanner = React.lazy("), 'App dynamically imports TripPlanner');
+  assert(updatedAppSrc.includes("const LazyTripOverview = React.lazy("), 'App dynamically imports TripOverview');
+  assert(updatedAppSrc.includes("<LazyErrorBoundary"), 'App wraps heavy views in LazyErrorBoundary');
+  assert(updatedAppSrc.includes("Loading Bespoke Tour Designer..."), 'App provides accessible fallback for TripWizard');
+  assert(updatedAppSrc.includes("Loading Itinerary Studio..."), 'App provides accessible fallback for TripPlanner');
+  assert(updatedAppSrc.includes("Loading Quotation & Overview..."), 'App provides accessible fallback for TripOverview');
+
+  // 5. Vite Native Configuration Modernization
+  const viteConfigSrc = fs.readFileSync(path.join(process.cwd(), 'vite.config.ts'), 'utf-8');
+  assert(viteConfigSrc.includes('import.meta.dirname'), 'vite.config.ts uses modern import.meta.dirname');
+  assert(viteConfigSrc.includes("from './server/aiSuggest.ts'"), 'vite.config.ts uses explicit .ts extension for native loader');
 
   // ----------------------------------------------------
   // FINAL RESULTS

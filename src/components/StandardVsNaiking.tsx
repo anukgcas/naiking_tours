@@ -3,7 +3,8 @@ import { ArrowRight, Minus } from 'lucide-react';
 
 /**
  * The Naiking Standard — an editorial index of four principles.
- * Hover (desktop) or tap (touch) a row to open it; the last opened row stays open.
+ * Click (desktop/touch) or press Enter/Space (keyboard) to toggle rows.
+ * Initial row starts open for immediate editorial preview; panels never collapse unexpectedly.
  */
 const PRINCIPLES = [
   {
@@ -29,7 +30,7 @@ const PRINCIPLES = [
 ];
 
 export const StandardVsNaiking: React.FC = () => {
-  const [active, setActive] = useState<number | null>(null);
+  const [active, setActive] = useState<number | null>(0);
 
   return (
     <section id="naiking-standard" className="scroll-mt-20 pt-16 pb-[54px] sm:pt-24 sm:pb-[86px] lg:pt-28 lg:pb-[102px]">
@@ -37,19 +38,19 @@ export const StandardVsNaiking: React.FC = () => {
         <div className="grid lg:grid-cols-[2fr_3fr] gap-10 lg:gap-20 items-start">
           {/* Left: editorial introduction */}
           <div className="lg:sticky lg:top-32">
-            <span className="text-md font-medium text-[#0B4A82]">
+            <span className="text-base font-semibold text-[#0B4A82]">
               The Naiking Standard
             </span>
             <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight leading-[1.1] text-[#16222E] text-balance">
               Why discerning travellers choose quiet luxury
             </h2>
-            <p className="mt-5 max-w-md text-sm sm:text-base leading-relaxed text-[#6B7280]">
+            <p className="mt-5 max-w-md text-sm sm:text-base leading-relaxed text-[#4B5563]">
               The difference between checking off a tourist checklist and feeling truly renewed
             </p>
           </div>
 
           {/* Right: interactive index */}
-          <ol className="border-t border-[#16222E]/12 lg:min-h-[440px]" onMouseLeave={() => setActive(null)}>
+          <ol className="border-t border-[#16222E]/12 lg:min-h-[440px]">
             {PRINCIPLES.map((p, i) => {
               const isActive = active === i;
               return (
@@ -59,12 +60,9 @@ export const StandardVsNaiking: React.FC = () => {
                     id={`principle-${i}`}
                     aria-expanded={isActive}
                     aria-controls={`principle-panel-${i}`}
-                    onMouseEnter={() => setActive(i)}
-                    onFocus={() => setActive(i)}
-                    onBlur={() => setActive(null)}
-                    onClick={() => setActive(i)}
-                    className={`group relative w-full text-left cursor-pointer overflow-hidden px-4 sm:px-6 py-6 sm:py-7 transition-colors duration-500 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0B4A82] motion-reduce:transition-none ${
-                      isActive ? 'bg-[#EDF1F5]/70' : 'bg-transparent'
+                    onClick={() => setActive((curr) => (curr === i ? null : i))}
+                    className={`group relative w-full text-left cursor-pointer overflow-hidden px-4 sm:px-6 py-6 sm:py-7 transition-colors duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0B4A82] motion-reduce:transition-none ${
+                      isActive ? 'bg-[#EDF1F5]/70' : 'bg-transparent hover:bg-[#F6F8FA]/60'
                     }`}
                   >
                     {/* Accent rule */}
@@ -109,8 +107,8 @@ export const StandardVsNaiking: React.FC = () => {
                                 isActive ? 'translate-y-0' : 'translate-y-2 motion-reduce:translate-y-0'
                               }`}
                             >
-                              <p className="max-w-md text-sm sm:text-[16px] leading-relaxed text-[#6B7280]">{p.body}</p>
-                              <p className="mt-3 text-sm sm:text-[16px] leading-relaxed text-[#6B7280]">{p.phrase}</p>
+                              <p className="max-w-md text-sm sm:text-[16px] leading-relaxed text-[#4B5563]">{p.body}</p>
+                              <p className="mt-3 text-sm sm:text-[16px] leading-relaxed text-[#4B5563]">{p.phrase}</p>
                             </div>
                           </div>
                         </div>
