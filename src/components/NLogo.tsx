@@ -72,8 +72,8 @@ export const NLogo: React.FC<NLogoProps> = ({
       >
         <defs>
           <linearGradient id="nlTrail" x1="0" y1="1" x2="1" y2="0">
-            <stop offset="0" stopColor="#0E7C86" stopOpacity="0" />
-            <stop offset="1" stopColor="#1D7BA6" stopOpacity="0.9" />
+            <stop offset="0" stopColor="#E5501A" stopOpacity="0" />
+            <stop offset="1" stopColor="#F7931E" stopOpacity="0.9" />
           </linearGradient>
         </defs>
         <motion.path

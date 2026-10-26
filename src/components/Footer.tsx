@@ -26,7 +26,7 @@ export const Footer: React.FC<FooterProps> = ({
   };
 
   return (
-    <footer className="bg-[#16222E] text-[#F6F8FA] pt-16 pb-24 md:pb-16 border-t border-black/10">
+    <footer className="bg-[#1E2022] text-[#FAF8F5] pt-16 pb-24 md:pb-16 border-t border-black/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-12 pb-10 border-b border-white/10">
           {/* Brand Col */}
@@ -82,7 +82,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={onOpenPlanner}
-                  className="inline-block hover:text-[#8CC7C4] hover:translate-x-0.5 motion-reduce:hover:translate-x-0 transition duration-200 ease-out cursor-pointer font-medium"
+                  className="inline-block hover:text-[#FFC94D] hover:translate-x-0.5 motion-reduce:hover:translate-x-0 transition duration-200 ease-out cursor-pointer font-medium"
                 >
                   Plan a Trip
                 </button>
@@ -133,18 +133,18 @@ export const Footer: React.FC<FooterProps> = ({
                 placeholder="Enter your email..."
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 pr-14 text-[16px] rounded-xl bg-white/[0.08] border border-white/20 text-white placeholder-[#8DA0B3] focus:outline-none focus:border-[#1D7BA6] focus:bg-white/[0.12] transition-colors"
+                className="w-full px-4 py-3 pr-14 text-[16px] rounded-xl bg-white/[0.08] border border-white/20 text-white placeholder-[#8DA0B3] focus:outline-none focus:border-[#F7931E] focus:bg-white/[0.12] transition-colors"
               />
               <button
                 type="submit"
-                className="group absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg bg-[#0B4A82] hover:bg-[#1D7BA6] text-white flex items-center justify-center transition-colors duration-200 ease-out cursor-pointer shadow-xs"
+                className="group absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg bg-[#C2571A] hover:bg-[#F7931E] text-white flex items-center justify-center transition-colors duration-200 ease-out cursor-pointer shadow-xs"
                 aria-label="Subscribe to newsletter"
               >
                 {subscribed ? <Check className="w-4 h-4" /> : <ArrowRight className="w-4 h-4 transition-transform duration-200 ease-out group-hover:translate-x-1 motion-reduce:group-hover:translate-x-0" />}
               </button>
             </form>
             {subscribed && (
-              <p className="text-[15px] text-[#8CC7C4] font-medium">
+              <p className="text-[15px] text-[#FFC94D] font-medium">
                 ✓ Thank you. You are subscribed to the seasonal dispatch.
               </p>
             )}
@@ -152,7 +152,7 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
 
         {/* Bottom copyright row */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[15px] text-[#9AA7B4] gap-4">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[15px] text-[#A39E96] gap-4">
           <p>© {new Date().getFullYear()} Naiking Tours Inc. All rights reserved</p>
           <div className="flex items-center gap-6">
             <span className="hover:text-white transition-colors duration-200 ease-out cursor-pointer">
@@ -161,7 +161,7 @@ export const Footer: React.FC<FooterProps> = ({
             <span className="hover:text-white transition-colors duration-200 ease-out cursor-pointer">
               Terms of Booking
             </span>
-            <span className="text-white hover:text-[#8CC7C4] transition-colors duration-200 ease-out cursor-pointer font-medium">
+            <span className="text-white hover:text-[#FFC94D] transition-colors duration-200 ease-out cursor-pointer font-medium">
               Concierge Contact
             </span>
           </div>

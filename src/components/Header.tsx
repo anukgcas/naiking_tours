@@ -32,8 +32,8 @@ export const Header: React.FC<HeaderProps> = ({
   const overHero = !isScrolled && activeTab === 'home';
   const linkIdle = overHero
     ? 'text-white/90 hover:text-white drop-shadow-sm'
-    : 'text-[#4B5563] hover:text-[#16222E]';
-  const linkActive = overHero ? 'text-white font-bold drop-shadow-sm' : 'text-[#16222E] font-bold';
+    : 'text-[#4B5563] hover:text-[#1E2022]';
+  const linkActive = overHero ? 'text-white font-bold drop-shadow-sm' : 'text-[#1E2022] font-bold';
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 639px)');
@@ -59,14 +59,14 @@ export const Header: React.FC<HeaderProps> = ({
           className={`relative flex items-center justify-between h-[64px] lg:h-[76px] px-5 lg:px-8 rounded-full border backdrop-blur-md transition-all duration-500 ease-in-out ${
             overHero
               ? 'bg-white/0 border-white/0 shadow-none'
-              : 'bg-white/98 border-[#16222E]/10 shadow-[0_4px_20px_-4px_rgba(22,34,46,0.08)]'
+              : 'bg-white/98 border-[#1E2022]/10 shadow-[0_4px_20px_-4px_rgba(30,32,34,0.08)]'
           }`}
         >
           {/* Left: Brand Logo */}
           <button
             type="button"
             onClick={() => onNavigate('home')}
-            className="flex items-center gap-3 group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4A82] rounded-lg transition-transform active:scale-98"
+            className="flex items-center gap-3 group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] rounded-lg transition-transform active:scale-98"
             aria-label="Naikings Tours & Travels Home"
           >
             <span
@@ -87,7 +87,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => onNavigate('home')}
-              className={`text-[15px] font-medium transition-colors duration-200 relative py-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4A82] rounded-sm ${
+              className={`text-[15px] font-medium transition-colors duration-200 relative py-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] rounded-sm ${
                 activeTab === 'home' ? linkActive : linkIdle
               }`}
             >
@@ -96,7 +96,7 @@ export const Header: React.FC<HeaderProps> = ({
                 aria-hidden="true"
                 className={`absolute bottom-0 left-0 right-0 h-[2px] rounded-full origin-left transition-transform duration-300 ease-out motion-reduce:transition-none ${
                   activeTab === 'home' ? 'scale-x-100' : 'scale-x-0'
-                } ${overHero ? 'bg-white' : 'bg-[#0B4A82]'}`}
+                } ${overHero ? 'bg-white' : 'bg-[#C2571A]'}`}
               />
             </button>
 
@@ -104,7 +104,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onExploreDestinations}
-                className={`text-[15px] font-medium ${linkIdle} transition-colors duration-200 py-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4A82] rounded-sm`}
+                className={`text-[15px] font-medium ${linkIdle} transition-colors duration-200 py-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] rounded-sm`}
               >
                 Destinations
               </button>
@@ -114,7 +114,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onBrowsePackages}
-                className={`text-[15px] font-medium ${linkIdle} transition-colors duration-200 py-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4A82] rounded-sm`}
+                className={`text-[15px] font-medium ${linkIdle} transition-colors duration-200 py-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] rounded-sm`}
               >
                 Packages
               </button>
@@ -124,14 +124,14 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onOpenSavedPackages}
-                className={`text-[15px] font-medium ${linkIdle} transition-colors duration-200 relative py-1 flex items-center gap-1.5 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4A82] rounded-sm`}
+                className={`text-[15px] font-medium ${linkIdle} transition-colors duration-200 relative py-1 flex items-center gap-1.5 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] rounded-sm`}
                 title="View saved travel packages"
               >
                 Saved
                 {savedPackagesCount > 0 && (
                   <span
                     className={`inline-flex items-center justify-center w-5 h-5 text-[11px] font-bold rounded-full ${
-                      overHero ? 'bg-white text-[#16222E]' : 'bg-[#0B4A82] text-white'
+                      overHero ? 'bg-white text-[#1E2022]' : 'bg-[#C2571A] text-white'
                     }`}
                   >
                     {savedPackagesCount}
@@ -143,13 +143,13 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={onOpenMyTrips}
-              className={`text-[15px] font-medium ${linkIdle} transition-colors duration-200 relative py-1 flex items-center gap-1.5 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4A82] rounded-sm`}
+              className={`text-[15px] font-medium ${linkIdle} transition-colors duration-200 relative py-1 flex items-center gap-1.5 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] rounded-sm`}
             >
               My Trips
               {bookedTripsCount > 0 && (
                 <span
                   className={`inline-flex items-center justify-center w-5 h-5 text-[11px] font-bold rounded-full ${
-                    overHero ? 'bg-white text-[#16222E]' : 'bg-[#16222E] text-white'
+                    overHero ? 'bg-white text-[#1E2022]' : 'bg-[#1E2022] text-white'
                   }`}
                 >
                   {bookedTripsCount}
@@ -160,7 +160,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => onNavigate('why')}
-              className={`text-[15px] font-medium transition-colors duration-200 relative py-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4A82] rounded-sm ${
+              className={`text-[15px] font-medium transition-colors duration-200 relative py-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] rounded-sm ${
                 activeTab === 'why' ? linkActive : linkIdle
               }`}
             >
@@ -169,7 +169,7 @@ export const Header: React.FC<HeaderProps> = ({
                 aria-hidden="true"
                 className={`absolute bottom-0 left-0 right-0 h-[2px] rounded-full origin-left transition-transform duration-300 ease-out motion-reduce:transition-none ${
                   activeTab === 'why' ? 'scale-x-100' : 'scale-x-0'
-                } ${overHero ? 'bg-white' : 'bg-[#0B4A82]'}`}
+                } ${overHero ? 'bg-white' : 'bg-[#C2571A]'}`}
               />
             </button>
           </nav>

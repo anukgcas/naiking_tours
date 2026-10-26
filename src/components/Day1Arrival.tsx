@@ -26,7 +26,7 @@ const MODES: { id: ArrivalMode; label: string; icon: React.ReactNode }[] = [
 ];
 
 export const inputClass =
-  'w-full h-10 px-3 rounded-xl bg-white border border-[#16222E]/15 text-[15px] text-[#16222E] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#0B4A82] focus:ring-2 focus:ring-[#0B4A82]/15 transition';
+  'w-full h-10 px-3 rounded-xl bg-white border border-[#1E2022]/15 text-[15px] text-[#1E2022] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#C2571A] focus:ring-2 focus:ring-[#C2571A]/15 transition';
 
 export const labelClass = 'block mb-1.5 text-[12px] font-bold uppercase tracking-wider text-[#6B7280]';
 
@@ -62,13 +62,13 @@ export const Day1Arrival: React.FC<Day1ArrivalProps> = ({ draft, plan, onPlanCha
   };
 
   return (
-    <div className="mb-4 rounded-2xl border border-[#0B4A82]/20 bg-gradient-to-br from-[#EEF4F8] to-white p-4">
+    <div className="mb-4 rounded-2xl border border-[#C2571A]/20 bg-gradient-to-br from-[#FFF6EC] to-white p-4">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="w-8 h-8 rounded-xl bg-[#0B4A82] text-white flex items-center justify-center">
+        <span className="w-8 h-8 rounded-xl bg-[#C2571A] text-white flex items-center justify-center">
           {byWater ? <Ship className="w-4 h-4" /> : <Car className="w-4 h-4" />}
         </span>
         <div className="min-w-0">
-          <h4 className="text-[16px] font-semibold text-[#16222E]">Arrival, pickup & hotel</h4>
+          <h4 className="text-[16px] font-semibold text-[#1E2022]">Arrival, pickup & hotel</h4>
           <p className="text-[13px] text-[#6B7280]">
             Tell us where to meet you and which hotel you are heading to.
           </p>
@@ -90,8 +90,8 @@ export const Day1Arrival: React.FC<Day1ArrivalProps> = ({ draft, plan, onPlanCha
                 onClick={() => update({ mode: m.id })}
                 className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full border text-[14px] font-semibold transition-colors cursor-pointer ${
                   on
-                    ? 'bg-[#0B4A82] border-[#0B4A82] text-white'
-                    : 'bg-white border-[#16222E]/15 text-[#475569] hover:border-[#0B4A82]/50 hover:text-[#16222E]'
+                    ? 'bg-[#C2571A] border-[#C2571A] text-white'
+                    : 'bg-white border-[#1E2022]/15 text-[#4B4F55] hover:border-[#C2571A]/50 hover:text-[#1E2022]'
                 }`}
               >
                 {m.icon}
@@ -102,8 +102,8 @@ export const Day1Arrival: React.FC<Day1ArrivalProps> = ({ draft, plan, onPlanCha
         </div>
 
         {arrival.mode === 'airport' && (
-          <p className="mt-2 text-[14px] text-[#475569] inline-flex items-center gap-1.5">
-            <Plane className="w-3.5 h-3.5 text-[#0E7C86]" /> {arrivalPointLabel(dest.id)}
+          <p className="mt-2 text-[14px] text-[#4B4F55] inline-flex items-center gap-1.5">
+            <Plane className="w-3.5 h-3.5 text-[#E5501A]" /> {arrivalPointLabel(dest.id)}
           </p>
         )}
 
@@ -189,26 +189,26 @@ export const Day1Arrival: React.FC<Day1ArrivalProps> = ({ draft, plan, onPlanCha
                 onClick={() => chooseHotel(h.id)}
                 className={`text-left rounded-xl border p-3 transition-all cursor-pointer ${
                   on
-                    ? 'bg-white border-[#0B4A82] shadow-[0_0_0_3px_rgba(11,74,130,0.12)]'
-                    : 'bg-white/70 border-[#16222E]/12 hover:border-[#0B4A82]/50 hover:bg-white'
+                    ? 'bg-white border-[#C2571A] shadow-[0_0_0_3px_rgba(194,87,26,0.12)]'
+                    : 'bg-white/70 border-[#1E2022]/12 hover:border-[#C2571A]/50 hover:bg-white'
                 }`}
               >
                 <div className="flex items-start gap-2">
-                  <BedDouble className="w-4 h-4 mt-0.5 text-[#0E7C86] shrink-0" />
+                  <BedDouble className="w-4 h-4 mt-0.5 text-[#E5501A] shrink-0" />
                   <div className="min-w-0 flex-1">
-                    <div className="text-[15px] font-semibold text-[#16222E] leading-snug">{h.name}</div>
+                    <div className="text-[15px] font-semibold text-[#1E2022] leading-snug">{h.name}</div>
                     <div className="text-[13px] text-[#6B7280] leading-snug">{h.blurb}</div>
                     <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px]">
-                      <span className="inline-flex items-center gap-1 text-[#475569]">
+                      <span className="inline-flex items-center gap-1 text-[#4B4F55]">
                         <MapPin className="w-3 h-3" /> {h.area}
                       </span>
-                      <span className="px-1.5 py-0.5 rounded-full bg-[#0E7C86]/10 text-[#0E7C86] font-bold">
+                      <span className="px-1.5 py-0.5 rounded-full bg-[#E5501A]/10 text-[#E5501A] font-bold">
                         {TIER_LABEL[h.tier]}
                       </span>
                       <span className="text-[#6B7280]">from {formatINR(dest.stayPerNight[h.tier])} / night</span>
                     </div>
                   </div>
-                  {on && <Check className="w-4 h-4 text-[#0B4A82] shrink-0" />}
+                  {on && <Check className="w-4 h-4 text-[#C2571A] shrink-0" />}
                 </div>
               </button>
             );
@@ -221,17 +221,17 @@ export const Day1Arrival: React.FC<Day1ArrivalProps> = ({ draft, plan, onPlanCha
             onClick={() => update({ hotelId: 'other' })}
             className={`text-left rounded-xl border p-3 transition-all cursor-pointer ${
               arrival.hotelId === 'other'
-                ? 'bg-white border-[#0B4A82] shadow-[0_0_0_3px_rgba(11,74,130,0.12)]'
-                : 'bg-white/70 border-[#16222E]/12 hover:border-[#0B4A82]/50 hover:bg-white'
+                ? 'bg-white border-[#C2571A] shadow-[0_0_0_3px_rgba(194,87,26,0.12)]'
+                : 'bg-white/70 border-[#1E2022]/12 hover:border-[#C2571A]/50 hover:bg-white'
             }`}
           >
             <div className="flex items-start gap-2">
               <BedDouble className="w-4 h-4 mt-0.5 text-[#6B7280] shrink-0" />
               <div className="min-w-0 flex-1">
-                <div className="text-[15px] font-semibold text-[#16222E] leading-snug">I have my own hotel</div>
+                <div className="text-[15px] font-semibold text-[#1E2022] leading-snug">I have my own hotel</div>
                 <div className="text-[13px] text-[#6B7280] leading-snug">Already booked? Tell us the name and we will drop you there.</div>
               </div>
-              {arrival.hotelId === 'other' && <Check className="w-4 h-4 text-[#0B4A82] shrink-0" />}
+              {arrival.hotelId === 'other' && <Check className="w-4 h-4 text-[#C2571A] shrink-0" />}
             </div>
           </button>
         </div>
@@ -254,7 +254,7 @@ export const Day1Arrival: React.FC<Day1ArrivalProps> = ({ draft, plan, onPlanCha
       </div>
 
       {/* Plain-language recap */}
-      <p className="mt-4 rounded-xl bg-white border border-[#16222E]/10 px-3 py-2.5 text-[14px] text-[#16222E] leading-snug">
+      <p className="mt-4 rounded-xl bg-white border border-[#1E2022]/10 px-3 py-2.5 text-[14px] text-[#1E2022] leading-snug">
         {arrival.mode === 'self' ? (
           <>
             You make your own way to <strong>{hotelName}</strong>; we will meet you there on Day 1.

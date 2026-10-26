@@ -43,7 +43,7 @@ const fetchRoad = async (a: LatLng, b: LatLng, signal: AbortSignal): Promise<Lat
 const markerIcon = (n: number) =>
   L.divIcon({
     className: '',
-    html: `<span style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:9999px;background:#0B4A82;color:#fff;border:2px solid #fff;font:800 11px/1 inherit;box-shadow:0 2px 6px rgba(0,0,0,.35)">${n}</span>`,
+    html: `<span style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:9999px;background:#C2571A;color:#fff;border:2px solid #fff;font:800 11px/1 inherit;box-shadow:0 2px 6px rgba(0,0,0,.35)">${n}</span>`,
     iconSize: [24, 24],
     iconAnchor: [12, 12],
   });
@@ -108,7 +108,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ stops }) => {
     const legs: L.Polyline[] = [];
     for (let i = 0; i < pts.length - 1; i++) {
       legs.push(
-        L.polyline([pts[i], pts[i + 1]], { color: '#0B4A82', weight: 4, opacity: 0.9, dashArray: '2 8', lineCap: 'round' }).addTo(layer),
+        L.polyline([pts[i], pts[i + 1]], { color: '#C2571A', weight: 4, opacity: 0.9, dashArray: '2 8', lineCap: 'round' }).addTo(layer),
       );
     }
     pts.slice(0, -1).forEach((from, i) => {
@@ -147,12 +147,12 @@ export const RouteMap: React.FC<RouteMapProps> = ({ stops }) => {
     <div
       className={
         fullscreen
-          ? 'fixed inset-4 z-[70] rounded-2xl overflow-hidden border border-[#16222E]/20 shadow-2xl bg-white'
-          : 'relative mt-3 h-56 rounded-xl overflow-hidden border border-[#16222E]/10 bg-[#EDF1F5]'
+          ? 'fixed inset-4 z-[70] rounded-2xl overflow-hidden border border-[#1E2022]/20 shadow-2xl bg-white'
+          : 'relative mt-3 h-56 rounded-xl overflow-hidden border border-[#1E2022]/10 bg-[#F3EEE6]'
       }
     >
       <style>{`
-        .route-map-label{background:rgba(255,255,255,.92);border:0;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.25);color:#16222E;font-size:11px;font-weight:700;padding:1px 6px}
+        .route-map-label{background:rgba(255,255,255,.92);border:0;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.25);color:#1E2022;font-size:11px;font-weight:700;padding:1px 6px}
         .route-map-label:before{display:none}
         .leaflet-tile-pane{filter:grayscale(.5) opacity(.75)}
       `}</style>
@@ -161,7 +161,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({ stops }) => {
         type="button"
         onClick={() => setFullscreen((v) => !v)}
         aria-label={fullscreen ? 'Exit fullscreen map' : 'View map fullscreen'}
-        className="absolute top-2 right-2 z-[500] w-8 h-8 inline-flex items-center justify-center rounded-lg bg-white text-[#16222E] shadow-md hover:text-[#0B4A82] cursor-pointer"
+        className="absolute top-2 right-2 z-[500] w-8 h-8 inline-flex items-center justify-center rounded-lg bg-white text-[#1E2022] shadow-md hover:text-[#C2571A] cursor-pointer"
       >
         {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
       </button>

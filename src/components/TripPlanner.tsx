@@ -475,7 +475,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                 <div className="relative w-5 shrink-0 flex justify-center">
                   <span
                     aria-hidden
-                    className={`absolute left-1/2 -translate-x-1/2 w-px bg-[#16222E]/15 ${lineClass}`}
+                    className={`absolute left-1/2 -translate-x-1/2 w-px bg-[#1E2022]/15 ${lineClass}`}
                   />
                   {node}
                 </div>
@@ -487,7 +487,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                 <li key={`t-${ri}`} className="flex gap-2 sm:gap-3">
                   <div className="w-12 sm:w-24 shrink-0" />
                   {spine(
-                    <span className="relative z-10 mt-0.5 w-5 h-5 rounded-full bg-[#EEF4F8] text-[#0B4A82] flex items-center justify-center">
+                    <span className="relative z-10 mt-0.5 w-5 h-5 rounded-full bg-[#FFF6EC] text-[#C2571A] flex items-center justify-center">
                       <Car className="w-4 h-4" />
                     </span>,
                     true
@@ -504,9 +504,9 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                     {clock(row.start)}
                     <span className="hidden sm:inline"> — {clock(row.end)}</span>
                   </div>
-                  {spine(<span className="relative z-10 mt-3.5 w-2.5 h-2.5 rounded-full bg-white border-2 border-[#16222E]/25" />)}
+                  {spine(<span className="relative z-10 mt-3.5 w-2.5 h-2.5 rounded-full bg-white border-2 border-[#1E2022]/25" />)}
                   <div className="flex-1 min-w-0 pb-3">
-                    <div className="rounded-xl border border-dashed border-[#16222E]/20 bg-[#F6F8FA]/60 px-3 py-2">
+                    <div className="rounded-xl border border-dashed border-[#1E2022]/20 bg-[#FAF8F5]/60 px-3 py-2">
                       <p className="text-[16px] font-medium text-[#9CA3AF]">Free time</p>
                       <p className="text-[15px] text-[#6B7280]">You can add any activity here</p>
                     </div>
@@ -523,10 +523,10 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
             return (
               <li key={a.id} className="flex gap-2 sm:gap-3">
                 <div className="w-12 sm:w-24 shrink-0 pt-2.5 text-right tabular-nums leading-tight">
-                  <span className={`block text-[15px] font-bold ${row.custom ? 'text-[#0B4A82]' : 'text-[#16222E]'}`}>{clock(row.start)}</span>
+                  <span className={`block text-[15px] font-bold ${row.custom ? 'text-[#C2571A]' : 'text-[#1E2022]'}`}>{clock(row.start)}</span>
                   <span className="hidden sm:block text-[14px] font-medium text-[#6B7280]">to {clock(row.end)}</span>
                 </div>
-                {spine(<span className="relative z-10 mt-3.5 w-2.5 h-2.5 rounded-full bg-[#0B4A82] ring-4 ring-white" />)}
+                {spine(<span className="relative z-10 mt-3.5 w-2.5 h-2.5 rounded-full bg-[#C2571A] ring-4 ring-white" />)}
                 <div className="flex-1 min-w-0 pb-3">
                   <div
                     draggable
@@ -534,7 +534,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                     onDragEnd={endDrag}
                     onDragOver={(e) => allowDrop(e, dayIndex)}
                     onDrop={(e) => dropOn(e, dayIndex, idx)}
-                    className={`group flex items-start gap-2 bg-white rounded-xl border border-[#16222E]/10 p-2.5 cursor-grab active:cursor-grabbing transition-shadow ${
+                    className={`group flex items-start gap-2 bg-white rounded-xl border border-[#1E2022]/10 p-2.5 cursor-grab active:cursor-grabbing transition-shadow ${
                       drag?.id === a.id ? 'opacity-40' : 'hover:shadow-sm'
                     }`}
                   >
@@ -557,7 +557,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-[15px] font-semibold text-[#16222E] leading-snug">{a.name}</h4>
+                      <h4 className="text-[15px] font-semibold text-[#1E2022] leading-snug">{a.name}</h4>
                       <p className="mt-0.5 text-[14px] font-medium text-[#6B7280] line-clamp-2">{a.description}</p>
                       <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
                         <CategoryChip category={a.category} />
@@ -573,11 +573,11 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                           type="button"
                           onClick={() => setEditTimeKey(editingTime ? null : timeKey)}
                           aria-expanded={editingTime}
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#0B4A82]/10 text-[#0B4A82] text-[13px] font-semibold hover:bg-[#0B4A82]/20 cursor-pointer"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#C2571A]/10 text-[#C2571A] text-[13px] font-semibold hover:bg-[#C2571A]/20 cursor-pointer"
                         >
                           <Pencil className="w-3 h-3" /> {row.custom ? 'Time edited' : 'Edit time'}
                         </button>
-                        <span className="text-[14px] font-bold text-[#16222E]">
+                        <span className="text-[14px] font-bold text-[#1E2022]">
                           {a.cost === 0 ? 'Free' : `${formatINR(a.cost)} pp`}
                         </span>
                       </div>
@@ -587,7 +587,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                         type="button"
                         disabled={dayIndex === 0}
                         onClick={() => move(a.id, dayIndex, dayIndex - 1)}
-                        className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-[#6B7280] hover:bg-[#F6F8FA] hover:text-[#16222E] focus:outline-none focus:ring-2 focus:ring-[#0B4A82] disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+                        className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-[#6B7280] hover:bg-[#FAF8F5] hover:text-[#1E2022] focus:outline-none focus:ring-2 focus:ring-[#C2571A] disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
                         aria-label={`Move ${a.name} to previous day`}
                       >
                         <ChevronLeft className="w-4 h-4" />
@@ -596,7 +596,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                         type="button"
                         disabled={dayIndex === days - 1}
                         onClick={() => move(a.id, dayIndex, dayIndex + 1)}
-                        className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-[#6B7280] hover:bg-[#F6F8FA] hover:text-[#16222E] focus:outline-none focus:ring-2 focus:ring-[#0B4A82] disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+                        className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-[#6B7280] hover:bg-[#FAF8F5] hover:text-[#1E2022] focus:outline-none focus:ring-2 focus:ring-[#C2571A] disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
                         aria-label={`Move ${a.name} to next day`}
                       >
                         <ChevronRight className="w-4 h-4" />
@@ -604,7 +604,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                       <button
                         type="button"
                         onClick={() => move(a.id, dayIndex, 'ideas')}
-                        className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-[#9CA3AF] hover:text-[#0B4A82] hover:bg-[#0B4A82]/8 focus:outline-none focus:ring-2 focus:ring-[#0B4A82] cursor-pointer transition-colors"
+                        className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-[#9CA3AF] hover:text-[#C2571A] hover:bg-[#C2571A]/8 focus:outline-none focus:ring-2 focus:ring-[#C2571A] cursor-pointer transition-colors"
                         aria-label={`Remove ${a.name} from Day ${dayIndex + 1}`}
                       >
                         <Trash2 className="w-4 h-4" />
@@ -615,7 +615,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                     <p className="mt-1.5 text-[13px] font-medium text-amber-700">Overlaps the stop before it. Adjust a time if that is not intended.</p>
                   )}
                   {editingTime && (
-                    <div className="mt-2 rounded-xl border border-[#0B4A82]/20 bg-[#EEF4F8] p-3">
+                    <div className="mt-2 rounded-xl border border-[#C2571A]/20 bg-[#FFF6EC] p-3">
                       <div className="flex flex-wrap items-end gap-3">
                         <label className="block">
                           <span className="block mb-1 text-[12px] font-bold uppercase tracking-wider text-[#6B7280]">From</span>
@@ -628,7 +628,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                               // keep the same length when the start moves
                               setActivityTimes(timeKey, start, Math.min(start + (row.end - row.start), 24 * 60 - 1));
                             }}
-                            className="h-9 px-2.5 rounded-lg bg-white border border-[#16222E]/15 text-[15px] text-[#16222E] focus:outline-none focus:border-[#0B4A82]"
+                            className="h-9 px-2.5 rounded-lg bg-white border border-[#1E2022]/15 text-[15px] text-[#1E2022] focus:outline-none focus:border-[#C2571A]"
                           />
                         </label>
                         <label className="block">
@@ -641,7 +641,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                               if (end === null || end <= row.start) return;
                               setActivityTimes(timeKey, row.start, end);
                             }}
-                            className="h-9 px-2.5 rounded-lg bg-white border border-[#16222E]/15 text-[15px] text-[#16222E] focus:outline-none focus:border-[#0B4A82]"
+                            className="h-9 px-2.5 rounded-lg bg-white border border-[#1E2022]/15 text-[15px] text-[#1E2022] focus:outline-none focus:border-[#C2571A]"
                           />
                         </label>
                         <div className="flex items-center gap-2 pb-0.5">
@@ -649,7 +649,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                             <button
                               type="button"
                               onClick={() => resetActivityTimes(timeKey)}
-                              className="px-3 py-1.5 rounded-full bg-white border border-[#16222E]/15 text-[13px] font-semibold text-[#475569] hover:border-[#0B4A82] hover:text-[#0B4A82] cursor-pointer"
+                              className="px-3 py-1.5 rounded-full bg-white border border-[#1E2022]/15 text-[13px] font-semibold text-[#4B4F55] hover:border-[#C2571A] hover:text-[#C2571A] cursor-pointer"
                             >
                               Reset
                             </button>
@@ -657,7 +657,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                           <button
                             type="button"
                             onClick={() => setEditTimeKey(null)}
-                            className="px-3 py-1.5 rounded-full bg-[#0B4A82] text-white text-[13px] font-semibold hover:bg-[#0E7C86] cursor-pointer"
+                            className="px-3 py-1.5 rounded-full bg-[#C2571A] text-white text-[13px] font-semibold hover:bg-[#E5501A] cursor-pointer"
                           >
                             Done
                           </button>
@@ -677,7 +677,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
           <button
             type="button"
             onClick={focusIdeas}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-dashed border-[#16222E]/20 text-sm font-semibold text-[#6B7280] hover:border-[#0B4A82] hover:text-[#0B4A82] cursor-pointer"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-dashed border-[#1E2022]/20 text-sm font-semibold text-[#6B7280] hover:border-[#C2571A] hover:text-[#C2571A] cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" /> Add activity
           </button>
@@ -698,25 +698,25 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
               <button
                 type="button"
                 onClick={handlePrint}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#16222E]/12 text-xs font-semibold text-[#16222E] hover:border-[#0B4A82] hover:text-[#0B4A82] shadow-xs transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#1E2022]/12 text-xs font-semibold text-[#1E2022] hover:border-[#C2571A] hover:text-[#C2571A] shadow-xs transition cursor-pointer"
                 title="Print itinerary or save as PDF via your browser's print dialog"
               >
-                <Printer className="w-3.5 h-3.5 text-[#0B4A82]" />
+                <Printer className="w-3.5 h-3.5 text-[#C2571A]" />
                 <span>Print / Save as PDF</span>
               </button>
               <button
                 type="button"
                 onClick={() => setIsShareModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#16222E]/12 text-xs font-semibold text-[#16222E] hover:border-[#0B4A82] hover:text-[#0B4A82] shadow-xs transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#1E2022]/12 text-xs font-semibold text-[#1E2022] hover:border-[#C2571A] hover:text-[#C2571A] shadow-xs transition cursor-pointer"
                 title="Generate a shareable link for travel companions"
               >
-                <Share2 className="w-3.5 h-3.5 text-[#0B4A82]" />
+                <Share2 className="w-3.5 h-3.5 text-[#C2571A]" />
                 <span>Share Link</span>
               </button>
               <button
                 type="button"
                 onClick={onEditDetails}
-                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#6B7280] hover:text-[#16222E] cursor-pointer ml-1"
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#6B7280] hover:text-[#1E2022] cursor-pointer ml-1"
               >
                 <ArrowLeft className="w-4 h-4" /> Edit trip details
               </button>
@@ -724,15 +724,15 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
           </div>
 
         {/* Page heading */}
-        <div className="mt-6 pb-5 border-b border-[#16222E]/10 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div className="mt-6 pb-5 border-b border-[#1E2022]/10 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
           <div className="min-w-0">
             {curatedPkg && (
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0B4A82]/10 text-[#0B4A82] text-xs font-semibold mb-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C2571A]/10 text-[#C2571A] text-xs font-semibold mb-2">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Customising: {curatedPkg.name}</span>
               </div>
             )}
-            <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#16222E]">
+            <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#1E2022]">
               Plan your {dest.name} days
             </h1>
             <p className="mt-2 text-[16px] font-medium text-[#6B7280]">
@@ -743,10 +743,10 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
         </div>
 
         {/* AI assistant */}
-        <div className="mt-5 p-4 sm:p-5 rounded-2xl bg-[#16222E] text-white">
+        <div className="mt-5 p-4 sm:p-5 rounded-2xl bg-[#1E2022] text-white">
           <div className="flex flex-col xl:flex-row xl:items-center gap-4">
             <div className="flex items-start gap-3 flex-1 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-[#0B4A82] flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-[#C2571A] flex items-center justify-center shrink-0">
                 <Sparkles className="w-4 h-4" />
               </div>
               <div className="min-w-0">
@@ -761,7 +761,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
               <button
                 type="button"
                 onClick={handleAutoPlan}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-[#16222E] text-[16px] font-semibold shadow-sm hover:bg-[#F6F8FA] active:scale-[0.98] motion-reduce:active:scale-100 transition duration-200 ease-out cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-[#1E2022] text-[16px] font-semibold shadow-sm hover:bg-[#FAF8F5] active:scale-[0.98] motion-reduce:active:scale-100 transition duration-200 ease-out cursor-pointer"
               >
                 <Wand2 className="w-4 h-4" /> Auto plan my days
               </button>
@@ -776,7 +776,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                   className="bg-transparent text-[15px] font-medium text-white/85 focus:outline-none mr-1 cursor-pointer"
                 >
                   {plan.days.map((_, i) => (
-                    <option key={i} value={i} className="text-[#16222E]">
+                    <option key={i} value={i} className="text-[#1E2022]">
                       Day {i + 1}
                     </option>
                   ))}
@@ -785,7 +785,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                   type="button"
                   onClick={handleAskAi}
                   disabled={aiLoading}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0B4A82] hover:bg-[#083A68] text-[14px] font-semibold disabled:opacity-60 transition-colors duration-200 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#C2571A] hover:bg-[#A84A15] text-[14px] font-semibold disabled:opacity-60 transition-colors duration-200 cursor-pointer"
                 >
                   {aiLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
                   Ask AI
@@ -811,11 +811,11 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
             onDragOver={(e) => allowDrop(e, 'ideas')}
             onDrop={(e) => dropOn(e, 'ideas')}
             className={`order-2 lg:order-1 lg:col-span-5 xl:col-span-1 xl:order-1 lg:sticky lg:top-24 flex flex-col rounded-2xl border bg-white p-3.5 max-h-[70vh] lg:max-h-[calc(100vh-7rem)] ${
-              overColumn === 'ideas' && drag?.from !== 'ideas' ? 'border-[#0B4A82] bg-[#0B4A82]/5' : 'border-[#16222E]/10'
+              overColumn === 'ideas' && drag?.from !== 'ideas' ? 'border-[#C2571A] bg-[#C2571A]/5' : 'border-[#1E2022]/10'
             }`}
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-bold text-[#16222E]">Ideas in {dest.name}</h2>
+              <h2 className="text-base font-bold text-[#1E2022]">Ideas in {dest.name}</h2>
               <span className="text-[15px] text-[#6B7280]">{ideas.length} available</span>
             </div>
             <div className="mt-3 flex flex-wrap gap-1">
@@ -826,8 +826,8 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                   onClick={() => setFilter(c)}
                   className={`px-2.5 py-1 rounded-full border text-[13px] font-medium cursor-pointer transition-colors duration-200 ${
                     filter === c
-                      ? 'bg-[#16222E] border-[#16222E] text-white'
-                      : 'bg-white border-[#16222E]/10 text-[#16222E] hover:border-[#0B4A82]/50'
+                      ? 'bg-[#1E2022] border-[#1E2022] text-white'
+                      : 'bg-white border-[#1E2022]/10 text-[#1E2022] hover:border-[#C2571A]/50'
                   }`}
                 >
                   {c === 'All' ? 'All Activities' : c}
@@ -843,7 +843,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search activities, places or experiences…"
                 aria-label="Search ideas"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white border border-[#16222E]/10 text-sm font-normal text-[#16222E] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#0B4A82]"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white border border-[#1E2022]/10 text-sm font-normal text-[#1E2022] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#C2571A]"
               />
             </div>
 
@@ -869,7 +869,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                     onDragStart={(e) => startDrag(e, a.id, 'ideas')}
                     onDragEnd={endDrag}
                     className={`rounded-2xl border bg-white p-2 cursor-grab active:cursor-grabbing transition-[transform,box-shadow] duration-200 ease-out ${
-                      highlighted ? 'border-[#0B4A82]/40' : 'border-[#16222E]/10'
+                      highlighted ? 'border-[#C2571A]/40' : 'border-[#1E2022]/10'
                     } ${drag?.id === a.id ? 'opacity-40' : 'hover:-translate-y-0.5 hover:shadow-md motion-reduce:hover:translate-y-0'}`}
                   >
                     <div className="flex items-stretch gap-3">
@@ -881,11 +881,11 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                       </div>
                       <div className="flex-1 min-w-0 flex flex-col justify-between gap-1.5">
                         <div className="flex items-start justify-between gap-2">
-                          <h3 className="text-[13px] font-bold text-[#16222E] leading-snug line-clamp-2">
+                          <h3 className="text-[13px] font-bold text-[#1E2022] leading-snug line-clamp-2">
                             {a.name}
                             {highlighted && (
                               <Sparkles
-                                className="inline w-3 h-3 ml-1 -mt-0.5 text-[#0B4A82]"
+                                className="inline w-3 h-3 ml-1 -mt-0.5 text-[#C2571A]"
                                 aria-label={a.aiGenerated ? 'Suggested by AI' : 'AI pick for your plan'}
                               />
                             )}
@@ -896,7 +896,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                             aria-pressed={saved}
                             aria-label={saved ? `Unsave ${a.name}` : `Save ${a.name}`}
                             className={`shrink-0 p-0.5 cursor-pointer ${
-                              saved ? 'text-[#0B4A82]' : 'text-[#9CA3AF] hover:text-[#16222E]'
+                              saved ? 'text-[#C2571A]' : 'text-[#9CA3AF] hover:text-[#1E2022]'
                             }`}
                           >
                             <Bookmark className={`w-4 h-4 ${saved ? 'fill-current' : ''}`} />
@@ -919,7 +919,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                           <button
                             type="button"
                             onClick={() => setOpenAddId(openAddId === a.id ? null : a.id)}
-                            className="w-7 h-7 shrink-0 inline-flex items-center justify-center rounded-full bg-[#16222E] text-white hover:bg-[#0B4A82] transition-colors duration-200 ease-out cursor-pointer"
+                            className="w-7 h-7 shrink-0 inline-flex items-center justify-center rounded-full bg-[#1E2022] text-white hover:bg-[#C2571A] transition-colors duration-200 ease-out cursor-pointer"
                             aria-expanded={openAddId === a.id}
                             aria-label={`Add ${a.name} to a day`}
                           >
@@ -929,14 +929,14 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                       </div>
                     </div>
                     {openAddId === a.id && (
-                      <div className="mt-2.5 pt-2.5 border-t border-[#16222E]/8">
+                      <div className="mt-2.5 pt-2.5 border-t border-[#1E2022]/8">
                         <label className="flex items-center gap-2 mb-2 text-[12px] font-semibold text-[#6B7280]">
                           Start time <span className="font-medium text-[#9CA3AF]">(optional)</span>
                           <input
                             type="time"
                             value={addTime}
                             onChange={(e) => setAddTime(e.target.value)}
-                            className="h-8 px-2 rounded-lg bg-white border border-[#16222E]/15 text-[13px] text-[#16222E] focus:outline-none focus:border-[#0B4A82]"
+                            className="h-8 px-2 rounded-lg bg-white border border-[#1E2022]/15 text-[13px] text-[#1E2022] focus:outline-none focus:border-[#C2571A]"
                           />
                         </label>
                         <div className="flex flex-wrap gap-1.5">
@@ -945,7 +945,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                             key={i}
                             type="button"
                             onClick={() => addToDay(a.id, i)}
-                            className="px-2.5 py-1 rounded-lg bg-[#F6F8FA] border border-[#16222E]/10 text-[11px] font-semibold hover:border-[#0B4A82] hover:text-[#0B4A82] cursor-pointer"
+                            className="px-2.5 py-1 rounded-lg bg-[#FAF8F5] border border-[#1E2022]/10 text-[11px] font-semibold hover:border-[#C2571A] hover:text-[#C2571A] cursor-pointer"
                           >
                             Day {i + 1}
                           </button>
@@ -980,20 +980,20 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                     id={`day-section-${di}`}
                     className={`scroll-mt-28 rounded-2xl border bg-white overflow-hidden transition-shadow ${
                       isActive
-                        ? 'border-[#0B4A82]/50 shadow-[0_16px_40px_-22px_rgba(22,34,46,0.45)]'
-                        : 'border-[#16222E]/15 shadow-sm'
+                        ? 'border-[#C2571A]/50 shadow-[0_16px_40px_-22px_rgba(30,32,34,0.45)]'
+                        : 'border-[#1E2022]/15 shadow-sm'
                     }`}
                   >
                     {isGroupStart && groupIdx > 0 && (
-                      <div className="px-4 py-2 bg-[#EEF4F8] border-b border-[#1D7BA6]/20 flex items-center gap-2 text-xs font-semibold text-[#0B4A82]">
+                      <div className="px-4 py-2 bg-[#FFF6EC] border-b border-[#F7931E]/20 flex items-center gap-2 text-xs font-semibold text-[#C2571A]">
                         <Car className="w-3.5 h-3.5" /> {transferLabel(dest.id, group.title)}
                       </div>
                     )}
                     {isGroupStart && (
-                      <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-3 bg-gradient-to-r from-[#E8F0F5] to-[#DCE7EF] border-b border-[#1D7BA6]/20">
-                        <h3 className="text-base font-semibold text-[#16222E]">
+                      <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-3 bg-gradient-to-r from-[#FFF1DC] to-[#FFE3D2] border-b border-[#F7931E]/20">
+                        <h3 className="text-base font-semibold text-[#1E2022]">
                           {group.title}{' '}
-                          <span className="text-[#0B4A82]">
+                          <span className="text-[#C2571A]">
                             / {group.nights} night{group.nights === 1 ? '' : 's'}
                           </span>
                         </h3>
@@ -1005,9 +1005,9 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                       onDragOver={(e) => allowDrop(e, di)}
                       onDragLeave={() => setOverColumn((c) => (c === di ? null : c))}
                       onDrop={(e) => dropOn(e, di)}
-                      className={`transition-colors ${isOver ? 'bg-[#0B4A82]/5' : ''}`}
+                      className={`transition-colors ${isOver ? 'bg-[#C2571A]/5' : ''}`}
                     >
-                      <div className="flex items-center gap-2 pr-3 bg-[#F6F8FA]/60">
+                      <div className="flex items-center gap-2 pr-3 bg-[#FAF8F5]/60">
                         <button
                           type="button"
                           onClick={() => toggleDay(di)}
@@ -1017,14 +1017,14 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                         >
                           <span
                             className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold ${
-                              isActive ? 'bg-[#16222E] text-white' : 'bg-[#16222E]/6 text-[#16222E]'
+                              isActive ? 'bg-[#1E2022] text-white' : 'bg-[#1E2022]/6 text-[#1E2022]'
                             }`}
                           >
                             {String(di + 1).padStart(2, '0')}
                           </span>
                           <span className="min-w-0">
                             <span className="block text-[15px]">
-                              <span className="font-bold text-[#16222E]">Day {String(di + 1).padStart(2, '0')}</span>
+                              <span className="font-bold text-[#1E2022]">Day {String(di + 1).padStart(2, '0')}</span>
                               <span className="font-medium text-[#9CA3AF]"> · {dayDate(draft.checkIn, di)}</span>
                             </span>
                             <span className="block mt-0.5 text-[14px] font-medium text-[#6B7280]">
@@ -1046,7 +1046,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                           <button
                             type="button"
                             onClick={() => addPicksToDay(di)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-[#0B4A82]/10 text-[#0B4A82] text-[14px] font-semibold hover:bg-[#0B4A82]/20 transition-colors duration-200 ease-out cursor-pointer shrink-0"
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-[#C2571A]/10 text-[#C2571A] text-[14px] font-semibold hover:bg-[#C2571A]/20 transition-colors duration-200 ease-out cursor-pointer shrink-0"
                             title="Fill this day's open slots with AI picks"
                           >
                             <Sparkles className="w-3 h-3" /> Suggest
@@ -1063,7 +1063,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                             animate={{ height: 'auto', opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
                             transition={{ duration: 0.25, ease: 'easeOut' }}
-                            className="overflow-hidden border-t border-[#16222E]/8"
+                            className="overflow-hidden border-t border-[#1E2022]/8"
                           >
                             <div className="p-4">
                               {di === 0 && (
@@ -1077,7 +1077,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                               {items.length > 0 ? (
                                 renderTimeline(items, di)
                               ) : (
-                                <div className="min-h-24 rounded-xl border-2 border-dashed border-[#16222E]/20 flex flex-col items-center justify-center gap-0.5 text-center px-4 py-4">
+                                <div className="min-h-24 rounded-xl border-2 border-dashed border-[#1E2022]/20 flex flex-col items-center justify-center gap-0.5 text-center px-4 py-4">
                                   <p className="text-[15px] font-semibold text-[#4B4F55]">No experiences added yet</p>
                                   <p className="text-[14px] text-[#6B7280]">Drag an idea here or tap Suggest.</p>
                                 </div>
@@ -1098,51 +1098,51 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
 
           {/* RIGHT: compact pricing, trip summary, route */}
           <div className="order-3 lg:order-3 lg:col-span-12 xl:col-span-1 xl:order-3 xl:sticky xl:top-24 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-1 gap-5">
-            <div className="rounded-2xl border border-[#16222E]/10 bg-white p-4">
+            <div className="rounded-2xl border border-[#1E2022]/10 bg-white p-4">
               <h2 className="text-base font-semibold text-[#6B7280]">Trip summary</h2>
               <div className="mt-3 space-y-2.5 text-[15px]">
                 <div className="flex items-center justify-between">
                   <span className="text-[#6B7280]">Dates</span>
-                  <span className="font-semibold text-[#16222E] text-right">
+                  <span className="font-semibold text-[#1E2022] text-right">
                     {formatDate(draft.checkIn)} – {formatDate(draft.checkOut)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[#6B7280]">Duration</span>
-                  <span className="font-semibold text-[#16222E]">{days} days</span>
+                  <span className="font-semibold text-[#1E2022]">{days} days</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[#6B7280]">Guests</span>
-                  <span className="font-medium text-[#16222E]">{guests}</span>
+                  <span className="font-medium text-[#1E2022]">{guests}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[#6B7280]">Stay style</span>
-                  <span className="font-medium text-[#16222E]">{TIER_LABEL[draft.stayTier]}</span>
+                  <span className="font-medium text-[#1E2022]">{TIER_LABEL[draft.stayTier]}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[#6B7280]">Experiences</span>
-                  <span className="font-semibold text-[#16222E] tabular-nums">{totalPlanned}</span>
+                  <span className="font-semibold text-[#1E2022] tabular-nums">{totalPlanned}</span>
                 </div>
               </div>
             </div>
 
             {/* Your route */}
-            <div className="rounded-2xl border border-[#16222E]/10 bg-white p-4">
+            <div className="rounded-2xl border border-[#1E2022]/10 bg-white p-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-semibold text-[#16222E]">Your route</h2>
-                <span className="text-[16px] font-semibold text-[#16222E]">
+                <h2 className="text-base font-semibold text-[#1E2022]">Your route</h2>
+                <span className="text-[16px] font-semibold text-[#1E2022]">
                   {stops.length || 1} {stops.length > 1 ? 'cities' : 'city'} / {days - 1} nights
                 </span>
               </div>
               <LazyErrorBoundary
-                className="relative mt-3 h-56 rounded-xl overflow-hidden border border-[#16222E]/10 bg-[#EDF1F5] flex flex-col items-center justify-center p-4 text-center gap-2"
+                className="relative mt-3 h-56 rounded-xl overflow-hidden border border-[#1E2022]/10 bg-[#F3EEE6] flex flex-col items-center justify-center p-4 text-center gap-2"
                 fallbackTitle="Interactive Route Map Unavailable"
                 fallbackMessage="Map tiles could not be loaded. Your journey stops and schedule remain unaffected."
               >
                 <React.Suspense
                   fallback={
-                    <div className="relative mt-3 h-56 rounded-xl overflow-hidden border border-[#16222E]/10 bg-[#EDF1F5] flex flex-col items-center justify-center gap-2 text-xs text-[#4B5563]">
-                      <div className="w-5 h-5 rounded-full border-2 border-[#0B4A82] border-t-transparent animate-spin" />
+                    <div className="relative mt-3 h-56 rounded-xl overflow-hidden border border-[#1E2022]/10 bg-[#F3EEE6] flex flex-col items-center justify-center gap-2 text-xs text-[#4B5563]">
+                      <div className="w-5 h-5 rounded-full border-2 border-[#C2571A] border-t-transparent animate-spin" />
                       <span>Loading interactive route map...</span>
                     </div>
                   }
@@ -1151,9 +1151,9 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                 </React.Suspense>
               </LazyErrorBoundary>
               <ol className="relative mt-4">
-                <span aria-hidden className="absolute left-4 top-4 bottom-4 border-l-2 border-dashed border-[#16222E]/15" />
+                <span aria-hidden className="absolute left-4 top-4 bottom-4 border-l-2 border-dashed border-[#1E2022]/15" />
                 <li className="relative flex items-center gap-3 pb-4">
-                  <span className="relative z-10 w-8 h-8 rounded-full bg-[#16222E]/6 text-[#4B4F55] flex items-center justify-center shrink-0">
+                  <span className="relative z-10 w-8 h-8 rounded-full bg-[#1E2022]/6 text-[#4B4F55] flex items-center justify-center shrink-0">
                     <Plane className="w-4 h-4" />
                   </span>
                   <span className="text-[17px] text-[#6B7280]">Arrival in {dest.name}</span>
@@ -1162,18 +1162,18 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                   <React.Fragment key={g.key}>
                     {gi > 0 && (
                       <li className="relative flex items-center gap-3 pb-4">
-                        <span className="relative z-10 w-8 h-8 rounded-full bg-[#EEF4F8] text-[#0B4A82] flex items-center justify-center shrink-0">
+                        <span className="relative z-10 w-8 h-8 rounded-full bg-[#FFF6EC] text-[#C2571A] flex items-center justify-center shrink-0">
                           <Car className="w-4 h-4" />
                         </span>
                         <span className="text-[16px] text-[#6B7280]">{transferLabel(dest.id, g.title)}</span>
                       </li>
                     )}
                     <li className="relative flex items-center gap-3 pb-4">
-                      <span className="relative z-10 w-8 h-8 rounded-full bg-[#0B4A82] text-white flex items-center justify-center shrink-0 text-[14px] font-bold">
+                      <span className="relative z-10 w-8 h-8 rounded-full bg-[#C2571A] text-white flex items-center justify-center shrink-0 text-[14px] font-bold">
                         {gi + 1}
                       </span>
                       <span className="min-w-0">
-                        <span className="block text-sm font-bold text-[#16222E] truncate">{g.title}</span>
+                        <span className="block text-sm font-bold text-[#1E2022] truncate">{g.title}</span>
                         <span className="block text-[14px] text-[#6B7280]">
                           {g.nights} night{g.nights === 1 ? '' : 's'}
                         </span>
@@ -1182,7 +1182,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                   </React.Fragment>
                 ))}
                 <li className="relative flex items-center gap-3">
-                  <span className="relative z-10 w-8 h-8 rounded-full bg-[#16222E]/6 text-[#4B4F55] flex items-center justify-center shrink-0">
+                  <span className="relative z-10 w-8 h-8 rounded-full bg-[#1E2022]/6 text-[#4B4F55] flex items-center justify-center shrink-0">
                     <Plane className="w-4 h-4 rotate-45" />
                   </span>
                   <span className="text-base text-[#6B7280]">Departure</span>
@@ -1197,12 +1197,12 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
       <div className="sticky bottom-[5.25rem] md:bottom-6 z-30 mt-8 max-w-3xl mx-auto px-4">
         <div
           aria-hidden={!showBar}
-          className={`flex items-center justify-between gap-4 p-3 pl-5 rounded-full bg-white border border-[#16222E]/12 shadow-2xl transition-all duration-700 ease-out ${
+          className={`flex items-center justify-between gap-4 p-3 pl-5 rounded-full bg-white border border-[#1E2022]/12 shadow-2xl transition-all duration-700 ease-out ${
             showBar ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0 pointer-events-none'
           }`}
         >
           <div className="min-w-0">
-            <p className="text-[22px] font-bold leading-tight text-[#16222E] truncate">
+            <p className="text-[22px] font-bold leading-tight text-[#1E2022] truncate">
               {formatINR(costs.total)}{' '}
               <span className="text-[14px] font-medium text-[#6B7280]">/ {totalPlanned} Experiences Planned</span>
             </p>
@@ -1212,7 +1212,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
             onClick={onContinue}
             disabled={totalPlanned === 0}
             tabIndex={showBar ? 0 : -1}
-            className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#16222E] hover:bg-[#0B4A82] hover:-translate-y-0.5 hover:shadow-lg text-white text-base font-semibold disabled:opacity-40 disabled:hover:bg-[#16222E] disabled:hover:translate-y-0 disabled:hover:shadow-none motion-reduce:hover:translate-y-0 transition duration-200 ease-out cursor-pointer shrink-0"
+            className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1E2022] hover:bg-[#C2571A] hover:-translate-y-0.5 hover:shadow-lg text-white text-base font-semibold disabled:opacity-40 disabled:hover:bg-[#1E2022] disabled:hover:translate-y-0 disabled:hover:shadow-none motion-reduce:hover:translate-y-0 transition duration-200 ease-out cursor-pointer shrink-0"
           >
             Review my package <ArrowRight className="w-4 h-4 transition-transform duration-200 ease-out group-hover:translate-x-[3px] motion-reduce:group-hover:translate-x-0" />
           </button>

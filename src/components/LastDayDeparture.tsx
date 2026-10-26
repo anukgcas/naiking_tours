@@ -42,13 +42,13 @@ export const LastDayDeparture: React.FC<LastDayDepartureProps> = ({ draft, plan,
       : departure.address.trim() || 'your address';
 
   return (
-    <div className="mt-4 rounded-2xl border border-[#0B4A82]/20 bg-gradient-to-br from-[#EEF4F8] to-white p-4">
+    <div className="mt-4 rounded-2xl border border-[#C2571A]/20 bg-gradient-to-br from-[#FFF6EC] to-white p-4">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="w-8 h-8 rounded-xl bg-[#0B4A82] text-white flex items-center justify-center">
+        <span className="w-8 h-8 rounded-xl bg-[#C2571A] text-white flex items-center justify-center">
           {byWater ? <Ship className="w-4 h-4" /> : <Car className="w-4 h-4" />}
         </span>
         <div className="min-w-0">
-          <h4 className="text-[16px] font-semibold text-[#16222E]">Departure, pickup & drop</h4>
+          <h4 className="text-[16px] font-semibold text-[#1E2022]">Departure, pickup & drop</h4>
           <p className="text-[13px] text-[#6B7280]">
             Choose when we collect you and where you are dropped on your last day.
           </p>
@@ -70,8 +70,8 @@ export const LastDayDeparture: React.FC<LastDayDepartureProps> = ({ draft, plan,
                 onClick={() => update({ mode: m.id })}
                 className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full border text-[14px] font-semibold transition-colors cursor-pointer ${
                   on
-                    ? 'bg-[#0B4A82] border-[#0B4A82] text-white'
-                    : 'bg-white border-[#16222E]/15 text-[#475569] hover:border-[#0B4A82]/50 hover:text-[#16222E]'
+                    ? 'bg-[#C2571A] border-[#C2571A] text-white'
+                    : 'bg-white border-[#1E2022]/15 text-[#4B4F55] hover:border-[#C2571A]/50 hover:text-[#1E2022]'
                 }`}
               >
                 {m.icon}
@@ -82,8 +82,8 @@ export const LastDayDeparture: React.FC<LastDayDepartureProps> = ({ draft, plan,
         </div>
 
         {departure.mode === 'airport' && (
-          <p className="mt-2 text-[14px] text-[#475569] inline-flex items-center gap-1.5">
-            <Plane className="w-3.5 h-3.5 text-[#0E7C86]" /> {arrivalPointLabel(dest.id)}
+          <p className="mt-2 text-[14px] text-[#4B4F55] inline-flex items-center gap-1.5">
+            <Plane className="w-3.5 h-3.5 text-[#E5501A]" /> {arrivalPointLabel(dest.id)}
           </p>
         )}
 
@@ -169,19 +169,19 @@ export const LastDayDeparture: React.FC<LastDayDepartureProps> = ({ draft, plan,
                 onClick={() => update({ pickupHotelId: h.id })}
                 className={`text-left rounded-xl border p-3 transition-all cursor-pointer ${
                   on
-                    ? 'bg-white border-[#0B4A82] shadow-[0_0_0_3px_rgba(11,74,130,0.12)]'
-                    : 'bg-white/70 border-[#16222E]/12 hover:border-[#0B4A82]/50 hover:bg-white'
+                    ? 'bg-white border-[#C2571A] shadow-[0_0_0_3px_rgba(194,87,26,0.12)]'
+                    : 'bg-white/70 border-[#1E2022]/12 hover:border-[#C2571A]/50 hover:bg-white'
                 }`}
               >
                 <div className="flex items-start gap-2">
-                  <BedDouble className="w-4 h-4 mt-0.5 text-[#0E7C86] shrink-0" />
+                  <BedDouble className="w-4 h-4 mt-0.5 text-[#E5501A] shrink-0" />
                   <div className="min-w-0 flex-1">
-                    <div className="text-[15px] font-semibold text-[#16222E] leading-snug">{h.name}</div>
-                    <div className="mt-0.5 inline-flex items-center gap-1 text-[12px] text-[#475569]">
+                    <div className="text-[15px] font-semibold text-[#1E2022] leading-snug">{h.name}</div>
+                    <div className="mt-0.5 inline-flex items-center gap-1 text-[12px] text-[#4B4F55]">
                       <MapPin className="w-3 h-3" /> {h.area}
                     </div>
                   </div>
-                  {on && <Check className="w-4 h-4 text-[#0B4A82] shrink-0" />}
+                  {on && <Check className="w-4 h-4 text-[#C2571A] shrink-0" />}
                 </div>
               </button>
             );
@@ -194,17 +194,17 @@ export const LastDayDeparture: React.FC<LastDayDepartureProps> = ({ draft, plan,
             onClick={() => update({ pickupHotelId: 'other' })}
             className={`text-left rounded-xl border p-3 transition-all cursor-pointer ${
               departure.pickupHotelId === 'other'
-                ? 'bg-white border-[#0B4A82] shadow-[0_0_0_3px_rgba(11,74,130,0.12)]'
-                : 'bg-white/70 border-[#16222E]/12 hover:border-[#0B4A82]/50 hover:bg-white'
+                ? 'bg-white border-[#C2571A] shadow-[0_0_0_3px_rgba(194,87,26,0.12)]'
+                : 'bg-white/70 border-[#1E2022]/12 hover:border-[#C2571A]/50 hover:bg-white'
             }`}
           >
             <div className="flex items-start gap-2">
               <BedDouble className="w-4 h-4 mt-0.5 text-[#6B7280] shrink-0" />
               <div className="min-w-0 flex-1">
-                <div className="text-[15px] font-semibold text-[#16222E] leading-snug">Somewhere else</div>
+                <div className="text-[15px] font-semibold text-[#1E2022] leading-snug">Somewhere else</div>
                 <div className="text-[13px] text-[#6B7280] leading-snug">Your own hotel or another meeting point.</div>
               </div>
-              {departure.pickupHotelId === 'other' && <Check className="w-4 h-4 text-[#0B4A82] shrink-0" />}
+              {departure.pickupHotelId === 'other' && <Check className="w-4 h-4 text-[#C2571A] shrink-0" />}
             </div>
           </button>
         </div>
@@ -227,7 +227,7 @@ export const LastDayDeparture: React.FC<LastDayDepartureProps> = ({ draft, plan,
       </div>
 
       {/* Plain-language recap */}
-      <p className="mt-4 rounded-xl bg-white border border-[#16222E]/10 px-3 py-2.5 text-[14px] text-[#16222E] leading-snug">
+      <p className="mt-4 rounded-xl bg-white border border-[#1E2022]/10 px-3 py-2.5 text-[14px] text-[#1E2022] leading-snug">
         {departure.mode === 'self' ? (
           <>
             You make your own way from <strong>{pickupName}</strong>; no transfer is booked for the last day.

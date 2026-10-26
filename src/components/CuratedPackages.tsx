@@ -152,16 +152,16 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({
       : CURATED_PACKAGES.filter((p) => p.category === activeCategory);
 
   return (
-    <section id="curated-packages" className="py-12 md:py-16 bg-[#F6F8FA] scroll-mt-20 border-t border-[#16222E]/8">
+    <section id="curated-packages" className="py-12 md:py-16 bg-[#FAF8F5] scroll-mt-20 border-t border-[#1E2022]/8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
           <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0B4A82]/10 border border-[#0B4A82]/20 text-[#0B4A82] text-xs font-bold uppercase tracking-wider mb-2.5">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#C2571A]/10 border border-[#C2571A]/20 text-[#C2571A] text-xs font-bold uppercase tracking-wider mb-2.5">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Signature Journeys</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#16222E]">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#1E2022]">
               Curated Travel Packages
             </h2>
             <p className="mt-2 text-sm sm:text-base text-[#4B5563]">
@@ -178,8 +178,8 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({
                 onClick={() => setActiveCategory(cat)}
                 className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer shrink-0 ${
                   activeCategory === cat
-                    ? 'bg-[#16222E] text-white shadow-sm'
-                    : 'bg-white border border-[#16222E]/15 text-[#4B5563] hover:text-[#16222E] hover:border-[#16222E]/30 hover:bg-[#F6F8FA]'
+                    ? 'bg-[#1E2022] text-white shadow-sm'
+                    : 'bg-white border border-[#1E2022]/15 text-[#4B5563] hover:text-[#1E2022] hover:border-[#1E2022]/30 hover:bg-[#FAF8F5]'
                 }`}
               >
                 {cat}
@@ -195,7 +195,7 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({
             return (
               <div
                 key={pkg.id}
-                className="group bg-white rounded-3xl border border-[#16222E]/12 overflow-hidden shadow-[0_4px_16px_-4px_rgba(22,34,46,0.06)] hover:shadow-[0_22px_45px_-12px_rgba(22,34,46,0.18)] hover:border-[#0B4A82]/25 transition-all duration-300 flex flex-col justify-between"
+                className="group bg-white rounded-3xl border border-[#1E2022]/12 overflow-hidden shadow-[0_4px_16px_-4px_rgba(30,32,34,0.06)] hover:shadow-[0_22px_45px_-12px_rgba(30,32,34,0.18)] hover:border-[#C2571A]/25 transition-all duration-300 flex flex-col justify-between"
               >
                 <div>
                   {/* Photo Header */}
@@ -208,14 +208,14 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
                     
                     {/* Duration Badge */}
-                    <div className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#16222E]/90 backdrop-blur-md text-white text-xs font-bold border border-white/20 shadow-sm">
-                      <Clock className="w-3.5 h-3.5 text-[#8CC7C4]" />
+                    <div className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1E2022]/90 backdrop-blur-md text-white text-xs font-bold border border-white/20 shadow-sm">
+                      <Clock className="w-3.5 h-3.5 text-[#FFC94D]" />
                       <span>{pkg.duration}</span>
                     </div>
 
                     {/* Category Pill & Save for Later Toggle */}
                     <div className="absolute top-4 right-4 flex items-center gap-2">
-                      <div className="px-3 py-1 rounded-full bg-white text-[#16222E] text-xs font-bold uppercase tracking-wider shadow-sm border border-black/10">
+                      <div className="px-3 py-1 rounded-full bg-white text-[#1E2022] text-xs font-bold uppercase tracking-wider shadow-sm border border-black/10">
                         {pkg.category}
                       </div>
                       <button
@@ -226,7 +226,7 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({
                         }}
                         className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-white ${
                           isSaved
-                            ? 'bg-[#0B4A82] text-white shadow-sm ring-2 ring-white/50'
+                            ? 'bg-[#C2571A] text-white shadow-sm ring-2 ring-white/50'
                             : 'bg-black/60 text-white hover:bg-black/80 hover:text-white border border-white/25 shadow-sm'
                         }`}
                         aria-label={isSaved ? `Remove ${pkg.name} from saved` : `Save ${pkg.name} for later`}
@@ -248,7 +248,7 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({
 
                   {/* Content Body */}
                   <div className="p-5 sm:p-6">
-                    <h3 className="text-lg sm:text-xl font-bold text-[#16222E] group-hover:text-[#0B4A82] transition-colors leading-snug">
+                    <h3 className="text-lg sm:text-xl font-bold text-[#1E2022] group-hover:text-[#C2571A] transition-colors leading-snug">
                       {pkg.name}
                     </h3>
                     <p className="mt-2 text-xs sm:text-sm text-[#374151] line-clamp-2 leading-relaxed font-normal">
@@ -256,11 +256,11 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({
                     </p>
 
                     {/* Inclusions Row */}
-                    <div className="mt-4 pt-4 border-t border-[#16222E]/10 flex flex-wrap gap-2">
+                    <div className="mt-4 pt-4 border-t border-[#1E2022]/10 flex flex-wrap gap-2">
                       {pkg.inclusions.map((inc) => (
                         <span
                           key={inc}
-                          className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-[#F6F8FA] text-[#16222E] border border-[#16222E]/12"
+                          className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-[#FAF8F5] text-[#1E2022] border border-[#1E2022]/12"
                         >
                           {inc}
                         </span>
@@ -271,7 +271,7 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({
                     <div className="mt-4 space-y-1.5">
                       {pkg.highlights.map((h, i) => (
                         <div key={i} className="flex items-start gap-2 text-xs text-[#2D3748] font-medium">
-                          <Check className="w-3.5 h-3.5 text-[#0E7C86] shrink-0 mt-0.5" />
+                          <Check className="w-3.5 h-3.5 text-[#E5501A] shrink-0 mt-0.5" />
                           <span className="line-clamp-1">{h}</span>
                         </div>
                       ))}
@@ -285,18 +285,18 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({
                     <button
                       type="button"
                       onClick={() => onEnquirePackage(pkg)}
-                      className="min-h-[44px] inline-flex items-center justify-center gap-1.5 py-2.5 px-3.5 sm:px-4 rounded-2xl border border-[#16222E]/20 bg-white text-[#16222E] font-bold text-sm hover:bg-[#F6F8FA] hover:border-[#0B4A82] hover:text-[#0B4A82] focus:outline-none focus:ring-2 focus:ring-[#0B4A82] active:scale-[0.98] transition-all duration-200 cursor-pointer shrink-0 shadow-2xs"
+                      className="min-h-[44px] inline-flex items-center justify-center gap-1.5 py-2.5 px-3.5 sm:px-4 rounded-2xl border border-[#1E2022]/20 bg-white text-[#1E2022] font-bold text-sm hover:bg-[#FAF8F5] hover:border-[#C2571A] hover:text-[#C2571A] focus:outline-none focus:ring-2 focus:ring-[#C2571A] active:scale-[0.98] transition-all duration-200 cursor-pointer shrink-0 shadow-2xs"
                       aria-label={`Enquire about ${pkg.name}`}
                       title="Ask questions or request a callback for this package"
                     >
-                      <MessageSquare className="w-4 h-4 text-[#0B4A82]" />
+                      <MessageSquare className="w-4 h-4 text-[#C2571A]" />
                       <span>Enquire</span>
                     </button>
                   )}
                   <button
                     type="button"
                     onClick={() => onSelectPackage(pkg)}
-                    className="flex-1 inline-flex items-center justify-center gap-2 py-3 px-5 rounded-2xl bg-gradient-to-r from-[#16222E] to-[#0B4A82] hover:from-[#0B4A82] hover:to-[#1D7BA6] text-white font-bold text-sm shadow-[0_6px_18px_-4px_rgba(11,74,130,0.35)] active:scale-[0.98] transition-all duration-200 cursor-pointer group/btn"
+                    className="flex-1 inline-flex items-center justify-center gap-2 py-3 px-5 rounded-2xl bg-gradient-to-r from-[#1E2022] to-[#C2571A] hover:from-[#C2571A] hover:to-[#F7931E] text-white font-bold text-sm shadow-[0_6px_18px_-4px_rgba(194,87,26,0.35)] active:scale-[0.98] transition-all duration-200 cursor-pointer group/btn"
                   >
                     <span>Customise Itinerary</span>
                     <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />

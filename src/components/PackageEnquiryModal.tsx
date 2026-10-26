@@ -122,24 +122,24 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
       <div
         ref={containerRef}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-[#16222E]/10 overflow-hidden my-auto animate-in zoom-in-95 duration-200"
+        className="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-[#1E2022]/10 overflow-hidden my-auto animate-in zoom-in-95 duration-200"
       >
         {/* Modal Header */}
-        <div className="p-6 sm:p-7 border-b border-[#16222E]/8 flex items-start justify-between gap-4 bg-[#F6F8FA]/60">
+        <div className="p-6 sm:p-7 border-b border-[#1E2022]/8 flex items-start justify-between gap-4 bg-[#FAF8F5]/60">
           <div className="min-w-0">
-            <span className="inline-block text-[11px] font-bold uppercase tracking-wider text-[#0B4A82] mb-1">
+            <span className="inline-block text-[11px] font-bold uppercase tracking-wider text-[#C2571A] mb-1">
               Package Enquiry & Consultation
             </span>
-            <h3 id="enquiry-modal-title" className="text-xl sm:text-2xl font-bold tracking-tight text-[#16222E] truncate">
+            <h3 id="enquiry-modal-title" className="text-xl sm:text-2xl font-bold tracking-tight text-[#1E2022] truncate">
               {pkg.name}
             </h3>
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#6B7280]">
               <span className="inline-flex items-center gap-1 font-medium">
-                <Clock className="w-3.5 h-3.5 text-[#0B4A82]" />
+                <Clock className="w-3.5 h-3.5 text-[#C2571A]" />
                 {pkg.duration}
               </span>
               <span>•</span>
-              <span className="font-semibold text-[#16222E]">
+              <span className="font-semibold text-[#1E2022]">
                 From {formatINR(pkg.pricePerPerson)}
               </span>
               <span className="text-[11px]">/ person</span>
@@ -150,7 +150,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2 -mt-1 rounded-full text-[#6B7280] hover:text-[#16222E] hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-[#0B4A82] focus-visible:outline-none transition-colors cursor-pointer disabled:opacity-50"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2 -mt-1 rounded-full text-[#6B7280] hover:text-[#1E2022] hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-[#C2571A] focus-visible:outline-none transition-colors cursor-pointer disabled:opacity-50"
             aria-label="Close enquiry modal"
           >
             <X className="w-5 h-5" />
@@ -165,11 +165,11 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
               <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
-              <h4 className="text-xl font-bold text-[#16222E]">Enquiry Received</h4>
+              <h4 className="text-xl font-bold text-[#1E2022]">Enquiry Received</h4>
               <p className="text-sm text-[#6B7280] max-w-md mx-auto leading-relaxed">
                 Thank you, {fullName}. Your enquiry regarding{' '}
-                <span className="font-semibold text-[#16222E]">{pkg.name}</span> has been logged with reference{' '}
-                <span className="font-mono font-semibold text-[#0B4A82]">{submissionResult.enquiryId || 'ENQ-PENDING'}</span>.
+                <span className="font-semibold text-[#1E2022]">{pkg.name}</span> has been logged with reference{' '}
+                <span className="font-mono font-semibold text-[#C2571A]">{submissionResult.enquiryId || 'ENQ-PENDING'}</span>.
                 Our concierge will reach out via your preferred channel within 24 hours.
               </p>
               <div className="pt-4">
@@ -182,7 +182,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                     setMessage('');
                     onClose();
                   }}
-                  className="px-6 py-2.5 rounded-full bg-[#16222E] text-white text-sm font-semibold hover:bg-[#0B4A82] transition-colors cursor-pointer"
+                  className="px-6 py-2.5 rounded-full bg-[#1E2022] text-white text-sm font-semibold hover:bg-[#C2571A] transition-colors cursor-pointer"
                 >
                   Close
                 </button>
@@ -221,7 +221,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
 
               {/* Full Name Field */}
               <div>
-                <label htmlFor="enquiry-name" className="block text-xs font-semibold text-[#16222E] mb-1.5">
+                <label htmlFor="enquiry-name" className="block text-xs font-semibold text-[#1E2022] mb-1.5">
                   Your Full Name <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -239,7 +239,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                   className={`w-full px-4 py-2.5 rounded-xl border text-sm transition-all outline-none ${
                     errors.fullName
                       ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500 focus:ring-1 focus:ring-rose-500'
-                      : 'border-[#16222E]/15 focus:border-[#0B4A82] focus:ring-1 focus:ring-[#0B4A82]'
+                      : 'border-[#1E2022]/15 focus:border-[#C2571A] focus:ring-1 focus:ring-[#C2571A]'
                   }`}
                   disabled={isSubmitting}
                 />
@@ -253,7 +253,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
 
               {/* Enquiry Category Select */}
               <div>
-                <label htmlFor="enquiry-category" className="block text-xs font-semibold text-[#16222E] mb-1.5">
+                <label htmlFor="enquiry-category" className="block text-xs font-semibold text-[#1E2022] mb-1.5">
                   What would you like to enquire about? <span className="text-rose-500">*</span>
                 </label>
                 <select
@@ -266,7 +266,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                     setCategory(e.target.value as EnquiryCategory);
                     if (errors.category) setErrors((prev) => ({ ...prev, category: undefined }));
                   }}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#16222E]/15 text-sm bg-white focus:border-[#0B4A82] focus:ring-1 focus:ring-[#0B4A82] transition-all outline-none"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#1E2022]/15 text-sm bg-white focus:border-[#C2571A] focus:ring-1 focus:ring-[#C2571A] transition-all outline-none"
                   disabled={isSubmitting}
                 >
                   {ENQUIRY_CATEGORIES.map((cat) => (
@@ -291,7 +291,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
               {/* Contact Method Selector & Inputs */}
               <div className="space-y-3 pt-1">
                 <div className="flex items-center justify-between">
-                  <label className="block text-xs font-semibold text-[#16222E]">
+                  <label className="block text-xs font-semibold text-[#1E2022]">
                     Contact Information <span className="text-rose-500">*</span>
                   </label>
                   <span className="text-[11px] text-[#6B7280]">
@@ -322,7 +322,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                         className={`w-full pl-10 pr-3 py-2.5 rounded-xl border text-sm transition-all outline-none ${
                           errors.phone || errors.contact
                             ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500'
-                            : 'border-[#16222E]/15 focus:border-[#0B4A82]'
+                            : 'border-[#1E2022]/15 focus:border-[#C2571A]'
                         }`}
                         disabled={isSubmitting}
                       />
@@ -357,7 +357,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                         className={`w-full pl-10 pr-3 py-2.5 rounded-xl border text-sm transition-all outline-none ${
                           errors.email || errors.contact
                             ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500'
-                            : 'border-[#16222E]/15 focus:border-[#0B4A82]'
+                            : 'border-[#1E2022]/15 focus:border-[#C2571A]'
                         }`}
                         disabled={isSubmitting}
                       />
@@ -389,8 +389,8 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                         onClick={() => setPreferredContact(method)}
                         className={`px-2.5 py-1 rounded-lg text-xs font-medium capitalize transition-colors cursor-pointer ${
                           preferredContact === method
-                            ? 'bg-[#16222E] text-white'
-                            : 'bg-[#F6F8FA] text-[#6B7280] hover:text-[#16222E]'
+                            ? 'bg-[#1E2022] text-white'
+                            : 'bg-[#FAF8F5] text-[#6B7280] hover:text-[#1E2022]'
                         }`}
                         disabled={isSubmitting}
                       >
@@ -403,7 +403,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
 
               {/* Optional Question / Message Textarea */}
               <div>
-                <label htmlFor="enquiry-message" className="block text-xs font-semibold text-[#16222E] mb-1.5">
+                <label htmlFor="enquiry-message" className="block text-xs font-semibold text-[#1E2022] mb-1.5">
                   Message or Specific Inquiries <span className="text-[#9CA3AF] font-normal">(Optional)</span>
                 </label>
                 <textarea
@@ -420,7 +420,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                   className={`w-full px-4 py-2.5 rounded-xl border text-sm transition-all outline-none resize-none ${
                     errors.message
                       ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500'
-                      : 'border-[#16222E]/15 focus:border-[#0B4A82] focus:ring-1 focus:ring-[#0B4A82]'
+                      : 'border-[#1E2022]/15 focus:border-[#C2571A] focus:ring-1 focus:ring-[#C2571A]'
                   }`}
                   disabled={isSubmitting}
                   maxLength={1000}
@@ -434,19 +434,19 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-2 flex items-center justify-end gap-3 border-t border-[#16222E]/8">
+              <div className="pt-2 flex items-center justify-end gap-3 border-t border-[#1E2022]/8">
                 <button
                   type="button"
                   onClick={onClose}
                   disabled={isSubmitting}
-                  className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-[#6B7280] hover:text-[#16222E] hover:bg-[#F6F8FA] transition-colors cursor-pointer disabled:opacity-50"
+                  className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-[#6B7280] hover:text-[#1E2022] hover:bg-[#FAF8F5] transition-colors cursor-pointer disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#16222E] text-white text-xs sm:text-sm font-semibold hover:bg-[#0B4A82] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60 shadow-sm"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#1E2022] text-white text-xs sm:text-sm font-semibold hover:bg-[#C2571A] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60 shadow-sm"
                 >
                   {isSubmitting ? (
                     <>

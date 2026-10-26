@@ -57,12 +57,12 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 
 // Shared glass styling
 const FIELD_IDLE =
-  'bg-white/75 backdrop-blur-md border-[#16222E]/15 shadow-2xs hover:bg-white/95 hover:border-[#0B4A82]/40';
-const FIELD_OPEN = 'bg-white border-[#0B4A82] shadow-[0_0_0_3px_rgba(11,74,130,0.18)]';
+  'bg-white/75 backdrop-blur-md border-[#1E2022]/15 shadow-2xs hover:bg-white/95 hover:border-[#C2571A]/40';
+const FIELD_OPEN = 'bg-white border-[#C2571A] shadow-[0_0_0_3px_rgba(194,87,26,0.18)]';
 const POPOVER =
   'absolute top-[92px] bg-white/95 backdrop-blur-2xl backdrop-saturate-150 border border-white/70 ring-1 ring-inset ring-white/40 rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150';
 const STEP_BTN =
-  'w-7 h-7 rounded-full bg-[#16222E]/6 hover:bg-[#16222E]/8 disabled:opacity-30 flex items-center justify-center cursor-pointer';
+  'w-7 h-7 rounded-full bg-[#1E2022]/6 hover:bg-[#1E2022]/8 disabled:opacity-30 flex items-center justify-center cursor-pointer';
 
 type Popup = 'dest' | 'start' | 'end' | 'guests' | null;
 type PickKey = 'dest' | 'start' | 'end' | 'guests';
@@ -118,21 +118,21 @@ const CalendarGrid: React.FC<CalendarProps> = ({
           type="button"
           onClick={prev}
           disabled={atMin}
-          className="p-1 rounded-lg hover:bg-[#16222E]/8 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer"
+          className="p-1 rounded-lg hover:bg-[#1E2022]/8 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer"
           aria-label="Previous month"
         >
-          <ChevronLeft className="w-4 h-4 text-[#16222E]" />
+          <ChevronLeft className="w-4 h-4 text-[#1E2022]" />
         </button>
-        <span className="text-sm font-bold text-[#16222E]">
+        <span className="text-sm font-bold text-[#1E2022]">
           {MONTH_NAMES[month]} {year}
         </span>
         <button
           type="button"
           onClick={next}
-          className="p-1 rounded-lg hover:bg-[#16222E]/8 cursor-pointer"
+          className="p-1 rounded-lg hover:bg-[#1E2022]/8 cursor-pointer"
           aria-label="Next month"
         >
-          <ChevronRight className="w-4 h-4 text-[#16222E]" />
+          <ChevronRight className="w-4 h-4 text-[#1E2022]" />
         </button>
       </div>
 
@@ -162,12 +162,12 @@ const CalendarGrid: React.FC<CalendarProps> = ({
               onClick={() => onSelect(iso)}
               className={`h-8 w-8 mx-auto rounded-full text-xs font-medium flex items-center justify-center transition-colors cursor-pointer ${
                 selected
-                  ? 'bg-[#0B4A82] text-white font-bold shadow-sm'
+                  ? 'bg-[#C2571A] text-white font-bold shadow-sm'
                   : disabled
-                  ? 'text-[#16222E]/25 cursor-not-allowed'
+                  ? 'text-[#1E2022]/25 cursor-not-allowed'
                   : inRange
-                  ? 'bg-[#0E7C86]/15 text-[#16222E]'
-                  : 'text-[#16222E] hover:bg-[#16222E]/8'
+                  ? 'bg-[#E5501A]/15 text-[#1E2022]'
+                  : 'text-[#1E2022] hover:bg-[#1E2022]/8'
               }`}
             >
               {day}
@@ -392,9 +392,9 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
     }`;
 
   const fieldLabel = (text: string, popup: Exclude<Popup, null>) => (
-    <span className="text-[11px] font-bold uppercase tracking-wider text-[#0B4A82] flex items-center justify-between">
+    <span className="text-[11px] font-bold uppercase tracking-wider text-[#C2571A] flex items-center justify-between">
       <span>{text}</span>
-      <ChevronDown className={`w-3.5 h-3.5 text-[#0B4A82] transition-transform ${activePopup === popup ? 'rotate-180' : ''}`} />
+      <ChevronDown className={`w-3.5 h-3.5 text-[#C2571A] transition-transform ${activePopup === popup ? 'rotate-180' : ''}`} />
     </span>
   );
 
@@ -404,12 +404,12 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
 
   return (
     <div ref={containerRef} className="relative w-full max-w-6xl mx-auto z-30" aria-label="Holiday planning console">
-      <div className="bg-gradient-to-br from-white/95 via-white/88 to-white/78 backdrop-blur-2xl backdrop-saturate-150 border border-white/90 ring-1 ring-[#16222E]/10 rounded-3xl p-4 sm:p-6 shadow-[0_28px_60px_-16px_rgba(14,24,34,0.5),0_0_0_1px_rgba(255,255,255,0.85)_inset] text-[#16222E]">
+      <div className="bg-gradient-to-br from-white/95 via-white/88 to-white/78 backdrop-blur-2xl backdrop-saturate-150 border border-white/90 ring-1 ring-[#1E2022]/10 rounded-3xl p-4 sm:p-6 shadow-[0_28px_60px_-16px_rgba(14,24,34,0.5),0_0_0_1px_rgba(255,255,255,0.85)_inset] text-[#1E2022]">
         {/* Top Header Label */}
-        <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-[#16222E]/10">
+        <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-[#1E2022]/10">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#0E7C86] animate-pulse" />
-            <span className="text-xs sm:text-sm font-bold tracking-wider text-[#0B4A82] uppercase">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#E5501A] animate-pulse" />
+            <span className="text-xs sm:text-sm font-bold tracking-wider text-[#C2571A] uppercase">
               Holiday Packages & Customiser
             </span>
           </div>
@@ -429,7 +429,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
             >
               {fieldLabel('Destination', 'dest')}
               <div className="flex items-center gap-2 mt-1 truncate">
-                <MapPin className="w-4 h-4 text-[#0E7C86] shrink-0" />
+                <MapPin className="w-4 h-4 text-[#E5501A] shrink-0" />
                 <div className="min-w-0 truncate">
                   <div className="text-sm font-semibold truncate leading-tight">
                     {picked.dest ? selectedDest.name : hint('Where to?')}
@@ -443,7 +443,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
 
             {activePopup === 'dest' && (
               <div className={`${POPOVER} left-0 w-full sm:w-[320px] !p-3`}>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[#0E7C86] px-2 py-1">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[#E5501A] px-2 py-1">
                   Select Destination
                 </p>
                 <div className="space-y-1 mt-1 max-h-[260px] overflow-y-auto">
@@ -463,7 +463,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                           }
                         }}
                         className={`w-full flex items-center gap-3 p-2 rounded-xl text-left transition-colors cursor-pointer ${
-                          on ? 'bg-[#0B4A82]/10 font-medium' : 'text-[#334155] hover:bg-[#16222E]/8 hover:text-[#16222E]'
+                          on ? 'bg-[#C2571A]/10 font-medium' : 'text-[#3A3D42] hover:bg-[#1E2022]/8 hover:text-[#1E2022]'
                         }`}
                       >
                         <img src={dest.image} alt="" className="w-9 h-9 rounded-lg object-cover shrink-0" />
@@ -473,7 +473,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                             {dest.country} • {dest.tag}
                           </div>
                         </div>
-                        {on && <Check className="w-4 h-4 text-[#0E7C86] shrink-0" />}
+                        {on && <Check className="w-4 h-4 text-[#E5501A] shrink-0" />}
                       </button>
                     );
                   })}
@@ -496,7 +496,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
             >
               {fieldLabel('Trip Start Date', 'start')}
               <div className="flex items-center gap-2 mt-1 truncate">
-                <Calendar className="w-4 h-4 text-[#0E7C86] shrink-0" />
+                <Calendar className="w-4 h-4 text-[#E5501A] shrink-0" />
                 <div className="min-w-0 truncate">
                   <div className="text-sm font-semibold truncate leading-tight">
                     {picked.start ? formatDate(departureDate) : hint('Select date')}
@@ -519,7 +519,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                   selectedIso={picked.start ? departureDate : null}
                   onSelect={pickStart}
                   footer={
-                    <div className="mt-3 pt-3 border-t border-[#16222E]/10">
+                    <div className="mt-3 pt-3 border-t border-[#1E2022]/10">
                       <p className="text-[10px] font-semibold uppercase tracking-wider text-[#4B5563] mb-1.5">
                         Quick select
                       </p>
@@ -537,7 +537,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                               setStartCal(monthOf(iso));
                               pickStart(iso);
                             }}
-                            className="flex-1 py-1 px-2 rounded-lg bg-white/60 hover:bg-[#16222E]/8 border border-[#16222E]/10 text-[11px] font-medium text-[#334155] transition-colors cursor-pointer"
+                            className="flex-1 py-1 px-2 rounded-lg bg-white/60 hover:bg-[#1E2022]/8 border border-[#1E2022]/10 text-[11px] font-medium text-[#3A3D42] transition-colors cursor-pointer"
                           >
                             {s.label}
                           </button>
@@ -564,7 +564,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
             >
               {fieldLabel('Trip End Date', 'end')}
               <div className="flex items-center gap-2 mt-1 truncate">
-                <CalendarCheck className="w-4 h-4 text-[#0E7C86] shrink-0" />
+                <CalendarCheck className="w-4 h-4 text-[#E5501A] shrink-0" />
                 <div className="min-w-0 truncate">
                   <div className="text-sm font-semibold truncate leading-tight">
                     {picked.end ? formatDate(endDate) : hint('Select date')}
@@ -579,7 +579,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
             {activePopup === 'end' && (
               <div className={`${POPOVER} left-0 sm:left-auto sm:right-0 w-full sm:w-[330px]`}>
                 {!picked.start && (
-                  <p className="mb-2 text-[11px] text-[#0E7C86] font-medium">
+                  <p className="mb-2 text-[11px] text-[#E5501A] font-medium">
                     Tip: choose your start date first, then your return.
                   </p>
                 )}
@@ -594,7 +594,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                   rangeTo={picked.end ? endDate : null}
                   onSelect={pickEnd}
                   footer={
-                    <p className="mt-3 pt-3 border-t border-[#16222E]/10 text-[10px] text-[#4B5563]">
+                    <p className="mt-3 pt-3 border-t border-[#1E2022]/10 text-[10px] text-[#4B5563]">
                       We plan up to {MAX_TRIP_DAYS} days per trip.
                     </p>
                   }
@@ -614,7 +614,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
             >
               {fieldLabel('Guests & Rooms', 'guests')}
               <div className="flex items-center gap-2 mt-1 truncate">
-                <Users className="w-4 h-4 text-[#0E7C86] shrink-0" />
+                <Users className="w-4 h-4 text-[#E5501A] shrink-0" />
                 <div className="min-w-0 truncate">
                   <div className="text-sm font-semibold truncate leading-tight">
                     {picked.guests ? guestSummary : hint("Who's travelling?")}
@@ -628,7 +628,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
 
             {activePopup === 'guests' && (
               <div className={`${POPOVER} right-0 w-full sm:w-[340px]`}>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[#0E7C86] mb-3">Guests</p>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[#E5501A] mb-3">Guests</p>
 
                 <div className="space-y-3.5">
                   {[
@@ -679,17 +679,17 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                 </div>
 
                 <p className="mt-4 flex items-start gap-2 text-[10px] text-[#6B7280] leading-snug">
-                  <BedDouble className="w-3.5 h-3.5 text-[#0E7C86] shrink-0" />
+                  <BedDouble className="w-3.5 h-3.5 text-[#E5501A] shrink-0" />
                   <span>
                     Select the number of rooms needed for your accommodation. Infants stay free.
                   </span>
                 </p>
 
-                <div className="mt-4 pt-3 border-t border-[#16222E]/10 text-right">
+                <div className="mt-4 pt-3 border-t border-[#1E2022]/10 text-right">
                   <button
                     type="button"
                     onClick={() => setActivePopup(null)}
-                    className="px-4 py-1.5 rounded-full bg-[#0B4A82] hover:bg-[#0E7C86] text-white text-xs font-semibold cursor-pointer"
+                    className="px-4 py-1.5 rounded-full bg-[#C2571A] hover:bg-[#E5501A] text-white text-xs font-semibold cursor-pointer"
                   >
                     Done
                   </button>
@@ -706,10 +706,10 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
         )}
 
         {/* Bottom Action Bar */}
-        <div className="mt-4 pt-4 border-t border-[#16222E]/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="mt-4 pt-4 border-t border-[#1E2022]/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Quick Destination Pills */}
           <div className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-1">
-            <span className="text-xs text-[#16222E] font-bold shrink-0 hidden md:inline">Popular:</span>
+            <span className="text-xs text-[#1E2022] font-bold shrink-0 hidden md:inline">Popular:</span>
             {DESTINATION_OPTIONS.slice(0, 4).map((d) => (
               <button
                 key={d.id}
@@ -717,8 +717,8 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                 onClick={() => pickDest(d.id)}
                 className={`text-xs px-3 py-1 rounded-full border transition-all shrink-0 cursor-pointer ${
                   picked.dest && selectedDestId === d.id
-                    ? 'bg-[#0B4A82]/10 border-[#0B4A82] text-[#0B4A82] font-bold shadow-2xs'
-                    : 'bg-white/80 border-[#16222E]/15 text-[#16222E] font-semibold hover:bg-white hover:border-[#0B4A82] shadow-2xs'
+                    ? 'bg-[#C2571A]/10 border-[#C2571A] text-[#C2571A] font-bold shadow-2xs'
+                    : 'bg-white/80 border-[#1E2022]/15 text-[#1E2022] font-semibold hover:bg-white hover:border-[#C2571A] shadow-2xs'
                 }`}
               >
                 {d.name}
@@ -730,9 +730,9 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
           <button
             type="button"
             onClick={handleLaunchPlanning}
-            className="group relative inline-flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3.5 rounded-full bg-gradient-to-r from-[#0B4A82] via-[#0E7C86] to-[#1D7BA6] text-white font-bold text-sm sm:text-base shadow-[0_12px_28px_-6px_rgba(11,74,130,0.55)] hover:brightness-110 active:scale-[0.98] transition-all duration-200 cursor-pointer shrink-0"
+            className="group relative inline-flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3.5 rounded-full bg-gradient-to-r from-[#C2571A] via-[#E5501A] to-[#F7931E] text-white font-bold text-sm sm:text-base shadow-[0_12px_28px_-6px_rgba(194,87,26,0.55)] hover:brightness-110 active:scale-[0.98] transition-all duration-200 cursor-pointer shrink-0"
           >
-            <Sparkles className="w-4 h-4 text-[#F6F8FA]" />
+            <Sparkles className="w-4 h-4 text-[#FAF8F5]" />
             <span>Craft My Itinerary</span>
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </button>

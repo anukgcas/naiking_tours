@@ -184,7 +184,7 @@ const WanderingPlane: React.FC = () => {
       >
         <path
           d="M12 0 L4 -2 L-2 -12 L-5 -12 L-2 -2 L-9 -3 L-11 -6 L-13 -6 L-11 0 L-13 6 L-11 6 L-9 3 L-2 2 L-5 12 L-2 12 L4 2 Z"
-          fill="#0B4A82"
+          fill="#C2571A"
           fillOpacity="0.85"
         />
       </motion.svg>
@@ -227,7 +227,7 @@ export const Hero: React.FC<HeroProps> = ({
   };
 
   return (
-    <section id="hero" className="relative bg-[#16222E]" style={{ fontFamily: "'Jost', sans-serif" }}>
+    <section id="hero" className="relative bg-[#1E2022]" style={{ fontFamily: "'Jost', sans-serif" }}>
       <div className="relative pt-[76px] lg:pt-[96px] overflow-hidden">
         {/* Unified scenic background photo */}
         <div className="absolute inset-0">
@@ -248,7 +248,7 @@ export const Hero: React.FC<HeroProps> = ({
           <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/[0.07] via-orange-400/[0.04] to-yellow-500/[0.06] mix-blend-screen pointer-events-none" />
           {/* Refined readability gradients (balanced so images stay bright & warm while keeping header/text crisp) */}
           <div className="absolute inset-0 bg-gradient-to-b from-[#0B1520]/75 via-[#0B1520]/25 via-45% to-transparent pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#16222E] via-[#16222E]/55 via-30% to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1E2022] via-[#1E2022]/55 via-30% to-transparent pointer-events-none" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-transparent to-[#0B1520]/35 pointer-events-none" />
         </div>
 
@@ -260,7 +260,7 @@ export const Hero: React.FC<HeroProps> = ({
           {/* Title + Branding Statement */}
           <div className="w-full max-w-[800px] mx-auto text-center mb-6 sm:mb-8">
             <motion.p
-              className="mb-2 text-[15px] sm:text-base font-bold tracking-[0.25em] text-[#8CC7C4] uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)]"
+              className="mb-2 text-[15px] sm:text-base font-bold tracking-[0.25em] text-[#FFC94D] uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)]"
               style={{ fontFamily: "'Marcellus', serif" }}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -309,9 +309,9 @@ export const Hero: React.FC<HeroProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.45, ease: 'easeOut' }}
-                className="text-white p-5 sm:p-6 rounded-3xl bg-[#0E1822]/70 backdrop-blur-xl border border-white/30 shadow-[0_20px_45px_-15px_rgba(0,0,0,0.75)] ring-1 ring-white/10 lg:w-[300px] shrink-0"
+                className="text-white p-5 sm:p-6 rounded-3xl bg-[#14110F]/70 backdrop-blur-xl border border-white/30 shadow-[0_20px_45px_-15px_rgba(0,0,0,0.75)] ring-1 ring-white/10 lg:w-[300px] shrink-0"
               >
-                <span className="text-xs font-bold text-[#8CC7C4] uppercase tracking-wider block">
+                <span className="text-xs font-bold text-[#FFC94D] uppercase tracking-wider block">
                   {currentReel.country}
                 </span>
                 <span className="mt-1 text-2xl sm:text-3xl font-extrabold block leading-tight text-white drop-shadow-sm">
@@ -325,7 +325,7 @@ export const Hero: React.FC<HeroProps> = ({
                   onClick={() => onExploreDestination(currentReel.name)}
                   className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-white/40 bg-white/15 hover:bg-white/25 text-xs font-bold text-white cursor-pointer transition-colors shadow-2xs"
                 >
-                  <MapPin className="w-3.5 h-3.5 text-[#8CC7C4]" />
+                  <MapPin className="w-3.5 h-3.5 text-[#FFC94D]" />
                   <span>Explore {currentReel.name} →</span>
                 </button>
               </motion.div>
@@ -340,7 +340,7 @@ export const Hero: React.FC<HeroProps> = ({
                 <button
                   type="button"
                   onClick={handleScrollToDestinations}
-                  className="group inline-flex items-center gap-1 text-xs font-semibold text-[#8CC7C4] hover:text-white hover:underline cursor-pointer transition-colors drop-shadow-sm"
+                  className="group inline-flex items-center gap-1 text-xs font-semibold text-[#FFC94D] hover:text-white hover:underline cursor-pointer transition-colors drop-shadow-sm"
                 >
                   <span>View All 6 Destinations</span>
                   <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />

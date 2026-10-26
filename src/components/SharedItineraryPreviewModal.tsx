@@ -66,11 +66,11 @@ export const SharedItineraryPreviewModal: React.FC<SharedItineraryPreviewModalPr
         aria-labelledby="shared-error-title"
         className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
       >
-        <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-[#16222E]/10 p-6 text-center">
+        <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-[#1E2022]/10 p-6 text-center">
           <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-6 h-6" />
           </div>
-          <h2 id="shared-error-title" className="text-lg font-bold text-[#16222E]">
+          <h2 id="shared-error-title" className="text-lg font-bold text-[#1E2022]">
             Unable to Load Shared Itinerary
           </h2>
           <p className="text-xs text-[#6B7280] mt-2 leading-relaxed">
@@ -83,7 +83,7 @@ export const SharedItineraryPreviewModal: React.FC<SharedItineraryPreviewModalPr
             <button
               type="button"
               onClick={onDismiss}
-              className="min-h-[44px] px-5 py-2.5 rounded-full bg-[#16222E] text-white text-xs font-semibold hover:bg-[#0B4A82] focus:outline-none focus:ring-2 focus:ring-[#0B4A82] focus:ring-offset-2 transition cursor-pointer"
+              className="min-h-[44px] px-5 py-2.5 rounded-full bg-[#1E2022] text-white text-xs font-semibold hover:bg-[#C2571A] focus:outline-none focus:ring-2 focus:ring-[#C2571A] focus:ring-offset-2 transition cursor-pointer"
             >
               Continue to Westack
             </button>
@@ -120,11 +120,11 @@ export const SharedItineraryPreviewModal: React.FC<SharedItineraryPreviewModalPr
       aria-labelledby="shared-preview-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-3xl rounded-2xl bg-white shadow-2xl border border-[#16222E]/10 overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="relative w-full max-w-3xl rounded-2xl bg-white shadow-2xl border border-[#1E2022]/10 overflow-hidden flex flex-col max-h-[92vh]">
         {/* Banner Alert: Non-destructive Preview Notice */}
-        <div className="bg-[#0B4A82] text-white px-4 py-2 text-xs flex items-center justify-between">
+        <div className="bg-[#C2571A] text-white px-4 py-2 text-xs flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-[#8CC7C4] shrink-0" />
+            <Sparkles className="w-4 h-4 text-[#FFC94D] shrink-0" />
             <span className="font-medium">
               Shared Itinerary Preview — This trip was shared with you. Your personal active trip is untouched.
             </span>
@@ -140,13 +140,13 @@ export const SharedItineraryPreviewModal: React.FC<SharedItineraryPreviewModalPr
         </div>
 
         {/* Header details */}
-        <div className="p-5 border-b border-[#16222E]/8 bg-[#F6F8FA]">
+        <div className="p-5 border-b border-[#1E2022]/8 bg-[#FAF8F5]">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#0B4A82]">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#C2571A]">
                 {curatedPkg ? 'Curated Signature Experience' : `${dest?.name} Tailor-Made`}
               </span>
-              <h2 id="shared-preview-title" className="text-xl font-extrabold text-[#16222E] mt-0.5">
+              <h2 id="shared-preview-title" className="text-xl font-extrabold text-[#1E2022] mt-0.5">
                 {title}
               </h2>
               <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[#6B7280]">
@@ -167,7 +167,7 @@ export const SharedItineraryPreviewModal: React.FC<SharedItineraryPreviewModalPr
 
             <div className="text-right shrink-0">
               <span className="text-[11px] text-[#6B7280] block font-medium">Estimated Package Total</span>
-              <span className="text-2xl font-extrabold text-[#16222E]">{formatINR(costs.total)}</span>
+              <span className="text-2xl font-extrabold text-[#1E2022]">{formatINR(costs.total)}</span>
               <span className="text-[11px] text-[#6B7280] block">
                 Approx. {formatINR(costs.perPerson)} / guest
               </span>
@@ -178,7 +178,7 @@ export const SharedItineraryPreviewModal: React.FC<SharedItineraryPreviewModalPr
         {/* Scrollable Day-by-day Itinerary */}
         <div className="p-5 overflow-y-auto space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-[#16222E]">
+            <h3 className="text-sm font-bold text-[#1E2022]">
               Scheduled Experiences ({totalStops} stops across {days} days)
             </h3>
             <span className="text-xs text-[#6B7280]">
@@ -191,9 +191,9 @@ export const SharedItineraryPreviewModal: React.FC<SharedItineraryPreviewModalPr
               const dayCity = cityForDay(draft, idx);
               const dateStr = dayDate(draft.checkIn, idx);
               return (
-                <div key={idx} className="p-3.5 rounded-xl border border-[#16222E]/8 bg-[#F6F8FA]/60">
+                <div key={idx} className="p-3.5 rounded-xl border border-[#1E2022]/8 bg-[#FAF8F5]/60">
                   <div className="flex items-baseline justify-between mb-2">
-                    <span className="text-xs font-bold text-[#16222E]">
+                    <span className="text-xs font-bold text-[#1E2022]">
                       Day {idx + 1}
                       {dayCity ? ` — ${dayCity.name}` : ''}
                     </span>
@@ -209,10 +209,10 @@ export const SharedItineraryPreviewModal: React.FC<SharedItineraryPreviewModalPr
                       {items.map((act) => (
                         <li key={act.id} className="text-xs flex items-baseline justify-between gap-2">
                           <div className="flex items-baseline gap-2">
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white border border-[#16222E]/10 text-[#0B4A82]">
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white border border-[#1E2022]/10 text-[#C2571A]">
                               {act.slot}
                             </span>
-                            <span className="font-semibold text-[#16222E]">{act.name}</span>
+                            <span className="font-semibold text-[#1E2022]">{act.name}</span>
                             <span className="text-[11px] text-[#6B7280]">({act.hours}h · {act.category})</span>
                           </div>
                           <span className="text-[11px] text-[#4B4F55]">
@@ -236,11 +236,11 @@ export const SharedItineraryPreviewModal: React.FC<SharedItineraryPreviewModalPr
         </div>
 
         {/* Modal Action Footer */}
-        <div className="p-4 bg-[#F6F8FA] border-t border-[#16222E]/8 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="p-4 bg-[#FAF8F5] border-t border-[#1E2022]/8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <button
             type="button"
             onClick={onPrint}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#16222E]/15 text-xs font-semibold text-[#16222E] hover:bg-white transition cursor-pointer w-full sm:w-auto justify-center"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#1E2022]/15 text-xs font-semibold text-[#1E2022] hover:bg-white transition cursor-pointer w-full sm:w-auto justify-center"
           >
             <Printer className="w-3.5 h-3.5" /> Print / Save as PDF
           </button>
@@ -249,14 +249,14 @@ export const SharedItineraryPreviewModal: React.FC<SharedItineraryPreviewModalPr
             <button
               type="button"
               onClick={onDismiss}
-              className="px-4 py-2 rounded-full text-xs font-semibold text-[#4B4F55] hover:text-[#16222E] hover:bg-white transition cursor-pointer"
+              className="px-4 py-2 rounded-full text-xs font-semibold text-[#4B4F55] hover:text-[#1E2022] hover:bg-white transition cursor-pointer"
             >
               Keep My Current Trip
             </button>
             <button
               type="button"
               onClick={() => onContinuePlanning(draft, plan)}
-              className="px-5 py-2 rounded-full bg-[#16222E] hover:bg-[#0B4A82] text-white text-xs font-semibold shadow-sm transition cursor-pointer flex items-center gap-1.5"
+              className="px-5 py-2 rounded-full bg-[#1E2022] hover:bg-[#C2571A] text-white text-xs font-semibold shadow-sm transition cursor-pointer flex items-center gap-1.5"
             >
               <ExternalLink className="w-3.5 h-3.5" /> Continue Planning This Itinerary
             </button>

@@ -34,7 +34,7 @@ export const CountUp: React.FC<{ to: number; suffix?: string; decimals?: number;
 /** Cycles through words with a vertical slide. */
 export const RotatingWord: React.FC<{ words: string[]; interval?: number; className?: string }> = ({
   words,
-  className = 'text-[#0B4A82]',
+  className = 'text-[#C2571A]',
   interval = 2600,
 }) => {
   const [i, setI] = useState(0);
@@ -77,11 +77,11 @@ export const SpinBadge: React.FC<{ className?: string }> = ({ className = '' }) 
       <defs>
         <path id="badgeCircle" d="M60 60 m-44 0 a44 44 0 1 1 88 0 a44 44 0 1 1 -88 0" />
       </defs>
-      <text fontSize="10" fontWeight="700" fill="#16222E" fontFamily="Jost, sans-serif">
+      <text fontSize="10" fontWeight="700" fill="#1E2022" fontFamily="Jost, sans-serif">
         <textPath href="#badgeCircle" textLength="270" lengthAdjust="spacing">NAIKINGS · TOURS &amp; TRAVELS · </textPath>
       </text>
     </motion.svg>
-    <div className="absolute inset-[22%] rounded-full bg-gradient-to-br from-[#8CC7C4] via-[#1D7BA6] to-[#0E7C86] shadow-lg flex items-center justify-center">
+    <div className="absolute inset-[22%] rounded-full bg-gradient-to-br from-[#FFC94D] via-[#F7931E] to-[#E5501A] shadow-lg flex items-center justify-center">
       <svg viewBox="0 0 40 26" className="w-7 h-7 sm:w-8 sm:h-8" fill="white">
         <path d="M3 22 L1 6 L11 13 L20 1 L29 13 L39 6 L37 22 Z" />
         <rect x="3" y="22.5" width="34" height="3" rx="1.2" />
@@ -102,7 +102,7 @@ export const Marquee: React.FC<{ items: string[] }> = ({ items }) => {
             className="flex items-center gap-10 text-[14px] font-medium uppercase tracking-normal text-white/90 drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]"
           >
             {t}
-            <span className="w-1.5 h-1.5 rotate-45 bg-[#9DD3D0]" />
+            <span className="w-1.5 h-1.5 rotate-45 bg-[#FFB27A]" />
           </span>
         ))}
       </div>

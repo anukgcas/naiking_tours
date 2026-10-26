@@ -99,12 +99,12 @@ export const Loader: React.FC<LoaderProps> = ({ onComplete }) => {
     >
       {/* Two curtain halves that part to reveal the site */}
       <motion.div
-        className="absolute inset-x-0 top-0 h-1/2 bg-[#F6F8FA]"
+        className="absolute inset-x-0 top-0 h-1/2 bg-[#FAF8F5]"
         animate={{ y: leaving ? '-100%' : '0%' }}
         transition={{ duration: EXIT_MS / 1000, ease: EASE }}
       />
       <motion.div
-        className="absolute inset-x-0 bottom-0 h-1/2 bg-[#F6F8FA]"
+        className="absolute inset-x-0 bottom-0 h-1/2 bg-[#FAF8F5]"
         animate={{ y: leaving ? '100%' : '0%' }}
         transition={{ duration: EXIT_MS / 1000, ease: EASE }}
       />
@@ -118,18 +118,18 @@ export const Loader: React.FC<LoaderProps> = ({ onComplete }) => {
         <NLogo fontSize={logoSize} animated delay={0.1} />
 
         <div className="mt-12 w-56 sm:w-64">
-          <div className="h-[3px] rounded-full bg-[#16222E]/8 overflow-hidden">
+          <div className="h-[3px] rounded-full bg-[#1E2022]/8 overflow-hidden">
             <div
               className="h-full rounded-full transition-[width] duration-75"
               style={{
                 width: `${progress}%`,
-                background: '#16222E',
+                background: '#1E2022',
               }}
             />
           </div>
           <div className="mt-3 flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.28em] text-[#6B7280]">
             <span>Preparing your journey</span>
-            <span className="tabular-nums text-[#16222E]">{progress}%</span>
+            <span className="tabular-nums text-[#1E2022]">{progress}%</span>
           </div>
         </div>
       </motion.div>

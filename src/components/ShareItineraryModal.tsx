@@ -116,15 +116,15 @@ export const ShareItineraryModal: React.FC<ShareItineraryModalProps> = ({
       aria-labelledby="share-modal-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-[#16222E]/10 overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-[#1E2022]/10 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Modal Header */}
-        <div className="p-4 sm:p-5 border-b border-[#16222E]/8 flex items-center justify-between bg-[#F6F8FA]">
+        <div className="p-4 sm:p-5 border-b border-[#1E2022]/8 flex items-center justify-between bg-[#FAF8F5]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-[#EEF4F8] text-[#0B4A82] flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-full bg-[#FFF6EC] text-[#C2571A] flex items-center justify-center shrink-0">
               <Share2 className="w-4 h-4" />
             </div>
             <div>
-              <h2 id="share-modal-title" className="text-base font-bold text-[#16222E]">
+              <h2 id="share-modal-title" className="text-base font-bold text-[#1E2022]">
                 Share Itinerary
               </h2>
               <p className="text-xs text-[#6B7280]">Create a shareable link or print this journey</p>
@@ -134,7 +134,7 @@ export const ShareItineraryModal: React.FC<ShareItineraryModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-[#6B7280] hover:bg-[#16222E]/8 hover:text-[#16222E] focus:outline-none focus:ring-2 focus:ring-[#0B4A82] transition cursor-pointer"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-[#6B7280] hover:bg-[#1E2022]/8 hover:text-[#1E2022] focus:outline-none focus:ring-2 focus:ring-[#C2571A] transition cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -143,13 +143,13 @@ export const ShareItineraryModal: React.FC<ShareItineraryModalProps> = ({
         {/* Modal Body */}
         <div className="p-5 space-y-4 overflow-y-auto">
           {/* Trip Summary Card */}
-          <div className="p-3.5 rounded-xl bg-[#F6F8FA] border border-[#16222E]/8">
+          <div className="p-3.5 rounded-xl bg-[#FAF8F5] border border-[#1E2022]/8">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <span className="text-[11px] font-bold text-[#0B4A82] uppercase tracking-wider block">
+                <span className="text-[11px] font-bold text-[#C2571A] uppercase tracking-wider block">
                   {dest?.name} · {days} Days
                 </span>
-                <h3 className="text-sm font-bold text-[#16222E] mt-0.5">{tripTitle}</h3>
+                <h3 className="text-sm font-bold text-[#1E2022] mt-0.5">{tripTitle}</h3>
                 <p className="text-xs text-[#6B7280] mt-1">
                   {draft.adults} adult{draft.adults > 1 ? 's' : ''}
                   {draft.children > 0 ? `, ${draft.children} child${draft.children > 1 ? 'ren' : ''}` : ''} · {draft.checkIn} to {draft.checkOut}
@@ -169,7 +169,7 @@ export const ShareItineraryModal: React.FC<ShareItineraryModalProps> = ({
             </div>
           ) : (
             <div>
-              <label htmlFor="share-url-input" className="block text-xs font-semibold text-[#16222E] mb-1.5">
+              <label htmlFor="share-url-input" className="block text-xs font-semibold text-[#1E2022] mb-1.5">
                 Shareable Link (Encodes Itinerary Data)
               </label>
               <div className="flex gap-2">
@@ -186,7 +186,7 @@ export const ShareItineraryModal: React.FC<ShareItineraryModalProps> = ({
                     onClick={() => {
                       if (inputRef.current) inputRef.current.select();
                     }}
-                    className="w-full pl-9 pr-3 py-2 text-xs font-mono rounded-xl bg-[#F6F8FA] border border-[#16222E]/15 text-[#16222E] focus:outline-none focus:border-[#0B4A82] focus:ring-1 focus:ring-[#0B4A82]"
+                    className="w-full pl-9 pr-3 py-2 text-xs font-mono rounded-xl bg-[#FAF8F5] border border-[#1E2022]/15 text-[#1E2022] focus:outline-none focus:border-[#C2571A] focus:ring-1 focus:ring-[#C2571A]"
                   />
                 </div>
                 <button
@@ -195,7 +195,7 @@ export const ShareItineraryModal: React.FC<ShareItineraryModalProps> = ({
                   className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shrink-0 ${
                     copied
                       ? 'bg-emerald-600 text-white'
-                      : 'bg-[#16222E] text-white hover:bg-[#0B4A82]'
+                      : 'bg-[#1E2022] text-white hover:bg-[#C2571A]'
                   }`}
                 >
                   {copied ? (
@@ -218,9 +218,9 @@ export const ShareItineraryModal: React.FC<ShareItineraryModalProps> = ({
           )}
 
           {/* Privacy Notice */}
-          <div className="p-3 rounded-xl bg-[#EEF4F8] border border-[#0B4A82]/15 text-xs text-[#0B4A82]">
+          <div className="p-3 rounded-xl bg-[#FFF6EC] border border-[#C2571A]/15 text-xs text-[#C2571A]">
             <div className="flex items-start gap-2">
-              <Shield className="w-4 h-4 shrink-0 mt-0.5 text-[#0B4A82]" />
+              <Shield className="w-4 h-4 shrink-0 mt-0.5 text-[#C2571A]" />
               <div className="leading-relaxed">
                 <span className="font-bold">Privacy & Security: </span>
                 Anyone with this URL can view the itinerary stops, dates, and calculated prices.
@@ -230,9 +230,9 @@ export const ShareItineraryModal: React.FC<ShareItineraryModalProps> = ({
           </div>
 
           {/* Print / Save as PDF Alternative */}
-          <div className="pt-2 border-t border-[#16222E]/8 flex items-center justify-between">
+          <div className="pt-2 border-t border-[#1E2022]/8 flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold text-[#16222E]">Need a physical or PDF copy?</p>
+              <p className="text-xs font-bold text-[#1E2022]">Need a physical or PDF copy?</p>
               <p className="text-[11px] text-[#6B7280]">
                 Open browser print dialog and choose "Save as PDF".
               </p>
@@ -240,7 +240,7 @@ export const ShareItineraryModal: React.FC<ShareItineraryModalProps> = ({
             <button
               type="button"
               onClick={handlePrintClick}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[#16222E]/15 text-xs font-semibold text-[#16222E] hover:bg-[#F6F8FA] transition cursor-pointer shrink-0"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[#1E2022]/15 text-xs font-semibold text-[#1E2022] hover:bg-[#FAF8F5] transition cursor-pointer shrink-0"
             >
               <Printer className="w-3.5 h-3.5" />
               Print / Save as PDF
@@ -249,11 +249,11 @@ export const ShareItineraryModal: React.FC<ShareItineraryModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-3 bg-[#F6F8FA] border-t border-[#16222E]/8 text-right">
+        <div className="p-3 bg-[#FAF8F5] border-t border-[#1E2022]/8 text-right">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-[#4B4F55] hover:text-[#16222E] hover:bg-white transition cursor-pointer"
+            className="px-4 py-2 rounded-xl text-xs font-semibold text-[#4B4F55] hover:text-[#1E2022] hover:bg-white transition cursor-pointer"
           >
             Done
           </button>

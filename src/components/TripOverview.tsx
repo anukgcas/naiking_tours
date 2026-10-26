@@ -142,10 +142,10 @@ const DayCard: React.FC<DayCardProps> = ({
   const fullDay = slots.length === SLOT_ORDER.length;
   const stops = `${items.length} stop${items.length === 1 ? '' : 's'}`;
   const chip =
-    'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#F6F8FA] border border-[#16222E]/8 text-[11px] font-medium text-[#4B4F55]';
+    'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FAF8F5] border border-[#1E2022]/8 text-[11px] font-medium text-[#4B4F55]';
 
   return (
-    <li className="rounded-2xl bg-white border border-[#16222E]/8 shadow-xs overflow-hidden">
+    <li className="rounded-2xl bg-white border border-[#1E2022]/8 shadow-xs overflow-hidden">
       <button
         type="button"
         onClick={onToggle}
@@ -153,11 +153,11 @@ const DayCard: React.FC<DayCardProps> = ({
         aria-controls={`ov-day-${index}`}
         className="w-full flex items-start gap-3 px-4 sm:px-5 py-4 text-left cursor-pointer"
       >
-        <span className="shrink-0 w-9 h-9 rounded-full bg-[#0B4A82] text-white flex items-center justify-center text-sm font-extrabold">
+        <span className="shrink-0 w-9 h-9 rounded-full bg-[#C2571A] text-white flex items-center justify-center text-sm font-extrabold">
           {index + 1}
         </span>
         <span className="flex-1 min-w-0">
-          <span className="block text-sm sm:text-base font-bold text-[#16222E]">
+          <span className="block text-sm sm:text-base font-bold text-[#1E2022]">
             Day {index + 1}
             {cityName ? ` — ${cityName}` : ''}
           </span>
@@ -193,9 +193,9 @@ const DayCard: React.FC<DayCardProps> = ({
             transition={{ duration: 0.25, ease: 'easeOut' }}
             className="overflow-hidden"
           >
-            <div className="px-4 sm:px-5 pb-5 pt-4 border-t border-[#16222E]/8">
+            <div className="px-4 sm:px-5 pb-5 pt-4 border-t border-[#1E2022]/8">
               {/* Cover */}
-              <div className="relative h-40 sm:h-52 rounded-2xl overflow-hidden bg-gradient-to-br from-[#16222E] to-[#4B4F55]">
+              <div className="relative h-40 sm:h-52 rounded-2xl overflow-hidden bg-gradient-to-br from-[#1E2022] to-[#4B4F55]">
                 {coverImage && !coverFailed && (
                   <img
                     src={coverImage}
@@ -210,7 +210,7 @@ const DayCard: React.FC<DayCardProps> = ({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 text-white">
                   <span className="inline-flex items-center gap-2 text-sm font-bold">
-                    <span className="w-5 h-5 rounded-full bg-[#0B4A82] flex items-center justify-center text-[10px] font-extrabold">
+                    <span className="w-5 h-5 rounded-full bg-[#C2571A] flex items-center justify-center text-[10px] font-extrabold">
                       {index + 1}
                     </span>
                     Day {index + 1} Highlights
@@ -225,14 +225,14 @@ const DayCard: React.FC<DayCardProps> = ({
               {items.length === 0 ? (
                 <p className="mt-4 text-sm text-[#6B7280]">
                   Free day — unwind at your stay, or{' '}
-                  <button type="button" onClick={onAdd} className="font-semibold text-[#0B4A82] hover:underline cursor-pointer">
+                  <button type="button" onClick={onAdd} className="font-semibold text-[#C2571A] hover:underline cursor-pointer">
                     add something
                   </button>
                   .
                 </p>
               ) : (
                 <>
-                  <h4 className="mt-5 flex items-center gap-1.5 text-sm font-semibold text-[#16222E]">
+                  <h4 className="mt-5 flex items-center gap-1.5 text-sm font-semibold text-[#1E2022]">
                     <Clock className="w-3.5 h-3.5 text-[#9CA3AF]" /> Activities ({items.length})
                   </h4>
                   <ul className="relative mt-3 pl-6 space-y-3">
@@ -247,7 +247,7 @@ const DayCard: React.FC<DayCardProps> = ({
                           {!isSingle && (
                             <span
                               aria-hidden
-                              className={`absolute -left-[19px] w-px bg-[#16222E]/12 ${
+                              className={`absolute -left-[19px] w-px bg-[#1E2022]/12 ${
                                 isFirst
                                   ? 'top-[29px] -bottom-3'
                                   : isLast
@@ -256,13 +256,13 @@ const DayCard: React.FC<DayCardProps> = ({
                               }`}
                             />
                           )}
-                          <span aria-hidden className="absolute -left-6 top-6 w-[11px] h-[11px] rounded-full bg-[#16222E]/15 ring-2 ring-white" />
-                          <div className="flex gap-3 sm:gap-4 p-3 rounded-2xl bg-[#F6F8FA]/70 border border-[#16222E]/8">
+                          <span aria-hidden className="absolute -left-6 top-6 w-[11px] h-[11px] rounded-full bg-[#1E2022]/15 ring-2 ring-white" />
+                          <div className="flex gap-3 sm:gap-4 p-3 rounded-2xl bg-[#FAF8F5]/70 border border-[#1E2022]/8">
                             <ActivityThumb activity={a} />
                             <div className="flex-1 min-w-0">
                               <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                                <p className="text-sm font-bold text-[#16222E]">{a.name}</p>
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white border border-[#16222E]/10 text-[11px] font-semibold text-[#4B4F55]">
+                                <p className="text-sm font-bold text-[#1E2022]">{a.name}</p>
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white border border-[#1E2022]/10 text-[11px] font-semibold text-[#4B4F55]">
                                   <Clock className="w-3 h-3" /> {a.hours}h
                                 </span>
                               </div>
@@ -362,10 +362,10 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
           <div className="mt-10 mx-auto w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center">
             <CheckCircle2 className="w-9 h-9 text-emerald-600" />
           </div>
-          <h1 className="mt-6 text-3xl font-extrabold tracking-tight text-[#16222E]">Your trip request is in</h1>
+          <h1 className="mt-6 text-3xl font-extrabold tracking-tight text-[#1E2022]">Your trip request is in</h1>
           <p className="mt-3 text-sm text-[#6B7280] leading-relaxed">
             Thank you, {contact.name.split(' ')[0]}. Your {dest.name} itinerary ({days} days, {totalStops} experiences) is
-            saved as <span className="font-mono font-semibold text-[#16222E]">{confirmed.id}</span>. A concierge will
+            saved as <span className="font-mono font-semibold text-[#1E2022]">{confirmed.id}</span>. A concierge will
             call you on {contact.phone} and write to {contact.email} within 24 hours to confirm availability and
             payment.
           </p>
@@ -373,14 +373,14 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
             <button
               type="button"
               onClick={onViewTrips}
-              className="px-6 py-3 rounded-full bg-[#16222E] hover:bg-[#0B4A82] text-white text-sm font-semibold cursor-pointer transition-colors"
+              className="px-6 py-3 rounded-full bg-[#1E2022] hover:bg-[#C2571A] text-white text-sm font-semibold cursor-pointer transition-colors"
             >
               View in My Trips
             </button>
             <button
               type="button"
               onClick={onPlanAnother}
-              className="px-6 py-3 rounded-full border border-[#16222E]/15 text-sm font-semibold text-[#16222E] hover:bg-white cursor-pointer"
+              className="px-6 py-3 rounded-full border border-[#1E2022]/15 text-sm font-semibold text-[#1E2022] hover:bg-white cursor-pointer"
             >
               Plan another trip
             </button>
@@ -391,8 +391,8 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
   }
 
   const inputClass = (invalid?: string) =>
-    `mt-1 w-full px-3.5 py-2.5 text-sm rounded-xl bg-white border focus:outline-none focus:ring-2 focus:ring-[#16222E]/10 ${
-      invalid ? 'border-rose-400' : 'border-[#16222E]/12 focus:border-[#16222E]'
+    `mt-1 w-full px-3.5 py-2.5 text-sm rounded-xl bg-white border focus:outline-none focus:ring-2 focus:ring-[#1E2022]/10 ${
+      invalid ? 'border-rose-400' : 'border-[#1E2022]/12 focus:border-[#1E2022]'
     }`;
 
   return (
@@ -405,25 +405,25 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
               <button
                 type="button"
                 onClick={handlePrint}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white border border-[#16222E]/12 text-xs font-semibold text-[#16222E] hover:border-[#0B4A82] hover:text-[#0B4A82] shadow-xs transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white border border-[#1E2022]/12 text-xs font-semibold text-[#1E2022] hover:border-[#C2571A] hover:text-[#C2571A] shadow-xs transition cursor-pointer"
                 title="Print itinerary or save as PDF using browser print dialog"
               >
-                <Printer className="w-3.5 h-3.5 text-[#0B4A82]" />
+                <Printer className="w-3.5 h-3.5 text-[#C2571A]" />
                 <span>Print / Save as PDF</span>
               </button>
               <button
                 type="button"
                 onClick={() => setIsShareModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white border border-[#16222E]/12 text-xs font-semibold text-[#16222E] hover:border-[#0B4A82] hover:text-[#0B4A82] shadow-xs transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white border border-[#1E2022]/12 text-xs font-semibold text-[#1E2022] hover:border-[#C2571A] hover:text-[#C2571A] shadow-xs transition cursor-pointer"
                 title="Generate a shareable link for travel companions"
               >
-                <Share2 className="w-3.5 h-3.5 text-[#0B4A82]" />
+                <Share2 className="w-3.5 h-3.5 text-[#C2571A]" />
                 <span>Share Link</span>
               </button>
               <button
                 type="button"
                 onClick={onEditPlan}
-                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#6B7280] hover:text-[#16222E] cursor-pointer ml-1"
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#6B7280] hover:text-[#1E2022] cursor-pointer ml-1"
               >
                 <ArrowLeft className="w-4 h-4" /> Edit itinerary
               </button>
@@ -431,7 +431,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
           </div>
 
         {/* Banner */}
-        <div className="mt-5 relative rounded-3xl overflow-hidden h-56 sm:h-64 bg-[#16222E]">
+        <div className="mt-5 relative rounded-3xl overflow-hidden h-56 sm:h-64 bg-[#1E2022]">
           <img src={dest.image} alt={dest.name} referrerPolicy="no-referrer" className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8 text-white">
@@ -457,13 +457,13 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-[1fr_24rem] gap-8 items-start">
           {/* Itinerary */}
           <div>
-            <h2 className="text-xl font-extrabold text-[#16222E]">Your day-by-day plan</h2>
+            <h2 className="text-xl font-extrabold text-[#1E2022]">Your day-by-day plan</h2>
 
             <div className="mt-4 grid sm:grid-cols-2 gap-3">
-              <div className="p-4 rounded-2xl bg-white border border-[#16222E]/8 flex gap-3">
-                <Bed className="w-5 h-5 text-[#0B4A82] shrink-0 mt-0.5" />
+              <div className="p-4 rounded-2xl bg-white border border-[#1E2022]/8 flex gap-3">
+                <Bed className="w-5 h-5 text-[#C2571A] shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-bold text-[#16222E]">
+                  <p className="text-sm font-bold text-[#1E2022]">
                     {costs.rooms} room{costs.rooms > 1 ? 's' : ''} · {nights} night{nights > 1 ? 's' : ''}
                   </p>
                   <p className="text-xs text-[#6B7280] mt-0.5">
@@ -471,27 +471,27 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                   </p>
                 </div>
               </div>
-              <div className="p-4 rounded-2xl bg-white border border-[#16222E]/8 flex gap-3">
-                <Car className="w-5 h-5 text-[#0B4A82] shrink-0 mt-0.5" />
+              <div className="p-4 rounded-2xl bg-white border border-[#1E2022]/8 flex gap-3">
+                <Car className="w-5 h-5 text-[#C2571A] shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-bold text-[#16222E]">Private transfers, every day</p>
+                  <p className="text-sm font-bold text-[#1E2022]">Private transfers, every day</p>
                   <p className="text-xs text-[#6B7280] mt-0.5">Chauffeured pickups between your stay and each experience.</p>
-                  <p className="text-xs font-medium text-[#0B4A82] mt-1">{arrivalSummary(draft, plan)}</p>
-                  <p className="text-xs font-medium text-[#0B4A82] mt-1">{departureSummary(draft, plan)}</p>
+                  <p className="text-xs font-medium text-[#C2571A] mt-1">{arrivalSummary(draft, plan)}</p>
+                  <p className="text-xs font-medium text-[#C2571A] mt-1">{departureSummary(draft, plan)}</p>
                 </div>
               </div>
             </div>
 
             {/* Vehicle choice: applies to the Day 1 pickup and the last-day drop, and sets the transfer price */}
-            <div className="mt-3 p-4 rounded-2xl bg-white border border-[#16222E]/8">
+            <div className="mt-3 p-4 rounded-2xl bg-white border border-[#1E2022]/8">
               <div className="flex items-center gap-2">
                 {dest.id === 'maldives' ? (
-                  <Ship className="w-5 h-5 text-[#0B4A82]" />
+                  <Ship className="w-5 h-5 text-[#C2571A]" />
                 ) : (
-                  <Car className="w-5 h-5 text-[#0B4A82]" />
+                  <Car className="w-5 h-5 text-[#C2571A]" />
                 )}
                 <div>
-                  <p className="text-sm font-bold text-[#16222E]">Choose your vehicle</p>
+                  <p className="text-sm font-bold text-[#1E2022]">Choose your vehicle</p>
                   <p className="text-xs text-[#6B7280]">Used for your pickup, drop and every transfer between stops.</p>
                 </div>
               </div>
@@ -516,18 +516,18 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                       }
                       className={`text-left rounded-xl border p-3 transition-all cursor-pointer ${
                         on
-                          ? 'border-[#0B4A82] bg-[#EEF4F8] shadow-[0_0_0_3px_rgba(11,74,130,0.12)]'
-                          : 'border-[#16222E]/12 bg-white hover:border-[#0B4A82]/50'
+                          ? 'border-[#C2571A] bg-[#FFF6EC] shadow-[0_0_0_3px_rgba(194,87,26,0.12)]'
+                          : 'border-[#1E2022]/12 bg-white hover:border-[#C2571A]/50'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-sm font-bold text-[#16222E]">{v}</span>
-                        {on && <CheckCircle2 className="w-4 h-4 text-[#0B4A82]" />}
+                        <span className="text-sm font-bold text-[#1E2022]">{v}</span>
+                        {on && <CheckCircle2 className="w-4 h-4 text-[#C2571A]" />}
                       </div>
                       <p className="mt-0.5 text-xs text-[#6B7280] leading-snug">{info?.note}</p>
                       <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] font-semibold">
-                        {best && <span className="px-1.5 py-0.5 rounded-full bg-[#0E7C86]/10 text-[#0E7C86]">Best for your group</span>}
-                        <span className="text-[#475569]">{extra > 0 ? `+${formatINR(extra)}` : 'Base rate'}</span>
+                        {best && <span className="px-1.5 py-0.5 rounded-full bg-[#E5501A]/10 text-[#E5501A]">Best for your group</span>}
+                        <span className="text-[#4B4F55]">{extra > 0 ? `+${formatINR(extra)}` : 'Base rate'}</span>
                       </div>
                     </button>
                   );
@@ -548,8 +548,8 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                   <div
                     className={`mt-2.5 rounded-xl border p-3 transition-all ${
                       isCustom
-                        ? 'border-[#0B4A82] bg-[#EEF4F8] shadow-[0_0_0_3px_rgba(11,74,130,0.12)]'
-                        : 'border-[#16222E]/12 bg-white'
+                        ? 'border-[#C2571A] bg-[#FFF6EC] shadow-[0_0_0_3px_rgba(194,87,26,0.12)]'
+                        : 'border-[#1E2022]/12 bg-white'
                     }`}
                   >
                     <button
@@ -560,12 +560,12 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                       className="w-full flex items-center justify-between gap-2 text-left cursor-pointer"
                     >
                       <span>
-                        <span className="block text-sm font-bold text-[#16222E]">I'll choose my own vehicle</span>
+                        <span className="block text-sm font-bold text-[#1E2022]">I'll choose my own vehicle</span>
                         <span className="block text-xs text-[#6B7280]">
                           Tell us exactly what you need to travel in, and how many.
                         </span>
                       </span>
-                      {isCustom && <CheckCircle2 className="w-4 h-4 text-[#0B4A82] shrink-0" />}
+                      {isCustom && <CheckCircle2 className="w-4 h-4 text-[#C2571A] shrink-0" />}
                     </button>
                     {isCustom && (
                       <div className="mt-3">
@@ -579,7 +579,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                           onChange={(e) => applyVehicle(e.target.value.trim() === '' ? CUSTOM_VEHICLE : e.target.value)}
                           maxLength={80}
                           placeholder="e.g. Innova Crysta, 2 vehicles, child seat needed"
-                          className="w-full h-10 px-3 rounded-xl bg-white border border-[#16222E]/15 text-[15px] text-[#16222E] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#0B4A82] focus:ring-2 focus:ring-[#0B4A82]/15 transition"
+                          className="w-full h-10 px-3 rounded-xl bg-white border border-[#1E2022]/15 text-[15px] text-[#1E2022] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#C2571A] focus:ring-2 focus:ring-[#C2571A]/15 transition"
                         />
                         <p className="mt-1.5 text-[12px] text-[#6B7280]">
                           Priced at the base transfer rate for now; we confirm the final amount with you.
@@ -609,9 +609,9 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
               ))}
             </ol>
 
-            <div className="mt-6 p-5 rounded-2xl bg-[#16222E] text-white">
+            <div className="mt-6 p-5 rounded-2xl bg-[#1E2022] text-white">
               <div className="flex items-center gap-2 text-sm font-bold">
-                <Sparkles className="w-4 h-4 text-[#5FA8B0]" /> AI review of your plan
+                <Sparkles className="w-4 h-4 text-[#FB923C]" /> AI review of your plan
               </div>
               <ul className="mt-2 space-y-1.5 text-xs text-white/80 list-disc pl-4">
                 {insights.map((t) => (
@@ -623,29 +623,29 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
 
           {/* Price + confirm */}
           <aside className="lg:sticky lg:top-24 space-y-4">
-            <div className="p-5 rounded-2xl bg-white border border-[#16222E]/10 shadow-sm">
-              <h2 className="text-sm font-extrabold text-[#16222E]">Package price</h2>
+            <div className="p-5 rounded-2xl bg-white border border-[#1E2022]/10 shadow-sm">
+              <h2 className="text-sm font-extrabold text-[#1E2022]">Package price</h2>
               <dl className="mt-3 space-y-2 text-sm">
                 {PRICE_ROWS.map((r) => (
                   <div key={r.key} className="flex justify-between">
                     <dt className="text-[#6B7280]">{r.label}</dt>
-                    <dd className="font-semibold text-[#16222E]">{formatINR(costs[r.key])}</dd>
+                    <dd className="font-semibold text-[#1E2022]">{formatINR(costs[r.key])}</dd>
                   </div>
                 ))}
               </dl>
-              <div className="mt-3 pt-3 border-t border-[#16222E]/10 flex justify-between items-baseline">
-                <span className="text-sm font-bold text-[#16222E]">Total</span>
-                <span className="text-2xl font-extrabold text-[#16222E]">{formatINR(costs.total)}</span>
+              <div className="mt-3 pt-3 border-t border-[#1E2022]/10 flex justify-between items-baseline">
+                <span className="text-sm font-bold text-[#1E2022]">Total</span>
+                <span className="text-2xl font-extrabold text-[#1E2022]">{formatINR(costs.total)}</span>
               </div>
               <p className="mt-1 text-xs text-[#6B7280]">
                 About {formatINR(costs.perPerson)} per guest for {guests} guest{guests > 1 ? 's' : ''}. Flights not included.
               </p>
 
-              <div className="mt-4 pt-3 border-t border-[#16222E]/8 grid grid-cols-2 gap-2">
+              <div className="mt-4 pt-3 border-t border-[#1E2022]/8 grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={handlePrint}
-                  className="inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#F6F8FA] hover:bg-[#EEF4F8] text-[#16222E] hover:text-[#0B4A82] text-xs font-semibold border border-[#16222E]/10 transition cursor-pointer"
+                  className="inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#FAF8F5] hover:bg-[#FFF6EC] text-[#1E2022] hover:text-[#C2571A] text-xs font-semibold border border-[#1E2022]/10 transition cursor-pointer"
                   title="Print or save as PDF"
                 >
                   <Printer className="w-3.5 h-3.5" />
@@ -654,7 +654,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsShareModalOpen(true)}
-                  className="inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#F6F8FA] hover:bg-[#EEF4F8] text-[#16222E] hover:text-[#0B4A82] text-xs font-semibold border border-[#16222E]/10 transition cursor-pointer"
+                  className="inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#FAF8F5] hover:bg-[#FFF6EC] text-[#1E2022] hover:text-[#C2571A] text-xs font-semibold border border-[#1E2022]/10 transition cursor-pointer"
                   title="Share with travel companions"
                 >
                   <Share2 className="w-3.5 h-3.5" />
@@ -663,12 +663,12 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} noValidate className="p-5 rounded-2xl bg-white border border-[#16222E]/10 shadow-sm space-y-3">
-              <h2 className="text-sm font-extrabold text-[#16222E]">Proceed to book</h2>
+            <form onSubmit={handleSubmit} noValidate className="p-5 rounded-2xl bg-white border border-[#1E2022]/10 shadow-sm space-y-3">
+              <h2 className="text-sm font-extrabold text-[#1E2022]">Proceed to book</h2>
               <p className="text-xs text-[#6B7280]">No payment now. A concierge confirms availability first.</p>
 
               <div>
-                <label htmlFor="ov-name" className="text-xs font-semibold text-[#16222E]">Lead traveller</label>
+                <label htmlFor="ov-name" className="text-xs font-semibold text-[#1E2022]">Lead traveller</label>
                 <input
                   id="ov-name"
                   value={contact.name}
@@ -681,7 +681,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                 {errors.name && <p id="ov-name-error" role="alert" className="mt-1 text-[11px] text-rose-600">{errors.name}</p>}
               </div>
               <div>
-                <label htmlFor="ov-phone" className="text-xs font-semibold text-[#16222E]">Phone</label>
+                <label htmlFor="ov-phone" className="text-xs font-semibold text-[#1E2022]">Phone</label>
                 <input
                   id="ov-phone"
                   type="tel"
@@ -695,7 +695,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                 {errors.phone && <p id="ov-phone-error" role="alert" className="mt-1 text-[11px] text-rose-600">{errors.phone}</p>}
               </div>
               <div>
-                <label htmlFor="ov-email" className="text-xs font-semibold text-[#16222E]">Email</label>
+                <label htmlFor="ov-email" className="text-xs font-semibold text-[#1E2022]">Email</label>
                 <input
                   id="ov-email"
                   type="email"
@@ -712,7 +712,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
               <button
                 type="submit"
                 disabled={totalStops === 0}
-                className="w-full py-3 rounded-full bg-[#16222E] hover:bg-[#0B4A82] text-white text-sm font-semibold disabled:opacity-40 transition-colors cursor-pointer"
+                className="w-full py-3 rounded-full bg-[#1E2022] hover:bg-[#C2571A] text-white text-sm font-semibold disabled:opacity-40 transition-colors cursor-pointer"
               >
                 Confirm & request booking
               </button>

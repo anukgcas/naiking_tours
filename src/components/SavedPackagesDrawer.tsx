@@ -40,17 +40,17 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
     >
       <div
         ref={containerRef}
-        className="w-full sm:max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-[#16222E]/10 animate-in slide-in-from-right duration-300"
+        className="w-full sm:max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-[#1E2022]/10 animate-in slide-in-from-right duration-300"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-5 sm:px-7 pt-7 pb-6 border-b border-[#16222E]/8 flex items-start justify-between gap-4 bg-white">
+        <div className="px-5 sm:px-7 pt-7 pb-6 border-b border-[#1E2022]/8 flex items-start justify-between gap-4 bg-white">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#0B4A82]/10 text-[#0B4A82] text-xs font-semibold mb-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#C2571A]/10 text-[#C2571A] text-xs font-semibold mb-1">
               <Bookmark className="w-3 h-3 fill-current" />
               <span>Saved For Later</span>
             </div>
-            <h3 id="saved-packages-title" className="text-2xl font-semibold tracking-tight text-[#16222E]">
+            <h3 id="saved-packages-title" className="text-2xl font-semibold tracking-tight text-[#1E2022]">
               Saved Packages
             </h3>
             <p className="mt-1 text-[14px] text-[#6B7280] font-medium">
@@ -59,7 +59,7 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2 rounded-full hover:bg-[#16222E]/5 text-[#6B7280] hover:text-[#16222E] focus-visible:ring-2 focus-visible:ring-[#0B4A82] focus-visible:outline-none transition-colors duration-200 cursor-pointer"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2 rounded-full hover:bg-[#1E2022]/5 text-[#6B7280] hover:text-[#1E2022] focus-visible:ring-2 focus-visible:ring-[#C2571A] focus-visible:outline-none transition-colors duration-200 cursor-pointer"
             aria-label="Close Saved Packages"
           >
             <X className="w-5 h-5" />
@@ -72,7 +72,7 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
             savedPackages.map((pkg) => (
               <div
                 key={pkg.id}
-                className="group bg-white rounded-2xl p-4 sm:p-5 border border-[#16222E]/8 shadow-xs hover:border-[#16222E]/15 transition-all duration-200 flex flex-col justify-between"
+                className="group bg-white rounded-2xl p-4 sm:p-5 border border-[#1E2022]/8 shadow-xs hover:border-[#1E2022]/15 transition-all duration-200 flex flex-col justify-between"
               >
                 <div>
                   {/* Top: Image & Header info */}
@@ -91,7 +91,7 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#6B7280]">
-                          <Clock className="w-3 h-3 text-[#0B4A82]" />
+                          <Clock className="w-3 h-3 text-[#C2571A]" />
                           <span>{pkg.duration}</span>
                         </span>
 
@@ -106,13 +106,13 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
                         </button>
                       </div>
 
-                      <h4 className="mt-1 text-base font-semibold leading-snug text-[#16222E] line-clamp-2">
+                      <h4 className="mt-1 text-base font-semibold leading-snug text-[#1E2022] line-clamp-2">
                         {pkg.name}
                       </h4>
 
                       <div className="mt-1">
                         <span className="text-xs text-[#6B7280]">From </span>
-                        <span className="text-sm font-bold text-[#16222E]">
+                        <span className="text-sm font-bold text-[#1E2022]">
                           {formatINR(pkg.pricePerPerson)}
                         </span>
                         <span className="text-[10px] text-[#6B7280]"> / person</span>
@@ -130,7 +130,7 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
                     {pkg.inclusions.slice(0, 2).map((inc) => (
                       <span
                         key={inc}
-                        className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-[#F6F8FA] text-[#16222E]/80 border border-[#16222E]/6"
+                        className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-[#FAF8F5] text-[#1E2022]/80 border border-[#1E2022]/6"
                       >
                         {inc}
                       </span>
@@ -139,16 +139,16 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
                 </div>
 
                 {/* Actions row */}
-                <div className="mt-4 pt-3 border-t border-[#16222E]/6 flex items-center justify-between gap-2">
+                <div className="mt-4 pt-3 border-t border-[#1E2022]/6 flex items-center justify-between gap-2">
                   <button
                     type="button"
                     onClick={() => {
                       onClose();
                       onEnquirePackage(pkg);
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#16222E]/15 text-[#16222E] text-xs font-medium hover:bg-[#F6F8FA] transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#1E2022]/15 text-[#1E2022] text-xs font-medium hover:bg-[#FAF8F5] transition-colors cursor-pointer"
                   >
-                    <MessageSquare className="w-3.5 h-3.5 text-[#0B4A82]" />
+                    <MessageSquare className="w-3.5 h-3.5 text-[#C2571A]" />
                     <span>Enquire</span>
                   </button>
 
@@ -158,7 +158,7 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
                       onClose();
                       onSelectPackage(pkg);
                     }}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#16222E] hover:bg-[#0B4A82] text-white text-xs font-semibold transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#1E2022] hover:bg-[#C2571A] text-white text-xs font-semibold transition-colors cursor-pointer"
                   >
                     <span>Customise</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -167,11 +167,11 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
               </div>
             ))
           ) : (
-            <div className="text-center py-12 px-4 bg-white rounded-2xl border border-[#16222E]/8">
-              <div className="w-12 h-12 rounded-full bg-[#0B4A82]/10 text-[#0B4A82] flex items-center justify-center mx-auto mb-3">
+            <div className="text-center py-12 px-4 bg-white rounded-2xl border border-[#1E2022]/8">
+              <div className="w-12 h-12 rounded-full bg-[#C2571A]/10 text-[#C2571A] flex items-center justify-center mx-auto mb-3">
                 <Bookmark className="w-6 h-6" />
               </div>
-              <h4 className="text-base font-semibold text-[#16222E]">
+              <h4 className="text-base font-semibold text-[#1E2022]">
                 No saved packages yet
               </h4>
               <p className="text-xs text-[#6B7280] mt-1.5 mb-5 max-w-xs mx-auto leading-relaxed">
@@ -183,7 +183,7 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
                   onClose();
                   onExplorePackages();
                 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#16222E] text-white text-xs font-semibold hover:bg-[#0B4A82] transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E2022] text-white text-xs font-semibold hover:bg-[#C2571A] transition-colors cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Explore Curated Packages</span>
@@ -193,11 +193,11 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
         </div>
 
         {/* Concierge Support Footnote */}
-        <div className="px-5 sm:px-7 py-5 bg-white border-t border-[#16222E]/8 text-center text-xs text-[#6B7280]">
+        <div className="px-5 sm:px-7 py-5 bg-white border-t border-[#1E2022]/8 text-center text-xs text-[#6B7280]">
           <span>Need custom arrangements?</span>{' '}
           <a
             href="mailto:concierge@naikingtours.com"
-            className="whitespace-nowrap text-[#0B4A82] font-medium hover:underline"
+            className="whitespace-nowrap text-[#C2571A] font-medium hover:underline"
           >
             Contact Private Concierge
           </a>

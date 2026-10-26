@@ -384,7 +384,7 @@ function AppContent() {
   const headerTab = onHomePage && homeSection === 'mid' ? null : navTab;
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-[#16222E] font-sans">
+    <div className="min-h-screen flex flex-col bg-white text-[#1E2022] font-sans">
       {showLoader && <Loader onComplete={handleLoaderComplete} />}
       {crafting && (
         <CraftingOverlay
@@ -420,8 +420,8 @@ function AppContent() {
           >
             <React.Suspense
               fallback={
-                <div className="min-h-screen bg-[#0E1822] text-white flex flex-col items-center justify-center p-6 text-center">
-                  <div className="w-10 h-10 rounded-full border-2 border-white/20 border-t-[#8CC7C4] animate-spin mb-4" />
+                <div className="min-h-screen bg-[#14110F] text-white flex flex-col items-center justify-center p-6 text-center">
+                  <div className="w-10 h-10 rounded-full border-2 border-white/20 border-t-[#FFC94D] animate-spin mb-4" />
                   <p className="text-base font-serif tracking-wide text-white/90">Loading Bespoke Tour Designer...</p>
                   <p className="text-xs text-white/50 mt-1">Configuring personalized destination parameters</p>
                 </div>
@@ -443,9 +443,9 @@ function AppContent() {
           >
             <React.Suspense
               fallback={
-                <div className="min-h-[60vh] flex flex-col items-center justify-center p-12 text-[#16222E] text-center">
-                  <div className="w-10 h-10 rounded-full border-2 border-[#16222E]/10 border-t-[#0B4A82] animate-spin mb-4" />
-                  <p className="text-base font-semibold text-[#16222E]">Loading Itinerary Studio...</p>
+                <div className="min-h-[60vh] flex flex-col items-center justify-center p-12 text-[#1E2022] text-center">
+                  <div className="w-10 h-10 rounded-full border-2 border-[#1E2022]/10 border-t-[#C2571A] animate-spin mb-4" />
+                  <p className="text-base font-semibold text-[#1E2022]">Loading Itinerary Studio...</p>
                   <p className="text-sm text-[#4B5563] mt-1">Preparing timeline and luxury experience catalogue</p>
                 </div>
               }
@@ -468,9 +468,9 @@ function AppContent() {
           >
             <React.Suspense
               fallback={
-                <div className="min-h-[60vh] flex flex-col items-center justify-center p-12 text-[#16222E] text-center">
-                  <div className="w-10 h-10 rounded-full border-2 border-[#16222E]/10 border-t-[#0B4A82] animate-spin mb-4" />
-                  <p className="text-base font-semibold text-[#16222E]">Loading Quotation & Overview...</p>
+                <div className="min-h-[60vh] flex flex-col items-center justify-center p-12 text-[#1E2022] text-center">
+                  <div className="w-10 h-10 rounded-full border-2 border-[#1E2022]/10 border-t-[#C2571A] animate-spin mb-4" />
+                  <p className="text-base font-semibold text-[#1E2022]">Loading Quotation & Overview...</p>
                   <p className="text-sm text-[#4B5563] mt-1">Calculating luxury stay tiers and private chauffeured transit</p>
                 </div>
               }
@@ -615,9 +615,9 @@ function AppContent() {
           role="status"
           aria-live="polite"
           aria-atomic="true"
-          className="fixed bottom-20 md:bottom-8 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-[#16222E] text-[#F6F8FA] text-xs sm:text-sm font-medium shadow-2xl flex items-center gap-2 border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-200"
+          className="fixed bottom-20 md:bottom-8 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-[#1E2022] text-[#FAF8F5] text-xs sm:text-sm font-medium shadow-2xl flex items-center gap-2 border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-200"
         >
-          <div className="w-4 h-4 rounded-full bg-[#0B4A82] flex items-center justify-center text-white shrink-0">
+          <div className="w-4 h-4 rounded-full bg-[#C2571A] flex items-center justify-center text-white shrink-0">
             <Check className="w-2.5 h-2.5" />
           </div>
           <span>{toastMessage}</span>

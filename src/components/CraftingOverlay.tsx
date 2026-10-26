@@ -16,18 +16,18 @@ const MESSAGES = [
   'Laying out your days…',
   'Getting your planner ready…',
 ];
-const brandGrad = 'bg-gradient-to-r from-[#1D7BA6] via-[#0E7C86] to-[#0B4A82]';
+const brandGrad = 'bg-gradient-to-r from-[#F7931E] via-[#E5501A] to-[#C2571A]';
 
 /** Soft drifting colour behind the loader, same look as the trip builder's "Building your trip" screen. */
 const Aurora: React.FC<{ reduced: boolean | null }> = ({ reduced }) => (
   <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
     <motion.div
-      className="absolute -top-24 -left-24 w-[26rem] h-[26rem] rounded-full bg-[#8CC7C4]/25 blur-3xl"
+      className="absolute -top-24 -left-24 w-[26rem] h-[26rem] rounded-full bg-[#FFC94D]/25 blur-3xl"
       animate={reduced ? undefined : { x: [0, 60, 0], y: [0, 40, 0] }}
       transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
     />
     <motion.div
-      className="absolute top-40 -right-24 w-[28rem] h-[28rem] rounded-full bg-[#0E7C86]/10 blur-3xl"
+      className="absolute top-40 -right-24 w-[28rem] h-[28rem] rounded-full bg-[#E5501A]/10 blur-3xl"
       animate={reduced ? undefined : { x: [0, -70, 0], y: [0, 60, 0] }}
       transition={{ duration: 17, repeat: Infinity, ease: 'easeInOut' }}
     />
@@ -54,7 +54,7 @@ export const CraftingOverlay: React.FC<CraftingOverlayProps> = ({ destination, i
 
   return (
     <motion.div
-      className="fixed inset-0 z-[90] flex items-center justify-center px-6 bg-[#F6F8FA]"
+      className="fixed inset-0 z-[90] flex items-center justify-center px-6 bg-[#FAF8F5]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.35 }}
@@ -68,7 +68,7 @@ export const CraftingOverlay: React.FC<CraftingOverlayProps> = ({ destination, i
           {[0, 1, 2].map((i) => (
             <motion.span
               key={i}
-              className="absolute inset-0 rounded-full border-2 border-[#1D7BA6]/50"
+              className="absolute inset-0 rounded-full border-2 border-[#F7931E]/50"
               initial={{ scale: 0.6, opacity: 0.7 }}
               animate={{ scale: 1.7, opacity: 0 }}
               transition={{ duration: 2.4, repeat: Infinity, delay: i * 0.8, ease: 'easeOut' }}
@@ -77,7 +77,7 @@ export const CraftingOverlay: React.FC<CraftingOverlayProps> = ({ destination, i
           <motion.span
             className="absolute inset-0 rounded-full"
             style={{
-              background: 'conic-gradient(from 0deg, #8CC7C4, #0E7C86, transparent 70%)',
+              background: 'conic-gradient(from 0deg, #FFC94D, #E5501A, transparent 70%)',
               mask: 'radial-gradient(circle, transparent 62%, black 64%)',
               WebkitMask: 'radial-gradient(circle, transparent 62%, black 64%)',
             }}
@@ -93,10 +93,10 @@ export const CraftingOverlay: React.FC<CraftingOverlayProps> = ({ destination, i
               className="relative w-28 h-28 rounded-full object-cover border-4 border-white shadow-2xl"
             />
           ) : (
-            <Sparkles className="relative w-10 h-10 text-[#0B4A82]" />
+            <Sparkles className="relative w-10 h-10 text-[#C2571A]" />
           )}
           <motion.span
-            className="absolute -top-1 -right-1 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center text-[#0B4A82]"
+            className="absolute -top-1 -right-1 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center text-[#C2571A]"
             animate={reduced ? undefined : { y: [0, -6, 0], rotate: [0, 12, 0] }}
             transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
           >
@@ -104,8 +104,8 @@ export const CraftingOverlay: React.FC<CraftingOverlayProps> = ({ destination, i
           </motion.span>
         </div>
 
-        <h2 className="mt-6 text-3xl font-extrabold tracking-tight text-[#16222E]">
-          Crafting your <span className="text-[#0B4A82]">{destination}</span> trip
+        <h2 className="mt-6 text-3xl font-extrabold tracking-tight text-[#1E2022]">
+          Crafting your <span className="text-[#C2571A]">{destination}</span> trip
         </h2>
         <AnimatePresence mode="wait">
           <motion.p
@@ -118,7 +118,7 @@ export const CraftingOverlay: React.FC<CraftingOverlayProps> = ({ destination, i
             {MESSAGES[msg]}
           </motion.p>
         </AnimatePresence>
-        <div className="mt-6 mx-auto w-56 h-1.5 rounded-full bg-[#16222E]/8 overflow-hidden">
+        <div className="mt-6 mx-auto w-56 h-1.5 rounded-full bg-[#1E2022]/8 overflow-hidden">
           <motion.div
             className={`h-full rounded-full ${brandGrad}`}
             initial={{ width: '4%' }}
