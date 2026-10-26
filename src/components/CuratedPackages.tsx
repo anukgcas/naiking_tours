@@ -216,18 +216,18 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({
             return (
               <article
                 key={pkg.id}
-                className="group relative flex flex-col rounded-[28px] bg-white p-3 border border-[#F1ECE6] shadow-[0_2px_4px_rgba(30,32,34,0.03),0_18px_44px_-22px_rgba(30,32,34,0.28)] hover:-translate-y-1.5 hover:shadow-[0_2px_4px_rgba(30,32,34,0.03),0_30px_60px_-24px_rgba(242,92,42,0.35)] transition-all duration-300"
+                className="group relative isolate h-[580px] sm:h-[600px] rounded-[32px] overflow-hidden bg-[#EDE7DF] shadow-[0_18px_40px_-28px_rgba(30,32,34,0.3)] hover:shadow-[0_26px_50px_-30px_rgba(30,32,34,0.38)] hover:-translate-y-1 transition-all duration-500"
               >
-                {/* Photo, inset inside the card */}
-                <div className="relative h-[250px] sm:h-[270px] rounded-[22px] overflow-hidden bg-[#EDE7DF]">
-                  <img
-                    src={pkg.image}
-                    alt={pkg.name}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
-                  />
+                {/* Full-bleed photo */}
+                <img
+                  src={pkg.image}
+                  alt={pkg.name}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110"
+                />
 
-                  {/* Category (left) and save (right) */}
-                  <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 pl-2.5 pr-3 py-1.5 rounded-full bg-gradient-to-r from-[#F25C2A] to-[#FF9A3C] text-white text-[11px] font-bold uppercase tracking-[0.08em] shadow-[0_8px_18px_-8px_rgba(242,92,42,0.8)]">
+                {/* Top row: category and save */}
+                <div className="absolute top-4 left-4 right-4 flex items-start justify-between z-10">
+                  <div className="inline-flex items-center gap-1.5 pl-2.5 pr-3.5 py-2 rounded-full bg-[#14213D]/45 backdrop-blur-lg border border-white/25 text-white text-[11px] font-bold uppercase tracking-[0.12em] shadow-[0_6px_16px_-8px_rgba(20,33,61,0.6)]">
                     {CATEGORY_ICON[pkg.category]}
                     {pkg.category}
                   </div>
@@ -237,93 +237,92 @@ export const CuratedPackages: React.FC<CuratedPackagesProps> = ({
                       e.stopPropagation();
                       toggleSavePackage(pkg.id);
                     }}
-                    className={`absolute top-3 right-3 w-10 h-10 flex items-center justify-center rounded-full backdrop-blur-xl border transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-white ${
+                    className={`w-11 h-11 flex items-center justify-center rounded-full backdrop-blur-lg border transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-white ${
                       isSaved
                         ? 'bg-[#F26B2A] border-[#F26B2A] text-white'
-                        : 'bg-white/30 border-white/60 text-white hover:bg-white hover:text-[#F26B2A]'
+                        : 'bg-[#14213D]/45 border-white/25 text-white hover:bg-white hover:text-[#C2571A] shadow-[0_6px_16px_-8px_rgba(20,33,61,0.6)]'
                     }`}
                     aria-label={isSaved ? `Remove ${pkg.name} from saved` : `Save ${pkg.name} for later`}
                     title={isSaved ? 'Saved for Later' : 'Save for Later'}
                   >
-                    <Heart className={`w-[18px] h-[18px] ${isSaved ? 'fill-current' : ''}`} />
+                    <Heart className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />
                   </button>
-
-                  {/* Duration (left) and price (right), both frosted glass */}
-                  <div className="absolute bottom-3 left-3 inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white/25 backdrop-blur-xl backdrop-saturate-150 border border-white/50 text-white text-[13px] font-semibold shadow-[0_8px_24px_-10px_rgba(0,0,0,0.5)] drop-shadow">
-                    <CalendarDays className="w-4 h-4" />
-                    <span>{pkg.duration}</span>
-                  </div>
-                  <div className="absolute bottom-3 right-3 text-right px-3.5 py-2 rounded-2xl bg-gradient-to-br from-white/75 via-white/55 to-white/40 backdrop-blur-xl backdrop-saturate-150 border border-white/70 ring-1 ring-inset ring-white/50 shadow-[0_12px_30px_-12px_rgba(30,32,34,0.5),inset_0_1px_0_rgba(255,255,255,0.8)]">
-                    <span className="text-[11px] font-semibold text-[#2F3B52] block leading-none">From</span>
-                    <span className="mt-1 text-[22px] font-extrabold text-[#F26B2A] leading-none tracking-tight block">
-                      {formatINR(pkg.pricePerPerson)}
-                    </span>
-                    <span className="mt-1 text-[11px] font-semibold text-[#2F3B52] block leading-none">/ person</span>
-                  </div>
                 </div>
 
-                {/* Body */}
-                <div className="flex flex-col flex-1 px-3 pt-5 pb-2">
-                  <p className="inline-flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-[0.12em] text-[#F26B2A]">
-                    <MapPin className="w-3.5 h-3.5" />
-                    {dest ? `${dest.name}, ${dest.country}` : pkg.category}
-                  </p>
-                  <h3 className="mt-2 text-[22px] sm:text-[24px] font-bold tracking-tight text-[#14213D] leading-[1.15] group-hover:text-[#C2571A] transition-colors">
-                    {pkg.name}
-                  </h3>
-                  <p className="mt-2 text-[14px] text-[#5B6475] line-clamp-2 leading-relaxed">{pkg.tagline}</p>
+                {/* Floating glass sheet anchored to the bottom */}
+                <div className="absolute inset-x-3 bottom-3 z-10 rounded-[26px] p-5 text-[#14213D] bg-white/72 backdrop-blur-2xl backdrop-saturate-150 border border-white/50 shadow-[0_10px_30px_-18px_rgba(30,32,34,0.3)]">
+                  <div className="flex items-center justify-between gap-3 text-[11.5px] font-semibold uppercase tracking-[0.12em]">
+                    <span className="inline-flex items-center gap-1.5 text-[#5B6475] min-w-0">
+                      <MapPin className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">{dest ? `${dest.name}, ${dest.country}` : pkg.category}</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 text-[#5B6475] shrink-0 normal-case tracking-normal text-[12.5px]">
+                      <CalendarDays className="w-3.5 h-3.5" />
+                      {pkg.duration}
+                    </span>
+                  </div>
 
-                  {/* Inclusions as a tidy tile row */}
-                  <div className="mt-5 grid grid-cols-3 gap-2">
+                  <h3 className="mt-2.5 text-[22px] sm:text-[23px] font-bold tracking-tight leading-[1.15]">{pkg.name}</h3>
+                  <p className="mt-1.5 text-[13.5px] text-[#4B5563] leading-snug line-clamp-2">{pkg.tagline}</p>
+
+                  {/* Inclusions as compact icon chips */}
+                  <div className="mt-3.5 flex flex-wrap gap-1.5">
                     {pkg.inclusions.map((inc) => (
-                      <div
+                      <span
                         key={inc}
-                        className="flex flex-col items-center text-center gap-1.5 rounded-2xl bg-[#FFF6EE] px-2 py-3"
+                        className="inline-flex items-center gap-1.5 pl-1.5 pr-2.5 py-1 rounded-full bg-white/60 text-[11.5px] font-medium text-[#3A3D42]"
                       >
-                        <span className="w-8 h-8 rounded-full bg-white text-[#F26B2A] flex items-center justify-center shadow-[0_4px_10px_-4px_rgba(242,92,42,0.4)]">
+                        <span className="w-5 h-5 rounded-full bg-[#14213D]/[0.06] text-[#14213D]/70 flex items-center justify-center [&>svg]:w-3 [&>svg]:h-3">
                           {inclusionIcon(inc)}
                         </span>
-                        <span className="text-[11.5px] font-medium leading-tight text-[#3A3D42] line-clamp-2">{inc}</span>
-                      </div>
+                        {inc}
+                      </span>
                     ))}
                   </div>
 
-                  {/* Highlights */}
-                  <ul className="mt-5 space-y-2.5">
-                    {pkg.highlights.map((h, i) => (
-                      <li key={i} className="flex items-start gap-2.5 text-[13px] text-[#4B5563] leading-snug">
-                        <span className="mt-[3px] w-4 h-4 rounded-full bg-[#F26B2A]/12 text-[#F26B2A] flex items-center justify-center shrink-0">
-                          <Check className="w-2.5 h-2.5" strokeWidth={3.5} />
-                        </span>
-                        <span className="line-clamp-2">{h}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  {/* Highlights: open on touch screens, slide open on hover on larger ones */}
+                  <div className="grid grid-rows-[1fr] md:grid-rows-[0fr] md:group-hover:grid-rows-[1fr] md:group-focus-within:grid-rows-[1fr] transition-[grid-template-rows] duration-500 ease-out">
+                    <ul className="overflow-hidden space-y-2">
+                      {pkg.highlights.map((h, i) => (
+                        <li key={i} className={`flex items-start gap-2 text-[12.5px] text-[#4B5563] leading-snug ${i === 0 ? 'pt-3.5' : ''}`}>
+                          <Check className="w-3.5 h-3.5 mt-[2px] text-[#14213D]/50 shrink-0" strokeWidth={3} />
+                          <span>{h}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-                  {/* Actions */}
-                  <div className="mt-auto pt-6 flex items-center gap-2.5">
-                    {onEnquirePackage && (
+                  {/* Price + actions */}
+                  <div className="mt-4 pt-4 border-t border-[#14213D]/[0.06] flex items-center justify-between gap-3">
+                    <div className="leading-none">
+                      <span className="text-[11px] font-semibold text-[#5B6475]">From / person</span>
+                      <span className="mt-1.5 block text-[26px] font-extrabold tracking-tight text-[#14213D]">
+                        {formatINR(pkg.pricePerPerson)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {onEnquirePackage && (
+                        <button
+                          type="button"
+                          onClick={() => onEnquirePackage(pkg)}
+                          className="w-11 h-11 inline-flex items-center justify-center rounded-full bg-white/80 text-[#14213D]/75 hover:bg-white hover:text-[#14213D] focus:outline-none focus:ring-2 focus:ring-[#F26B2A]/40 active:scale-95 transition-all duration-200 cursor-pointer"
+                          aria-label={`Enquire about ${pkg.name}`}
+                          title="Ask questions or request a callback"
+                        >
+                          <MessageCircle className="w-[18px] h-[18px]" />
+                        </button>
+                      )}
                       <button
                         type="button"
-                        onClick={() => onEnquirePackage(pkg)}
-                        className="w-12 h-12 sm:w-auto sm:px-5 inline-flex items-center justify-center gap-2 rounded-full border border-[#F26B2A]/40 bg-white text-[#F26B2A] font-bold text-sm hover:bg-[#FFF6EE] hover:border-[#F26B2A] focus:outline-none focus:ring-2 focus:ring-[#F26B2A]/40 active:scale-[0.97] transition-all duration-200 cursor-pointer shrink-0"
-                        aria-label={`Enquire about ${pkg.name}`}
-                        title="Ask questions or request a callback for this package"
+                        onClick={() => onSelectPackage(pkg)}
+                        className="h-11 pl-5 pr-1.5 inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-[#C2571A] via-[#E5501A] to-[#F7931E] text-white font-bold text-[13.5px] shadow-[0_8px_18px_-8px_rgba(194,87,26,0.5)] hover:brightness-110 active:scale-[0.97] transition-all duration-200 cursor-pointer group/btn"
                       >
-                        <MessageCircle className="w-[18px] h-[18px]" />
-                        <span className="hidden sm:inline">Enquire</span>
+                        <span>Customise</span>
+                        <span className="w-8 h-8 rounded-full bg-white/20 text-white flex items-center justify-center transition-transform duration-300 group-hover/btn:translate-x-0.5">
+                          <ArrowRight className="w-4 h-4" />
+                        </span>
                       </button>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => onSelectPackage(pkg)}
-                      className="flex-1 h-12 pl-6 pr-1.5 inline-flex items-center justify-between gap-3 rounded-full bg-[#14213D] hover:bg-[#1B2C52] text-white font-bold text-sm shadow-[0_14px_28px_-12px_rgba(20,33,61,0.7)] active:scale-[0.98] transition-all duration-200 cursor-pointer group/btn"
-                    >
-                      <span>Customise Itinerary</span>
-                      <span className="w-9 h-9 rounded-full bg-gradient-to-br from-[#F25C2A] to-[#FF9A3C] flex items-center justify-center transition-transform duration-300 group-hover/btn:translate-x-0.5 group-hover/btn:rotate-[-8deg]">
-                        <ArrowRight className="w-4 h-4" />
-                      </span>
-                    </button>
+                    </div>
                   </div>
                 </div>
               </article>
