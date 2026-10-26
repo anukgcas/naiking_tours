@@ -86,12 +86,17 @@ const Compass: React.FC = () => (
   </>
 );
 
-export const TourPattern: React.FC<{ variant: Variant; className?: string }> = ({ variant, className = '' }) => (
+export const TourPattern: React.FC<{ variant: Variant; className?: string; /** 0 to 1: how visible the lines are. */ strength?: number }> = ({
+  variant,
+  className = '',
+  strength = 0.45,
+}) => (
   <svg
     aria-hidden="true"
     viewBox="0 0 1200 640"
     preserveAspectRatio="xMidYMid slice"
-    className={`pointer-events-none absolute inset-0 w-full h-full opacity-45 [mask-image:linear-gradient(to_bottom,transparent,black_14%,black_86%,transparent)] ${className}`}
+    style={{ opacity: strength }}
+    className={`pointer-events-none absolute inset-0 w-full h-full [mask-image:linear-gradient(to_bottom,transparent,black_14%,black_86%,transparent)] ${className}`}
   >
     {variant === 'routes' && <Routes />}
     {variant === 'topo' && <Topo />}

@@ -42,6 +42,7 @@ import {
   tripDays,
 } from '../data/planner';
 import { StepIndicator } from './StepIndicator';
+import { TourPattern } from './TourPattern';
 
 const LazyPrintableItinerary = React.lazy(() =>
   import('./PrintableItinerary').then((m) => ({ default: m.PrintableItinerary }))
@@ -153,7 +154,7 @@ const DayCard: React.FC<DayCardProps> = ({
         aria-controls={`ov-day-${index}`}
         className="w-full flex items-start gap-3 px-4 sm:px-5 py-4 text-left cursor-pointer"
       >
-        <span className="shrink-0 w-9 h-9 rounded-full bg-[#C2571A] text-white flex items-center justify-center text-sm font-extrabold">
+        <span className="shrink-0 w-9 h-9 rounded-full bg-[#14213D] text-white flex items-center justify-center text-sm font-extrabold">
           {index + 1}
         </span>
         <span className="flex-1 min-w-0">
@@ -210,7 +211,7 @@ const DayCard: React.FC<DayCardProps> = ({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 text-white">
                   <span className="inline-flex items-center gap-2 text-sm font-bold">
-                    <span className="w-5 h-5 rounded-full bg-[#C2571A] flex items-center justify-center text-[10px] font-extrabold">
+                    <span className="w-5 h-5 rounded-full bg-[#14213D] flex items-center justify-center text-[10px] font-extrabold">
                       {index + 1}
                     </span>
                     Day {index + 1} Highlights
@@ -225,7 +226,7 @@ const DayCard: React.FC<DayCardProps> = ({
               {items.length === 0 ? (
                 <p className="mt-4 text-sm text-[#6B7280]">
                   Free day — unwind at your stay, or{' '}
-                  <button type="button" onClick={onAdd} className="font-semibold text-[#C2571A] hover:underline cursor-pointer">
+                  <button type="button" onClick={onAdd} className="font-semibold text-[#14213D] hover:underline cursor-pointer">
                     add something
                   </button>
                   .
@@ -356,13 +357,14 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
 
   if (confirmed) {
     return (
-      <section className="pt-28 lg:pt-32 pb-24">
-        <div className="max-w-xl mx-auto px-4 text-center">
+      <section className="relative isolate overflow-clip pt-28 lg:pt-32 pb-24 bg-[#FBFAF8]">
+        <TourPattern variant="compass" />
+        <div className="relative z-10 max-w-xl mx-auto px-4 text-center">
           <StepIndicator current={4} />
           <div className="mt-10 mx-auto w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center">
             <CheckCircle2 className="w-9 h-9 text-emerald-600" />
           </div>
-          <h1 className="mt-6 text-3xl font-extrabold tracking-tight text-[#1E2022]">Your trip request is in</h1>
+          <h1 className="mt-6 text-3xl sm:text-4xl font-bold tracking-tight text-[#14213D]" style={{ fontFamily: "'Playfair Display', serif" }}>Your trip request is in</h1>
           <p className="mt-3 text-sm text-[#6B7280] leading-relaxed">
             Thank you, {contact.name.split(' ')[0]}. Your {dest.name} itinerary ({days} days, {totalStops} experiences) is
             saved as <span className="font-mono font-semibold text-[#1E2022]">{confirmed.id}</span>. A concierge will
@@ -373,7 +375,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
             <button
               type="button"
               onClick={onViewTrips}
-              className="px-6 py-3 rounded-full bg-[#1E2022] hover:bg-[#C2571A] text-white text-sm font-semibold cursor-pointer transition-colors"
+              className="px-6 py-3 rounded-full bg-gradient-to-r from-[#C2571A] via-[#E5501A] to-[#F7931E] hover:brightness-110 text-white text-sm font-semibold shadow-[0_10px_22px_-12px_rgba(194,87,26,0.6)] cursor-pointer transition-all"
             >
               View in My Trips
             </button>
@@ -397,27 +399,27 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
 
   return (
     <>
-      <section className="pt-24 lg:pt-28 pb-24 print:hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative isolate overflow-clip pt-24 lg:pt-28 pb-24 print:hidden bg-[#FBFAF8]">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <StepIndicator current={2} />
             <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
               <button
                 type="button"
                 onClick={handlePrint}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white border border-[#1E2022]/12 text-xs font-semibold text-[#1E2022] hover:border-[#C2571A] hover:text-[#C2571A] shadow-xs transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white border border-[#1E2022]/12 text-xs font-semibold text-[#1E2022] hover:border-[#14213D] hover:text-[#14213D] shadow-xs transition cursor-pointer"
                 title="Print itinerary or save as PDF using browser print dialog"
               >
-                <Printer className="w-3.5 h-3.5 text-[#C2571A]" />
+                <Printer className="w-3.5 h-3.5 text-[#14213D]" />
                 <span>Print / Save as PDF</span>
               </button>
               <button
                 type="button"
                 onClick={() => setIsShareModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white border border-[#1E2022]/12 text-xs font-semibold text-[#1E2022] hover:border-[#C2571A] hover:text-[#C2571A] shadow-xs transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white border border-[#1E2022]/12 text-xs font-semibold text-[#1E2022] hover:border-[#14213D] hover:text-[#14213D] shadow-xs transition cursor-pointer"
                 title="Generate a shareable link for travel companions"
               >
-                <Share2 className="w-3.5 h-3.5 text-[#C2571A]" />
+                <Share2 className="w-3.5 h-3.5 text-[#14213D]" />
                 <span>Share Link</span>
               </button>
               <button
@@ -431,12 +433,12 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
           </div>
 
         {/* Banner */}
-        <div className="mt-5 relative rounded-3xl overflow-hidden h-56 sm:h-64 bg-[#1E2022]">
+        <div className="mt-5 relative rounded-[28px] overflow-hidden h-56 sm:h-64 bg-[#14213D] shadow-[0_24px_50px_-30px_rgba(30,32,34,0.5)]">
           <img src={dest.image} alt={dest.name} referrerPolicy="no-referrer" className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#14213D]/75 via-[#14213D]/15 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8 text-white">
             <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/75">Your custom package</p>
-            <h1 className="mt-1 text-2xl sm:text-4xl font-extrabold tracking-tight">
+            <h1 className="mt-1 text-2xl sm:text-4xl font-bold tracking-tight" style={{ fontFamily: "'Playfair Display', serif" }}>
               {days}-day {dest.name} journey
             </h1>
             <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-xs sm:text-sm text-white/90">
@@ -457,11 +459,11 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-[1fr_24rem] gap-8 items-start">
           {/* Itinerary */}
           <div>
-            <h2 className="text-xl font-extrabold text-[#1E2022]">Your day-by-day plan</h2>
+            <h2 className="text-2xl font-bold text-[#14213D]" style={{ fontFamily: "'Playfair Display', serif" }}>Your day-by-day plan</h2>
 
             <div className="mt-4 grid sm:grid-cols-2 gap-3">
               <div className="p-4 rounded-2xl bg-white border border-[#1E2022]/8 flex gap-3">
-                <Bed className="w-5 h-5 text-[#C2571A] shrink-0 mt-0.5" />
+                <Bed className="w-5 h-5 text-[#14213D] shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-bold text-[#1E2022]">
                     {costs.rooms} room{costs.rooms > 1 ? 's' : ''} · {nights} night{nights > 1 ? 's' : ''}
@@ -472,12 +474,12 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                 </div>
               </div>
               <div className="p-4 rounded-2xl bg-white border border-[#1E2022]/8 flex gap-3">
-                <Car className="w-5 h-5 text-[#C2571A] shrink-0 mt-0.5" />
+                <Car className="w-5 h-5 text-[#14213D] shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-bold text-[#1E2022]">Private transfers, every day</p>
                   <p className="text-xs text-[#6B7280] mt-0.5">Chauffeured pickups between your stay and each experience.</p>
-                  <p className="text-xs font-medium text-[#C2571A] mt-1">{arrivalSummary(draft, plan)}</p>
-                  <p className="text-xs font-medium text-[#C2571A] mt-1">{departureSummary(draft, plan)}</p>
+                  <p className="text-xs font-medium text-[#4B5563] mt-1">{arrivalSummary(draft, plan)}</p>
+                  <p className="text-xs font-medium text-[#4B5563] mt-1">{departureSummary(draft, plan)}</p>
                 </div>
               </div>
             </div>
@@ -486,9 +488,9 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
             <div className="mt-3 p-4 rounded-2xl bg-white border border-[#1E2022]/8">
               <div className="flex items-center gap-2">
                 {dest.id === 'maldives' ? (
-                  <Ship className="w-5 h-5 text-[#C2571A]" />
+                  <Ship className="w-5 h-5 text-[#14213D]" />
                 ) : (
-                  <Car className="w-5 h-5 text-[#C2571A]" />
+                  <Car className="w-5 h-5 text-[#14213D]" />
                 )}
                 <div>
                   <p className="text-sm font-bold text-[#1E2022]">Choose your vehicle</p>
@@ -516,13 +518,13 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                       }
                       className={`text-left rounded-xl border p-3 transition-all cursor-pointer ${
                         on
-                          ? 'border-[#C2571A] bg-[#FFF6EC] shadow-[0_0_0_3px_rgba(194,87,26,0.12)]'
-                          : 'border-[#1E2022]/12 bg-white hover:border-[#C2571A]/50'
+                          ? 'border-[#14213D] bg-[#F6F5F3] shadow-[0_0_0_3px_rgba(20,33,61,0.12)]'
+                          : 'border-[#1E2022]/12 bg-white hover:border-[#14213D]/50'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-sm font-bold text-[#1E2022]">{v}</span>
-                        {on && <CheckCircle2 className="w-4 h-4 text-[#C2571A]" />}
+                        {on && <CheckCircle2 className="w-4 h-4 text-[#14213D]" />}
                       </div>
                       <p className="mt-0.5 text-xs text-[#6B7280] leading-snug">{info?.note}</p>
                       <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] font-semibold">
@@ -548,7 +550,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                   <div
                     className={`mt-2.5 rounded-xl border p-3 transition-all ${
                       isCustom
-                        ? 'border-[#C2571A] bg-[#FFF6EC] shadow-[0_0_0_3px_rgba(194,87,26,0.12)]'
+                        ? 'border-[#14213D] bg-[#F6F5F3] shadow-[0_0_0_3px_rgba(20,33,61,0.12)]'
                         : 'border-[#1E2022]/12 bg-white'
                     }`}
                   >
@@ -565,7 +567,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                           Tell us exactly what you need to travel in, and how many.
                         </span>
                       </span>
-                      {isCustom && <CheckCircle2 className="w-4 h-4 text-[#C2571A] shrink-0" />}
+                      {isCustom && <CheckCircle2 className="w-4 h-4 text-[#14213D] shrink-0" />}
                     </button>
                     {isCustom && (
                       <div className="mt-3">
@@ -579,7 +581,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                           onChange={(e) => applyVehicle(e.target.value.trim() === '' ? CUSTOM_VEHICLE : e.target.value)}
                           maxLength={80}
                           placeholder="e.g. Innova Crysta, 2 vehicles, child seat needed"
-                          className="w-full h-10 px-3 rounded-xl bg-white border border-[#1E2022]/15 text-[15px] text-[#1E2022] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#C2571A] focus:ring-2 focus:ring-[#C2571A]/15 transition"
+                          className="w-full h-10 px-3 rounded-xl bg-white border border-[#1E2022]/15 text-[15px] text-[#1E2022] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#14213D] focus:ring-2 focus:ring-[#14213D]/15 transition"
                         />
                         <p className="mt-1.5 text-[12px] text-[#6B7280]">
                           Priced at the base transfer rate for now; we confirm the final amount with you.
@@ -609,11 +611,11 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
               ))}
             </ol>
 
-            <div className="mt-6 p-5 rounded-2xl bg-[#1E2022] text-white">
+            <div className="ai-card mt-6 p-5 rounded-3xl backdrop-blur-xl shadow-[0_16px_40px_-26px_rgba(91,75,219,0.45)] text-[#14213D]">
               <div className="flex items-center gap-2 text-sm font-bold">
-                <Sparkles className="w-4 h-4 text-[#FB923C]" /> AI review of your plan
+                <Sparkles className="ai-sparkle w-4 h-4 text-[#6D5CF0]" /> <span className="ai-text">AI review of your plan</span> <span className="ai-badge">AI</span>
               </div>
-              <ul className="mt-2 space-y-1.5 text-xs text-white/80 list-disc pl-4">
+              <ul className="mt-2 space-y-1.5 text-xs text-[#4B5563] list-disc pl-4">
                 {insights.map((t) => (
                   <li key={t}>{t}</li>
                 ))}
@@ -645,7 +647,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                 <button
                   type="button"
                   onClick={handlePrint}
-                  className="inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#FAF8F5] hover:bg-[#FFF6EC] text-[#1E2022] hover:text-[#C2571A] text-xs font-semibold border border-[#1E2022]/10 transition cursor-pointer"
+                  className="inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#FAF8F5] hover:bg-[#F6F5F3] text-[#1E2022] hover:text-[#14213D] text-xs font-semibold border border-[#1E2022]/10 transition cursor-pointer"
                   title="Print or save as PDF"
                 >
                   <Printer className="w-3.5 h-3.5" />
@@ -654,7 +656,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsShareModalOpen(true)}
-                  className="inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#FAF8F5] hover:bg-[#FFF6EC] text-[#1E2022] hover:text-[#C2571A] text-xs font-semibold border border-[#1E2022]/10 transition cursor-pointer"
+                  className="inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#FAF8F5] hover:bg-[#F6F5F3] text-[#1E2022] hover:text-[#14213D] text-xs font-semibold border border-[#1E2022]/10 transition cursor-pointer"
                   title="Share with travel companions"
                 >
                   <Share2 className="w-3.5 h-3.5" />
@@ -663,8 +665,8 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} noValidate className="p-5 rounded-2xl bg-white border border-[#1E2022]/10 shadow-sm space-y-3">
-              <h2 className="text-sm font-extrabold text-[#1E2022]">Proceed to book</h2>
+            <form onSubmit={handleSubmit} noValidate className="p-6 rounded-3xl bg-white/85 backdrop-blur-xl border border-white shadow-[0_18px_44px_-28px_rgba(30,32,34,0.4)] space-y-3">
+              <h2 className="text-xl font-bold text-[#14213D]" style={{ fontFamily: "'Playfair Display', serif" }}>Proceed to book</h2>
               <p className="text-xs text-[#6B7280]">No payment now. A concierge confirms availability first.</p>
 
               <div>
@@ -712,7 +714,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
               <button
                 type="submit"
                 disabled={totalStops === 0}
-                className="w-full py-3 rounded-full bg-[#1E2022] hover:bg-[#C2571A] text-white text-sm font-semibold disabled:opacity-40 transition-colors cursor-pointer"
+                className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#C2571A] via-[#E5501A] to-[#F7931E] hover:brightness-110 text-white text-sm font-semibold shadow-[0_12px_26px_-12px_rgba(194,87,26,0.65)] disabled:opacity-40 transition-all cursor-pointer"
               >
                 Confirm & request booking
               </button>

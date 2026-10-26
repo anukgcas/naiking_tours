@@ -79,6 +79,101 @@
   100% { transform: scale(2.2); opacity: 0; }
 }
 
+/* ---- AI signature: a violet-to-teal shimmer used only on AI-powered features, so they read as AI at a glance ---- */
+@keyframes ai-flow {
+  from { background-position: 0% 50%; }
+  to { background-position: 300% 50%; }
+}
+@keyframes ai-border-flow {
+  from { background-position: 0 0, 0% 50%; }
+  to { background-position: 0 0, 300% 50%; }
+}
+@keyframes ai-twinkle {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  50% { transform: scale(1.28) rotate(16deg); opacity: 0.7; }
+}
+@keyframes ai-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(91, 75, 219, 0), 0 8px 20px -10px rgba(91, 75, 219, 0.6); }
+  50% { box-shadow: 0 0 0 5px rgba(91, 75, 219, 0.13), 0 10px 24px -8px rgba(31, 158, 163, 0.65); }
+}
+@keyframes ai-shine {
+  0% { transform: translateX(-130%); }
+  55%, 100% { transform: translateX(230%); }
+}
+
+.ai-btn {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  background-image: linear-gradient(110deg, #5b4bdb 0%, #1f9ea3 33%, #8a5cf6 66%, #5b4bdb 100%);
+  background-size: 300% 100%;
+  box-shadow: 0 6px 16px -10px rgba(91, 75, 219, 0.5);
+  animation: ai-flow 8s linear infinite;
+}
+.ai-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.45) 50%, transparent 70%);
+  transform: translateX(-130%);
+  animation: ai-shine 3.6s ease-in-out infinite;
+  pointer-events: none;
+}
+.ai-chip {
+  color: #4b3fc4;
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(110deg, #5b4bdb, #1f9ea3, #8a5cf6, #5b4bdb) border-box;
+  background-size: 100% 100%, 300% 100%;
+  animation: ai-border-flow 6s linear infinite;
+}
+.ai-chip:hover {
+  background:
+    linear-gradient(#f3f1ff, #f3f1ff) padding-box,
+    linear-gradient(110deg, #5b4bdb, #1f9ea3, #8a5cf6, #5b4bdb) border-box;
+  background-size: 100% 100%, 300% 100%;
+}
+.ai-card {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(110deg, #5b4bdb, #1f9ea3, #8a5cf6, #5b4bdb) border-box;
+  background-size: 100% 100%, 300% 100%;
+  animation: ai-border-flow 8s linear infinite;
+}
+.ai-text {
+  background-image: linear-gradient(110deg, #5b4bdb, #1f9ea3, #8a5cf6, #5b4bdb);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: ai-flow 7s linear infinite;
+}
+.ai-sparkle {
+  animation: ai-twinkle 2s ease-in-out infinite;
+}
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #fff;
+  background-image: linear-gradient(110deg, #5b4bdb, #1f9ea3, #8a5cf6, #5b4bdb);
+  background-size: 300% 100%;
+  animation: ai-flow 7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-btn, .ai-btn::after, .ai-chip, .ai-card, .ai-text, .ai-sparkle, .ai-badge {
+    animation: none !important;
+  }
+}
+
 .nk-flag-wave {
   transform-box: fill-box;
   transform-origin: 0% 50%;

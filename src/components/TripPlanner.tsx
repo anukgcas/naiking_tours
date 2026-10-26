@@ -51,6 +51,7 @@ import {
 import { Day1Arrival } from './Day1Arrival';
 import { LastDayDeparture } from './LastDayDeparture';
 import { StepIndicator } from './StepIndicator';
+import { TourPattern } from './TourPattern';
 import { CURATED_PACKAGES } from './CuratedPackages';
 import { LazyErrorBoundary } from './LazyErrorBoundary';
 
@@ -526,7 +527,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                   <span className={`block text-[15px] font-bold ${row.custom ? 'text-[#C2571A]' : 'text-[#1E2022]'}`}>{clock(row.start)}</span>
                   <span className="hidden sm:block text-[14px] font-medium text-[#6B7280]">to {clock(row.end)}</span>
                 </div>
-                {spine(<span className="relative z-10 mt-3.5 w-2.5 h-2.5 rounded-full bg-[#C2571A] ring-4 ring-white" />)}
+                {spine(<span className="relative z-10 mt-3.5 w-2.5 h-2.5 rounded-full bg-[#14213D]/70 ring-4 ring-white" />)}
                 <div className="flex-1 min-w-0 pb-3">
                   <div
                     draggable
@@ -573,7 +574,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                           type="button"
                           onClick={() => setEditTimeKey(editingTime ? null : timeKey)}
                           aria-expanded={editingTime}
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#C2571A]/10 text-[#C2571A] text-[13px] font-semibold hover:bg-[#C2571A]/20 cursor-pointer"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#14213D]/[0.06] text-[#14213D]/80 text-[13px] font-semibold hover:bg-[#14213D]/10 cursor-pointer"
                         >
                           <Pencil className="w-3 h-3" /> {row.custom ? 'Time edited' : 'Edit time'}
                         </button>
@@ -615,7 +616,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                     <p className="mt-1.5 text-[13px] font-medium text-amber-700">Overlaps the stop before it. Adjust a time if that is not intended.</p>
                   )}
                   {editingTime && (
-                    <div className="mt-2 rounded-xl border border-[#C2571A]/20 bg-[#FFF6EC] p-3">
+                    <div className="mt-2 rounded-xl border border-[#14213D]/10 bg-[#F6F5F3] p-3">
                       <div className="flex flex-wrap items-end gap-3">
                         <label className="block">
                           <span className="block mb-1 text-[12px] font-bold uppercase tracking-wider text-[#6B7280]">From</span>
@@ -657,7 +658,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                           <button
                             type="button"
                             onClick={() => setEditTimeKey(null)}
-                            className="px-3 py-1.5 rounded-full bg-[#C2571A] text-white text-[13px] font-semibold hover:bg-[#E5501A] cursor-pointer"
+                            className="px-3 py-1.5 rounded-full bg-[#14213D] text-white text-[13px] font-semibold hover:bg-[#1B2C52] cursor-pointer"
                           >
                             Done
                           </button>
@@ -689,8 +690,9 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
 
   return (
     <>
-      <section className="pt-32 lg:pt-38 pb-32 print:hidden">
-        <div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative isolate overflow-clip pt-32 lg:pt-38 pb-32 print:hidden bg-[#FBFAF8]">
+        <TourPattern variant="routes" strength={0.28} />
+        <div className="relative z-10 max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-8">
           {/* Top bar: steps + trip summary & export actions */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <StepIndicator current={1} />
@@ -724,18 +726,18 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
           </div>
 
         {/* Page heading */}
-        <div className="mt-6 pb-5 border-b border-[#1E2022]/10 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div className="mt-8 pb-5 border-b border-[#14213D]/[0.07] flex flex-col md:flex-row md:items-start md:justify-between gap-4">
           <div className="min-w-0">
             {curatedPkg && (
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C2571A]/10 text-[#C2571A] text-xs font-semibold mb-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#14213D]/[0.06] text-[#14213D] text-xs font-semibold mb-2">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Customising: {curatedPkg.name}</span>
               </div>
             )}
-            <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#1E2022]">
+            <h1 className="text-3xl sm:text-4xl lg:text-[2.6rem] font-bold tracking-tight text-[#14213D]" style={{ fontFamily: "'Playfair Display', serif" }}>
               Plan your {dest.name} days
             </h1>
-            <p className="mt-2 text-[16px] font-medium text-[#6B7280]">
+            <p className="mt-2 text-[16px] font-medium text-[#5B6475]">
               {formatDate(draft.checkIn)} – {formatDate(draft.checkOut)} · {days} days · {guests} guest
               {guests === 1 ? '' : 's'} · {TIER_LABEL[draft.stayTier]} stays. Drag ideas onto a day, or tap “Add”
             </p>
@@ -743,37 +745,37 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
         </div>
 
         {/* AI assistant */}
-        <div className="mt-5 p-4 sm:p-5 rounded-2xl bg-[#1E2022] text-white">
+        <div className="ai-card mt-6 p-4 sm:p-5 rounded-3xl shadow-[0_12px_30px_-24px_rgba(30,32,34,0.25)] text-[#14213D]">
           <div className="flex flex-col xl:flex-row xl:items-center gap-4">
             <div className="flex items-start gap-3 flex-1 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-[#C2571A] flex items-center justify-center shrink-0">
-                <Sparkles className="w-4 h-4" />
+              <div className="ai-btn w-9 h-9 rounded-xl flex items-center justify-center shrink-0">
+                <Sparkles className="ai-sparkle w-4 h-4 relative z-10" />
               </div>
               <div className="min-w-0">
-                <h2 className="text-[17px] font-semibold">AI trip assistant</h2>
-                <p className="mt-1 text-[15px] text-white/75" aria-live="polite">
+                <h2 className="text-[17px] font-semibold flex items-center gap-2"><span className="ai-text">AI trip assistant</span><span className="ai-badge">AI</span></h2>
+                <p className="mt-1 text-[15px] text-[#4B5563]" aria-live="polite">
                   {aiNote ?? insights[0]}
                 </p>
-                {!aiNote && insights[1] && <p className="mt-0.5 text-sm text-white/55">{insights[1]}</p>}
+                {!aiNote && insights[1] && <p className="mt-0.5 text-sm text-[#6B7280]">{insights[1]}</p>}
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
                 onClick={handleAutoPlan}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-[#1E2022] text-[16px] font-semibold shadow-sm hover:bg-[#FAF8F5] active:scale-[0.98] motion-reduce:active:scale-100 transition duration-200 ease-out cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full ai-btn text-white text-[16px] font-semibold hover:brightness-110 active:scale-[0.98] motion-reduce:active:scale-100 transition duration-200 ease-out cursor-pointer"
               >
-                <Wand2 className="w-4 h-4" /> Auto plan my days
+                <Wand2 className="ai-sparkle w-4 h-4 relative z-10" /> <span className="relative z-10">Auto plan my days</span>
               </button>
-              <div className="inline-flex items-center rounded-full bg-white/[0.06] border border-white/10 pl-3 pr-1 py-1">
-                <label htmlFor="ai-day" className="text-[15px] text-white/55 mr-2">
+              <div className="inline-flex items-center rounded-full bg-[#14213D]/[0.04] border border-[#14213D]/10 pl-3 pr-1 py-1">
+                <label htmlFor="ai-day" className="text-[15px] text-[#6B7280] mr-2">
                   Ideas for
                 </label>
                 <select
                   id="ai-day"
                   value={aiDay}
                   onChange={(e) => setAiDay(Number(e.target.value))}
-                  className="bg-transparent text-[15px] font-medium text-white/85 focus:outline-none mr-1 cursor-pointer"
+                  className="bg-transparent text-[15px] font-medium text-[#14213D] focus:outline-none mr-1 cursor-pointer"
                 >
                   {plan.days.map((_, i) => (
                     <option key={i} value={i} className="text-[#1E2022]">
@@ -785,17 +787,17 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                   type="button"
                   onClick={handleAskAi}
                   disabled={aiLoading}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#C2571A] hover:bg-[#A84A15] text-[14px] font-semibold disabled:opacity-60 transition-colors duration-200 cursor-pointer"
+                  className="ai-btn inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[14px] font-semibold disabled:opacity-60 hover:brightness-110 cursor-pointer"
                 >
-                  {aiLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-                  Ask AI
+                  {aiLoading ? <Loader2 className="w-3 h-3 animate-spin relative z-10" /> : <Sparkles className="ai-sparkle w-3 h-3 relative z-10" />}
+                  <span className="relative z-10">Ask AI</span>
                 </button>
               </div>
               {totalPlanned > 0 && (
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-semibold text-white/70 hover:text-white hover:bg-white/10 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-semibold text-[#6B7280] hover:text-[#14213D] hover:bg-[#14213D]/5 cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" /> Clear
                 </button>
@@ -826,7 +828,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                   onClick={() => setFilter(c)}
                   className={`px-2.5 py-1 rounded-full border text-[13px] font-medium cursor-pointer transition-colors duration-200 ${
                     filter === c
-                      ? 'bg-[#1E2022] border-[#1E2022] text-white'
+                      ? 'bg-[#14213D] border-[#14213D] text-white'
                       : 'bg-white border-[#1E2022]/10 text-[#1E2022] hover:border-[#C2571A]/50'
                   }`}
                 >
@@ -869,7 +871,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                     onDragStart={(e) => startDrag(e, a.id, 'ideas')}
                     onDragEnd={endDrag}
                     className={`rounded-2xl border bg-white p-2 cursor-grab active:cursor-grabbing transition-[transform,box-shadow] duration-200 ease-out ${
-                      highlighted ? 'border-[#C2571A]/40' : 'border-[#1E2022]/10'
+                      highlighted ? 'border-[#6D5CF0]/30' : 'border-[#1E2022]/10'
                     } ${drag?.id === a.id ? 'opacity-40' : 'hover:-translate-y-0.5 hover:shadow-md motion-reduce:hover:translate-y-0'}`}
                   >
                     <div className="flex items-stretch gap-3">
@@ -885,7 +887,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                             {a.name}
                             {highlighted && (
                               <Sparkles
-                                className="inline w-3 h-3 ml-1 -mt-0.5 text-[#C2571A]"
+                                className="ai-sparkle inline w-3 h-3 ml-1 -mt-0.5 text-[#6D5CF0]"
                                 aria-label={a.aiGenerated ? 'Suggested by AI' : 'AI pick for your plan'}
                               />
                             )}
@@ -980,20 +982,20 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                     id={`day-section-${di}`}
                     className={`scroll-mt-28 rounded-2xl border bg-white overflow-hidden transition-shadow ${
                       isActive
-                        ? 'border-[#C2571A]/50 shadow-[0_16px_40px_-22px_rgba(30,32,34,0.45)]'
+                        ? 'border-[#14213D]/25 shadow-[0_16px_40px_-26px_rgba(30,32,34,0.35)]'
                         : 'border-[#1E2022]/15 shadow-sm'
                     }`}
                   >
                     {isGroupStart && groupIdx > 0 && (
-                      <div className="px-4 py-2 bg-[#FFF6EC] border-b border-[#F7931E]/20 flex items-center gap-2 text-xs font-semibold text-[#C2571A]">
+                      <div className="px-4 py-2 bg-[#F6F5F3] border-b border-[#14213D]/[0.06] flex items-center gap-2 text-xs font-semibold text-[#4B5563]">
                         <Car className="w-3.5 h-3.5" /> {transferLabel(dest.id, group.title)}
                       </div>
                     )}
                     {isGroupStart && (
-                      <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-3 bg-gradient-to-r from-[#FFF1DC] to-[#FFE3D2] border-b border-[#F7931E]/20">
+                      <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-3 bg-[#F6F5F3] border-b border-[#14213D]/[0.06]">
                         <h3 className="text-base font-semibold text-[#1E2022]">
                           {group.title}{' '}
-                          <span className="text-[#C2571A]">
+                          <span className="text-[#6B7280]">
                             / {group.nights} night{group.nights === 1 ? '' : 's'}
                           </span>
                         </h3>
@@ -1017,7 +1019,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                         >
                           <span
                             className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold ${
-                              isActive ? 'bg-[#1E2022] text-white' : 'bg-[#1E2022]/6 text-[#1E2022]'
+                              isActive ? 'bg-[#14213D] text-white' : 'bg-[#1E2022]/6 text-[#1E2022]'
                             }`}
                           >
                             {String(di + 1).padStart(2, '0')}
@@ -1046,10 +1048,10 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                           <button
                             type="button"
                             onClick={() => addPicksToDay(di)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-[#C2571A]/10 text-[#C2571A] text-[14px] font-semibold hover:bg-[#C2571A]/20 transition-colors duration-200 ease-out cursor-pointer shrink-0"
+                            className="ai-chip inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[14px] font-semibold cursor-pointer shrink-0"
                             title="Fill this day's open slots with AI picks"
                           >
-                            <Sparkles className="w-3 h-3" /> Suggest
+                            <Sparkles className="ai-sparkle w-3 h-3" /> Suggest
                           </button>
                         )}
                       </div>
@@ -1162,14 +1164,14 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                   <React.Fragment key={g.key}>
                     {gi > 0 && (
                       <li className="relative flex items-center gap-3 pb-4">
-                        <span className="relative z-10 w-8 h-8 rounded-full bg-[#FFF6EC] text-[#C2571A] flex items-center justify-center shrink-0">
+                        <span className="relative z-10 w-8 h-8 rounded-full bg-[#14213D]/[0.06] text-[#14213D] flex items-center justify-center shrink-0">
                           <Car className="w-4 h-4" />
                         </span>
                         <span className="text-[16px] text-[#6B7280]">{transferLabel(dest.id, g.title)}</span>
                       </li>
                     )}
                     <li className="relative flex items-center gap-3 pb-4">
-                      <span className="relative z-10 w-8 h-8 rounded-full bg-[#C2571A] text-white flex items-center justify-center shrink-0 text-[14px] font-bold">
+                      <span className="relative z-10 w-8 h-8 rounded-full bg-[#14213D] text-white flex items-center justify-center shrink-0 text-[14px] font-bold">
                         {gi + 1}
                       </span>
                       <span className="min-w-0">
@@ -1212,7 +1214,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
             onClick={onContinue}
             disabled={totalPlanned === 0}
             tabIndex={showBar ? 0 : -1}
-            className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1E2022] hover:bg-[#C2571A] hover:-translate-y-0.5 hover:shadow-lg text-white text-base font-semibold disabled:opacity-40 disabled:hover:bg-[#1E2022] disabled:hover:translate-y-0 disabled:hover:shadow-none motion-reduce:hover:translate-y-0 transition duration-200 ease-out cursor-pointer shrink-0"
+            className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#C2571A] via-[#E5501A] to-[#F7931E] hover:brightness-110 hover:-translate-y-0.5 shadow-[0_12px_26px_-12px_rgba(194,87,26,0.65)] text-white text-base font-semibold disabled:opacity-40 disabled:hover:translate-y-0 motion-reduce:hover:translate-y-0 transition duration-200 ease-out cursor-pointer shrink-0"
           >
             Review my package <ArrowRight className="w-4 h-4 transition-transform duration-200 ease-out group-hover:translate-x-[3px] motion-reduce:group-hover:translate-x-0" />
           </button>

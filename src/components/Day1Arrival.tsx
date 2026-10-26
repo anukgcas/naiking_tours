@@ -26,7 +26,7 @@ const MODES: { id: ArrivalMode; label: string; icon: React.ReactNode }[] = [
 ];
 
 export const inputClass =
-  'w-full h-10 px-3 rounded-xl bg-white border border-[#1E2022]/15 text-[15px] text-[#1E2022] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#C2571A] focus:ring-2 focus:ring-[#C2571A]/15 transition';
+  'w-full h-10 px-3 rounded-xl bg-white border border-[#1E2022]/15 text-[15px] text-[#1E2022] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#14213D] focus:ring-2 focus:ring-[#14213D]/15 transition';
 
 export const labelClass = 'block mb-1.5 text-[12px] font-bold uppercase tracking-wider text-[#6B7280]';
 
@@ -62,9 +62,9 @@ export const Day1Arrival: React.FC<Day1ArrivalProps> = ({ draft, plan, onPlanCha
   };
 
   return (
-    <div className="mb-4 rounded-2xl border border-[#C2571A]/20 bg-gradient-to-br from-[#FFF6EC] to-white p-4">
+    <div className="mb-4 rounded-2xl border border-[#14213D]/10 bg-white p-4">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="w-8 h-8 rounded-xl bg-[#C2571A] text-white flex items-center justify-center">
+        <span className="w-8 h-8 rounded-xl bg-[#14213D] text-white flex items-center justify-center">
           {byWater ? <Ship className="w-4 h-4" /> : <Car className="w-4 h-4" />}
         </span>
         <div className="min-w-0">
@@ -90,8 +90,8 @@ export const Day1Arrival: React.FC<Day1ArrivalProps> = ({ draft, plan, onPlanCha
                 onClick={() => update({ mode: m.id })}
                 className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full border text-[14px] font-semibold transition-colors cursor-pointer ${
                   on
-                    ? 'bg-[#C2571A] border-[#C2571A] text-white'
-                    : 'bg-white border-[#1E2022]/15 text-[#4B4F55] hover:border-[#C2571A]/50 hover:text-[#1E2022]'
+                    ? 'bg-[#14213D] border-[#14213D] text-white'
+                    : 'bg-white border-[#1E2022]/15 text-[#4B4F55] hover:border-[#14213D]/50 hover:text-[#1E2022]'
                 }`}
               >
                 {m.icon}
@@ -189,8 +189,8 @@ export const Day1Arrival: React.FC<Day1ArrivalProps> = ({ draft, plan, onPlanCha
                 onClick={() => chooseHotel(h.id)}
                 className={`text-left rounded-xl border p-3 transition-all cursor-pointer ${
                   on
-                    ? 'bg-white border-[#C2571A] shadow-[0_0_0_3px_rgba(194,87,26,0.12)]'
-                    : 'bg-white/70 border-[#1E2022]/12 hover:border-[#C2571A]/50 hover:bg-white'
+                    ? 'bg-white border-[#14213D] shadow-[0_0_0_3px_rgba(20,33,61,0.12)]'
+                    : 'bg-white/70 border-[#1E2022]/12 hover:border-[#14213D]/50 hover:bg-white'
                 }`}
               >
                 <div className="flex items-start gap-2">
@@ -208,7 +208,7 @@ export const Day1Arrival: React.FC<Day1ArrivalProps> = ({ draft, plan, onPlanCha
                       <span className="text-[#6B7280]">from {formatINR(dest.stayPerNight[h.tier])} / night</span>
                     </div>
                   </div>
-                  {on && <Check className="w-4 h-4 text-[#C2571A] shrink-0" />}
+                  {on && <Check className="w-4 h-4 text-[#14213D] shrink-0" />}
                 </div>
               </button>
             );
@@ -221,8 +221,8 @@ export const Day1Arrival: React.FC<Day1ArrivalProps> = ({ draft, plan, onPlanCha
             onClick={() => update({ hotelId: 'other' })}
             className={`text-left rounded-xl border p-3 transition-all cursor-pointer ${
               arrival.hotelId === 'other'
-                ? 'bg-white border-[#C2571A] shadow-[0_0_0_3px_rgba(194,87,26,0.12)]'
-                : 'bg-white/70 border-[#1E2022]/12 hover:border-[#C2571A]/50 hover:bg-white'
+                ? 'bg-white border-[#14213D] shadow-[0_0_0_3px_rgba(20,33,61,0.12)]'
+                : 'bg-white/70 border-[#1E2022]/12 hover:border-[#14213D]/50 hover:bg-white'
             }`}
           >
             <div className="flex items-start gap-2">
@@ -231,7 +231,7 @@ export const Day1Arrival: React.FC<Day1ArrivalProps> = ({ draft, plan, onPlanCha
                 <div className="text-[15px] font-semibold text-[#1E2022] leading-snug">I have my own hotel</div>
                 <div className="text-[13px] text-[#6B7280] leading-snug">Already booked? Tell us the name and we will drop you there.</div>
               </div>
-              {arrival.hotelId === 'other' && <Check className="w-4 h-4 text-[#C2571A] shrink-0" />}
+              {arrival.hotelId === 'other' && <Check className="w-4 h-4 text-[#14213D] shrink-0" />}
             </div>
           </button>
         </div>
