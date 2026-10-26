@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { CuratedPackage } from './CuratedPackages';
 import { formatINR } from '../data/planner';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 import {
   ENQUIRY_CATEGORIES,
   submitPackageEnquiry,
@@ -44,6 +45,15 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
   const [submissionResult, setSubmissionResult] = useState<EnquirySubmissionResult | null>(null);
   const isSubmittingRef = useRef(false);
 
+  const containerRef = useFocusTrap<HTMLDivElement>({
+    isOpen,
+    onClose: () => {
+      if (!isSubmitting && !isSubmittingRef.current) {
+        onClose();
+      }
+    },
+  });
+
   // Reset form when modal opens or package changes
   useEffect(() => {
     if (isOpen) {
@@ -51,17 +61,6 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
       setSubmissionResult(null);
     }
   }, [isOpen, pkg?.id]);
-
-  // Handle escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen && !isSubmitting && !isSubmittingRef.current) {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, isSubmitting, onClose]);
 
   if (!isOpen || !pkg) return null;
 
@@ -120,7 +119,11 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
         if (e.target === e.currentTarget && !isSubmitting) onClose();
       }}
     >
-      <div className="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-[#16222E]/10 overflow-hidden my-auto animate-in zoom-in-95 duration-200">
+      <div
+        ref={containerRef}
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-[#16222E]/10 overflow-hidden my-auto animate-in zoom-in-95 duration-200"
+      >
         {/* Modal Header */}
         <div className="p-6 sm:p-7 border-b border-[#16222E]/8 flex items-start justify-between gap-4 bg-[#F6F8FA]/60">
           <div className="min-w-0">
@@ -147,7 +150,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="p-2 -mr-2 -mt-1 rounded-full text-[#6B7280] hover:text-[#16222E] hover:bg-black/5 transition-colors cursor-pointer disabled:opacity-50"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2 -mt-1 rounded-full text-[#6B7280] hover:text-[#16222E] hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-[#0B4A82] focus-visible:outline-none transition-colors cursor-pointer disabled:opacity-50"
             aria-label="Close enquiry modal"
           >
             <X className="w-5 h-5" />
@@ -158,7 +161,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
         <div className="p-6 sm:p-7 max-h-[75vh] overflow-y-auto">
           {/* Confirmed Real Success State */}
           {submissionResult && submissionResult.success && submissionResult.status === 'sent' ? (
-            <div className="text-center py-6 space-y-4">
+            <div role="status" aria-live="polite" className="text-center py-6 space-y-4">
               <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
@@ -189,7 +192,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
             <form onSubmit={handleSubmit} noValidate className="space-y-5">
               {/* Honest Backend Integration Banner if submission was attempted without live backend */}
               {submissionResult && submissionResult.status === 'unsupported_backend' && (
-                <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-amber-900 text-xs sm:text-sm space-y-2">
+                <div role="status" aria-live="polite" className="p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-amber-900 text-xs sm:text-sm space-y-2">
                   <div className="flex items-start gap-2.5 font-semibold text-amber-950">
                     <Info className="w-4 h-4 shrink-0 mt-0.5 text-amber-700" />
                     <span>Online Submission Unavailable — Request Not Sent</span>
@@ -210,7 +213,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
 
               {/* General error banner */}
               {submissionResult && submissionResult.status === 'network_error' && (
-                <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm flex items-start gap-2.5">
+                <div role="alert" aria-live="assertive" className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm flex items-start gap-2.5">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" />
                   <span>{submissionResult.message}</span>
                 </div>
@@ -225,6 +228,9 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                   id="enquiry-name"
                   type="text"
                   value={fullName}
+                  aria-required="true"
+                  aria-invalid={errors.fullName ? 'true' : undefined}
+                  aria-describedby={errors.fullName ? 'enquiry-name-error' : undefined}
                   onChange={(e) => {
                     setFullName(e.target.value);
                     if (errors.fullName) setErrors((prev) => ({ ...prev, fullName: undefined }));
@@ -238,7 +244,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                   disabled={isSubmitting}
                 />
                 {errors.fullName && (
-                  <p className="mt-1 text-xs text-rose-600 flex items-center gap-1">
+                  <p id="enquiry-name-error" role="alert" className="mt-1 text-xs text-rose-600 flex items-center gap-1">
                     <AlertCircle className="w-3 h-3 shrink-0" />
                     <span>{errors.fullName}</span>
                   </p>
@@ -253,6 +259,9 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                 <select
                   id="enquiry-category"
                   value={category}
+                  aria-required="true"
+                  aria-invalid={errors.category ? 'true' : undefined}
+                  aria-describedby={errors.category ? 'enquiry-category-error' : selectedCategoryMeta ? 'enquiry-category-desc' : undefined}
                   onChange={(e) => {
                     setCategory(e.target.value as EnquiryCategory);
                     if (errors.category) setErrors((prev) => ({ ...prev, category: undefined }));
@@ -266,8 +275,14 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                     </option>
                   ))}
                 </select>
+                {errors.category && (
+                  <p id="enquiry-category-error" role="alert" className="mt-1 text-xs text-rose-600 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3 shrink-0" />
+                    <span>{errors.category}</span>
+                  </p>
+                )}
                 {selectedCategoryMeta && (
-                  <p className="mt-1 text-[11px] text-[#6B7280]">
+                  <p id="enquiry-category-desc" className="mt-1 text-[11px] text-[#6B7280]">
                     {selectedCategoryMeta.description}
                   </p>
                 )}
@@ -292,8 +307,11 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                         <Phone className="w-4 h-4" />
                       </span>
                       <input
+                        id="enquiry-phone"
                         type="tel"
                         value={phone}
+                        aria-invalid={Boolean(errors.phone || errors.contact) ? 'true' : undefined}
+                        aria-describedby={errors.phone ? 'enquiry-phone-error' : errors.contact ? 'enquiry-contact-error' : undefined}
                         onChange={(e) => {
                           setPhone(e.target.value);
                           if (errors.phone || errors.contact) {
@@ -302,7 +320,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                         }}
                         placeholder="Phone (e.g. 98765 43210)"
                         className={`w-full pl-10 pr-3 py-2.5 rounded-xl border text-sm transition-all outline-none ${
-                          errors.phone
+                          errors.phone || errors.contact
                             ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500'
                             : 'border-[#16222E]/15 focus:border-[#0B4A82]'
                         }`}
@@ -310,7 +328,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                       />
                     </div>
                     {errors.phone && (
-                      <p className="mt-1 text-xs text-rose-600 flex items-center gap-1">
+                      <p id="enquiry-phone-error" role="alert" className="mt-1 text-xs text-rose-600 flex items-center gap-1">
                         <AlertCircle className="w-3 h-3 shrink-0" />
                         <span>{errors.phone}</span>
                       </p>
@@ -324,8 +342,11 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                         <Mail className="w-4 h-4" />
                       </span>
                       <input
+                        id="enquiry-email"
                         type="email"
                         value={email}
+                        aria-invalid={Boolean(errors.email || errors.contact) ? 'true' : undefined}
+                        aria-describedby={errors.email ? 'enquiry-email-error' : errors.contact ? 'enquiry-contact-error' : undefined}
                         onChange={(e) => {
                           setEmail(e.target.value);
                           if (errors.email || errors.contact) {
@@ -334,7 +355,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                         }}
                         placeholder="Email (e.g. user@example.com)"
                         className={`w-full pl-10 pr-3 py-2.5 rounded-xl border text-sm transition-all outline-none ${
-                          errors.email
+                          errors.email || errors.contact
                             ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500'
                             : 'border-[#16222E]/15 focus:border-[#0B4A82]'
                         }`}
@@ -342,7 +363,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                       />
                     </div>
                     {errors.email && (
-                      <p className="mt-1 text-xs text-rose-600 flex items-center gap-1">
+                      <p id="enquiry-email-error" role="alert" className="mt-1 text-xs text-rose-600 flex items-center gap-1">
                         <AlertCircle className="w-3 h-3 shrink-0" />
                         <span>{errors.email}</span>
                       </p>
@@ -351,7 +372,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                 </div>
 
                 {errors.contact && (
-                  <p className="text-xs text-rose-600 flex items-center gap-1 mt-1">
+                  <p id="enquiry-contact-error" role="alert" className="text-xs text-rose-600 flex items-center gap-1 mt-1">
                     <AlertCircle className="w-3 h-3 shrink-0" />
                     <span>{errors.contact}</span>
                   </p>
@@ -389,6 +410,8 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                   id="enquiry-message"
                   rows={3}
                   value={message}
+                  aria-invalid={errors.message ? 'true' : undefined}
+                  aria-describedby={errors.message ? 'enquiry-message-error' : undefined}
                   onChange={(e) => {
                     setMessage(e.target.value);
                     if (errors.message) setErrors((prev) => ({ ...prev, message: undefined }));
@@ -403,7 +426,7 @@ export const PackageEnquiryModal: React.FC<PackageEnquiryModalProps> = ({
                   maxLength={1000}
                 />
                 {errors.message && (
-                  <p className="mt-1 text-xs text-rose-600 flex items-center gap-1">
+                  <p id="enquiry-message-error" role="alert" className="mt-1 text-xs text-rose-600 flex items-center gap-1">
                     <AlertCircle className="w-3 h-3 shrink-0" />
                     <span>{errors.message}</span>
                   </p>

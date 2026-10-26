@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { PlanState, TripDraft } from '../types';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 import {
   TIER_LABEL,
   arrivalSummary,
@@ -49,11 +50,17 @@ export const SharedItineraryPreviewModal: React.FC<SharedItineraryPreviewModalPr
   onPrint,
   onDismiss,
 }) => {
+  const containerRef = useFocusTrap({
+    isOpen,
+    onEscape: onDismiss,
+  });
+
   if (!isOpen) return null;
 
   if (errorMessage || !draft || !plan) {
     return (
       <div
+        ref={containerRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="shared-error-title"
@@ -76,9 +83,9 @@ export const SharedItineraryPreviewModal: React.FC<SharedItineraryPreviewModalPr
             <button
               type="button"
               onClick={onDismiss}
-              className="px-5 py-2.5 rounded-full bg-[#16222E] text-white text-xs font-semibold hover:bg-[#0B4A82] transition cursor-pointer"
+              className="min-h-[44px] px-5 py-2.5 rounded-full bg-[#16222E] text-white text-xs font-semibold hover:bg-[#0B4A82] focus:outline-none focus:ring-2 focus:ring-[#0B4A82] focus:ring-offset-2 transition cursor-pointer"
             >
-              Continue to Naikings Tours
+              Continue to Westack
             </button>
           </div>
         </div>
@@ -107,6 +114,7 @@ export const SharedItineraryPreviewModal: React.FC<SharedItineraryPreviewModalPr
 
   return (
     <div
+      ref={containerRef}
       role="dialog"
       aria-modal="true"
       aria-labelledby="shared-preview-title"
@@ -114,7 +122,7 @@ export const SharedItineraryPreviewModal: React.FC<SharedItineraryPreviewModalPr
     >
       <div className="relative w-full max-w-3xl rounded-2xl bg-white shadow-2xl border border-[#16222E]/10 overflow-hidden flex flex-col max-h-[92vh]">
         {/* Banner Alert: Non-destructive Preview Notice */}
-        <div className="bg-[#0B4A82] text-white px-4 py-2.5 text-xs flex items-center justify-between">
+        <div className="bg-[#0B4A82] text-white px-4 py-2 text-xs flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-[#8CC7C4] shrink-0" />
             <span className="font-medium">
@@ -125,7 +133,7 @@ export const SharedItineraryPreviewModal: React.FC<SharedItineraryPreviewModalPr
             type="button"
             onClick={onDismiss}
             aria-label="Dismiss preview"
-            className="text-white/80 hover:text-white p-1 rounded transition cursor-pointer"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center text-white/80 hover:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-white transition cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>

@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { X, Bookmark, ArrowRight, Trash2, Clock, Sparkles, MessageSquare } from 'lucide-react';
 import { CuratedPackage } from './CuratedPackages';
 import { formatINR } from '../data/planner';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 
 interface SavedPackagesDrawerProps {
   isOpen: boolean;
@@ -22,15 +23,10 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
   onEnquirePackage,
   onExplorePackages,
 }) => {
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  const containerRef = useFocusTrap<HTMLDivElement>({
+    isOpen,
+    onClose,
+  });
 
   if (!isOpen) return null;
 
@@ -43,6 +39,7 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
       onClick={onClose}
     >
       <div
+        ref={containerRef}
         className="w-full sm:max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-[#16222E]/10 animate-in slide-in-from-right duration-300"
         onClick={(e) => e.stopPropagation()}
       >
@@ -62,7 +59,7 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-2 -mr-2 rounded-full hover:bg-[#16222E]/5 text-[#6B7280] hover:text-[#16222E] transition-colors duration-200 cursor-pointer"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2 rounded-full hover:bg-[#16222E]/5 text-[#6B7280] hover:text-[#16222E] focus-visible:ring-2 focus-visible:ring-[#0B4A82] focus-visible:outline-none transition-colors duration-200 cursor-pointer"
             aria-label="Close Saved Packages"
           >
             <X className="w-5 h-5" />
@@ -101,7 +98,7 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
                         <button
                           type="button"
                           onClick={() => onRemovePackage(pkg.id)}
-                          className="p-1 rounded-lg text-[#9CA3AF] hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                          className="min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2 -my-2 rounded-lg text-[#9CA3AF] hover:text-rose-600 hover:bg-rose-50 focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none transition-colors cursor-pointer"
                           title="Remove from saved"
                           aria-label={`Remove ${pkg.name} from saved packages`}
                         >

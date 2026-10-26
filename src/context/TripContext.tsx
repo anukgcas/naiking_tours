@@ -423,7 +423,7 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const setRooms = useCallback((rooms: number) => {
-    const valid = Math.max(1, rooms);
+    const valid = Math.max(0, rooms);
     setActiveTrip((prev) => {
       if (prev.rooms === valid) return prev;
       const nextDraft = buildDraft(
@@ -448,7 +448,7 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const setAdults = useCallback((adults: number) => {
-    const valid = Math.max(1, adults);
+    const valid = Math.max(0, adults);
     setActiveTrip((prev) => {
       if (prev.adults === valid) return prev;
       const nextDraft = buildDraft(
@@ -498,8 +498,8 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const setGuests = useCallback((rooms: number, adults: number, children: number) => {
-    const r = Math.max(1, rooms);
-    const a = Math.max(1, adults);
+    const r = Math.max(0, rooms);
+    const a = Math.max(0, adults);
     const c = Math.max(0, children);
     setActiveTrip((prev) => {
       const nextDraft = buildDraft(

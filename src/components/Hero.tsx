@@ -237,16 +237,19 @@ export const Hero: React.FC<HeroProps> = ({
               src={currentReel.image}
               alt={`${currentReel.name}, ${currentReel.country}`}
               referrerPolicy="no-referrer"
-              className="absolute inset-0 w-full h-full object-cover animate-kenburns"
+              className="absolute inset-0 w-full h-full object-cover animate-kenburns contrast-[1.18] saturate-[1.26] brightness-[1.12] sepia-[0.08]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 1.2, ease: 'easeInOut' }}
             />
           </AnimatePresence>
-          {/* Readability gradients */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0E1822]/75 via-[#0E1822]/35 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0E1822]/90 via-transparent to-[#0E1822]/30" />
+          {/* Warm ambient sunlight glow */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/[0.07] via-orange-400/[0.04] to-yellow-500/[0.06] mix-blend-screen pointer-events-none" />
+          {/* Refined readability gradients (balanced so images stay bright & warm while keeping header/text crisp) */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0B1520]/75 via-[#0B1520]/25 via-45% to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#16222E] via-[#16222E]/55 via-30% to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-transparent to-[#0B1520]/35 pointer-events-none" />
         </div>
 
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden motion-reduce:hidden">
@@ -257,7 +260,7 @@ export const Hero: React.FC<HeroProps> = ({
           {/* Title + Branding Statement */}
           <div className="w-full max-w-[800px] mx-auto text-center mb-6 sm:mb-8">
             <motion.p
-              className="mb-2 text-[15px] sm:text-base font-semibold tracking-[0.2em] text-[#9DD3D0]"
+              className="mb-2 text-[15px] sm:text-base font-bold tracking-[0.25em] text-[#8CC7C4] uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)]"
               style={{ fontFamily: "'Marcellus', serif" }}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -267,7 +270,7 @@ export const Hero: React.FC<HeroProps> = ({
             </motion.p>
 
             <motion.h1
-              className="text-[2.2rem] sm:text-5xl lg:text-[3.3rem] font-normal tracking-tight leading-[1.1] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.4)]"
+              className="text-[2.2rem] sm:text-5xl lg:text-[3.3rem] font-medium tracking-tight leading-[1.1] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.85)]"
               style={{ fontFamily: "'Marcellus', serif" }}
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
@@ -306,23 +309,23 @@ export const Hero: React.FC<HeroProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.45, ease: 'easeOut' }}
-                className="text-white p-5 sm:p-6 rounded-3xl bg-white/10 backdrop-blur-md border border-white/25 shadow-[0_18px_40px_-20px_rgba(0,0,0,0.6)] lg:w-[300px] shrink-0"
+                className="text-white p-5 sm:p-6 rounded-3xl bg-[#0E1822]/70 backdrop-blur-xl border border-white/30 shadow-[0_20px_45px_-15px_rgba(0,0,0,0.75)] ring-1 ring-white/10 lg:w-[300px] shrink-0"
               >
-                <span className="text-xs font-semibold text-[#9DD3D0] uppercase tracking-wider block">
+                <span className="text-xs font-bold text-[#8CC7C4] uppercase tracking-wider block">
                   {currentReel.country}
                 </span>
-                <span className="mt-1 text-2xl sm:text-3xl font-bold block leading-tight">
+                <span className="mt-1 text-2xl sm:text-3xl font-extrabold block leading-tight text-white drop-shadow-sm">
                   {currentReel.name}
                 </span>
-                <span className="mt-2 text-xs sm:text-sm leading-relaxed text-white/80 block">
+                <span className="mt-2 text-xs sm:text-sm leading-relaxed text-white/95 block font-medium">
                   {currentReel.highlight}
                 </span>
                 <button
                   type="button"
                   onClick={() => onExploreDestination(currentReel.name)}
-                  className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-white/40 bg-white/10 hover:bg-white/20 text-xs font-semibold cursor-pointer transition-colors"
+                  className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-white/40 bg-white/15 hover:bg-white/25 text-xs font-bold text-white cursor-pointer transition-colors shadow-2xs"
                 >
-                  <MapPin className="w-3.5 h-3.5" />
+                  <MapPin className="w-3.5 h-3.5 text-[#8CC7C4]" />
                   <span>Explore {currentReel.name} →</span>
                 </button>
               </motion.div>
@@ -331,13 +334,13 @@ export const Hero: React.FC<HeroProps> = ({
             {/* Popular Destinations Strip */}
             <div className="min-w-0 lg:max-w-[640px] text-white">
               <div className="flex items-center justify-between gap-3 mb-3">
-                <span className="text-sm font-semibold tracking-wide">
+                <span className="text-sm font-bold tracking-wide text-white drop-shadow-sm">
                   Popular Destinations
                 </span>
                 <button
                   type="button"
                   onClick={handleScrollToDestinations}
-                  className="group inline-flex items-center gap-1 text-xs font-medium text-[#9DD3D0] hover:underline cursor-pointer"
+                  className="group inline-flex items-center gap-1 text-xs font-semibold text-[#8CC7C4] hover:text-white hover:underline cursor-pointer transition-colors drop-shadow-sm"
                 >
                   <span>View All 6 Destinations</span>
                   <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
@@ -372,7 +375,7 @@ export const Hero: React.FC<HeroProps> = ({
                           src={reel.image}
                           alt=""
                           loading="lazy"
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 contrast-[1.04] saturate-[1.06]"
                         />
                         <span
                           className={`absolute inset-0 bg-gradient-to-t from-black/70 to-transparent transition-opacity duration-500 ${
@@ -388,7 +391,7 @@ export const Hero: React.FC<HeroProps> = ({
                       {active && (
                         <span className="block pt-2 text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.6)]">
                           <span className="block text-sm font-semibold leading-tight">{reel.name}</span>
-                          <span className="block mt-0.5 text-xs text-white/80 truncate">{reel.tags}</span>
+                          <span className="block mt-0.5 text-xs text-white/95 truncate">{reel.tags}</span>
                         </span>
                       )}
                     </motion.button>

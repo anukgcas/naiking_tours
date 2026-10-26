@@ -47,21 +47,18 @@ const MONTH_NAMES = [
 ];
 const DAY_LABELS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
-// Guest categories: adults 12+, children 6-12, infants under 6
+// Guest categories: adults 12+, children 6-12, infants under 6, rooms 0-10
 const MAX_ADULTS = 12;
 const MAX_CHILDREN = 8;
 const MAX_INFANTS = 4;
-
-/** Rooms follow the party: 2 adults per room, and no more than 4 guests (infants excluded) per room. */
-const roomsFor = (adults: number, children: number) =>
-  Math.max(1, Math.ceil(adults / 2), Math.ceil((adults + children) / 4));
+const MAX_ROOMS = 10;
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
 // Shared glass styling
 const FIELD_IDLE =
-  'bg-white/45 backdrop-blur-md border-white/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] hover:bg-white/70 hover:border-white/90';
-const FIELD_OPEN = 'bg-white/80 border-[#0E7C86] shadow-[0_0_0_3px_rgba(14,124,134,0.18)]';
+  'bg-white/75 backdrop-blur-md border-[#16222E]/15 shadow-2xs hover:bg-white/95 hover:border-[#0B4A82]/40';
+const FIELD_OPEN = 'bg-white border-[#0B4A82] shadow-[0_0_0_3px_rgba(11,74,130,0.18)]';
 const POPOVER =
   'absolute top-[92px] bg-white/95 backdrop-blur-2xl backdrop-saturate-150 border border-white/70 ring-1 ring-inset ring-white/40 rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150';
 const STEP_BTN =
@@ -231,8 +228,6 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
     infants: 0,
     rooms: prefill ? rooms : 0,
   });
-  // Rooms follow the party automatically until the visitor adjusts them by hand.
-  const [roomsManual, setRoomsManual] = useState(false);
 
   const [validationError, setValidationError] = useState<string | null>(null);
   const [activePopup, setActivePopup] = useState<Popup>(null);
@@ -301,43 +296,49 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
     const a = Math.min(MAX_ADULTS, Math.max(0, nextAdults));
     const c = Math.min(MAX_CHILDREN, Math.max(0, nextChildren));
     const i = Math.min(MAX_INFANTS, Math.max(0, nextInfants));
-    const needed = a >= 1 ? roomsFor(a, c) : 0;
-    // a hand-picked room count is kept as long as it still fits the party (one adult per room at most)
-    const nextRooms = a >= 1 && roomsManual ? Math.min(Math.max(party.rooms, needed), a) : needed;
-    setParty({ adults: a, children: c, infants: i, rooms: nextRooms });
-    if (a >= 1) {
+    setParty((p) => ({ ...p, adults: a, children: c, infants: i }));
+    if (a >= 1 || party.rooms > 0) {
       markPicked('guests');
-      setGuests(nextRooms, a, c);
     } else {
-      // no adult yet: the guests field stays unfilled until one is added
       unpick('guests');
     }
+    setGuests(party.rooms, a, c);
   };
 
   const changeRooms = (nextRooms: number) => {
-    if (party.adults < 1) return;
-    const needed = roomsFor(party.adults, party.children);
-    const r = Math.min(party.adults, Math.max(needed, nextRooms));
-    setRoomsManual(r !== needed);
+    const r = Math.min(MAX_ROOMS, Math.max(0, nextRooms));
     setParty((p) => ({ ...p, rooms: r }));
-    markPicked('guests');
+    if (r > 0 || party.adults >= 1) {
+      markPicked('guests');
+    } else {
+      unpick('guests');
+    }
     setGuests(r, party.adults, party.children);
   };
 
-  const guestSummary = [
-    plural(party.adults, 'Adult', 'Adults'),
-    party.children > 0 ? plural(party.children, 'Child', 'Children') : null,
-    party.infants > 0 ? plural(party.infants, 'Infant', 'Infants') : null,
-  ]
-    .filter(Boolean)
-    .join(', ');
+  const guestSummary =
+    party.adults > 0 || party.children > 0 || party.infants > 0
+      ? [
+          plural(party.adults, 'Adult', 'Adults'),
+          party.children > 0 ? plural(party.children, 'Child', 'Children') : null,
+          party.infants > 0 ? plural(party.infants, 'Infant', 'Infants') : null,
+        ]
+          .filter(Boolean)
+          .join(', ')
+      : 'No guests selected';
 
   const handleLaunchPlanning = () => {
     const missing: { popup: Exclude<Popup, null>; label: string }[] = [];
     if (!picked.dest) missing.push({ popup: 'dest', label: 'destination' });
     if (!picked.start) missing.push({ popup: 'start', label: 'trip start date' });
     if (!picked.end) missing.push({ popup: 'end', label: 'trip end date' });
-    if (!picked.guests) missing.push({ popup: 'guests', label: 'guests (at least one adult)' });
+    if (!picked.guests || (party.adults < 1 && party.rooms < 1)) {
+      missing.push({ popup: 'guests', label: 'guests & rooms' });
+    } else if (party.adults < 1) {
+      missing.push({ popup: 'guests', label: 'guests (at least one adult)' });
+    } else if (party.rooms < 1) {
+      missing.push({ popup: 'guests', label: 'rooms (at least one room)' });
+    }
     if (missing.length > 0) {
       setValidationError(
         `Please choose your ${missing.map((m) => m.label).join(', ').replace(/, ([^,]*)$/, ' and $1')} to continue.`,
@@ -358,11 +359,11 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
       onCraftItinerary();
     } else if (onStartPlanning) {
       const travellerType: TravellerType =
-        adults === 1 && children === 0
+        party.adults === 1 && party.children === 0
           ? 'solo'
-          : adults === 2 && children === 0 && rooms === 1
+          : party.adults === 2 && party.children === 0 && party.rooms === 1
           ? 'couple'
-          : children > 0
+          : party.children > 0
           ? 'family'
           : 'friends';
 
@@ -371,9 +372,9 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
           destinationId: selectedDestId,
           aiDestination: false,
           travellerType,
-          adults,
-          children,
-          rooms,
+          adults: party.adults,
+          children: party.children,
+          rooms: party.rooms,
           checkIn: departureDate,
           checkOut: endDate,
           interests,
@@ -391,28 +392,28 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
     }`;
 
   const fieldLabel = (text: string, popup: Exclude<Popup, null>) => (
-    <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B7280] flex items-center justify-between">
+    <span className="text-[11px] font-bold uppercase tracking-wider text-[#0B4A82] flex items-center justify-between">
       <span>{text}</span>
-      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activePopup === popup ? 'rotate-180' : ''}`} />
+      <ChevronDown className={`w-3.5 h-3.5 text-[#0B4A82] transition-transform ${activePopup === popup ? 'rotate-180' : ''}`} />
     </span>
   );
 
-  const hint = (text: string) => <span className="text-[#6B7280] font-normal">{text}</span>;
+  const hint = (text: string) => <span className="text-[#374151] font-medium">{text}</span>;
 
   const toggle = (popup: Exclude<Popup, null>) => setActivePopup(activePopup === popup ? null : popup);
 
   return (
     <div ref={containerRef} className="relative w-full max-w-6xl mx-auto z-30" aria-label="Holiday planning console">
-      <div className="bg-gradient-to-br from-white/70 via-white/55 to-white/40 backdrop-blur-2xl backdrop-saturate-150 border border-white/60 ring-1 ring-inset ring-white/50 rounded-3xl p-4 sm:p-6 shadow-[0_24px_60px_-18px_rgba(22,34,46,0.45),inset_0_1px_0_rgba(255,255,255,0.7)] text-[#16222E]">
+      <div className="bg-gradient-to-br from-white/95 via-white/88 to-white/78 backdrop-blur-2xl backdrop-saturate-150 border border-white/90 ring-1 ring-[#16222E]/10 rounded-3xl p-4 sm:p-6 shadow-[0_28px_60px_-16px_rgba(14,24,34,0.5),0_0_0_1px_rgba(255,255,255,0.85)_inset] text-[#16222E]">
         {/* Top Header Label */}
         <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-[#16222E]/10">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#0E7C86] animate-pulse" />
-            <span className="text-xs sm:text-sm font-semibold tracking-wider text-[#0E7C86] uppercase">
+            <span className="text-xs sm:text-sm font-bold tracking-wider text-[#0B4A82] uppercase">
               Holiday Packages & Customiser
             </span>
           </div>
-          <span className="text-xs text-[#6B7280] hidden sm:inline">Directly seeds your bespoke itinerary</span>
+          <span className="text-xs text-[#4B5563] font-medium hidden sm:inline">Directly seeds your bespoke itinerary</span>
         </div>
 
         {/* 4 fields: destination, start date, end date, guests & rooms */}
@@ -433,7 +434,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                   <div className="text-sm font-semibold truncate leading-tight">
                     {picked.dest ? selectedDest.name : hint('Where to?')}
                   </div>
-                  <div className="text-[11px] text-[#6B7280] truncate leading-tight">
+                  <div className="text-[11px] text-[#4B5563] truncate leading-tight">
                     {picked.dest ? selectedDest.country : 'Choose a destination'}
                   </div>
                 </div>
@@ -500,7 +501,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                   <div className="text-sm font-semibold truncate leading-tight">
                     {picked.start ? formatDate(departureDate) : hint('Select date')}
                   </div>
-                  <div className="text-[11px] text-[#6B7280] truncate leading-tight">
+                  <div className="text-[11px] text-[#4B5563] truncate leading-tight">
                     {picked.start ? 'Departure' : 'When do you leave?'}
                   </div>
                 </div>
@@ -519,7 +520,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                   onSelect={pickStart}
                   footer={
                     <div className="mt-3 pt-3 border-t border-[#16222E]/10">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6B7280] mb-1.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#4B5563] mb-1.5">
                         Quick select
                       </p>
                       <div className="flex gap-1.5">
@@ -568,7 +569,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                   <div className="text-sm font-semibold truncate leading-tight">
                     {picked.end ? formatDate(endDate) : hint('Select date')}
                   </div>
-                  <div className="text-[11px] text-[#6B7280] truncate leading-tight">
+                  <div className="text-[11px] text-[#4B5563] truncate leading-tight">
                     {picked.end ? plural(durationNights, 'night', 'nights') : 'When do you return?'}
                   </div>
                 </div>
@@ -593,7 +594,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                   rangeTo={picked.end ? endDate : null}
                   onSelect={pickEnd}
                   footer={
-                    <p className="mt-3 pt-3 border-t border-[#16222E]/10 text-[10px] text-[#6B7280]">
+                    <p className="mt-3 pt-3 border-t border-[#16222E]/10 text-[10px] text-[#4B5563]">
                       We plan up to {MAX_TRIP_DAYS} days per trip.
                     </p>
                   }
@@ -618,8 +619,8 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                   <div className="text-sm font-semibold truncate leading-tight">
                     {picked.guests ? guestSummary : hint("Who's travelling?")}
                   </div>
-                  <div className="text-[11px] text-[#6B7280] truncate leading-tight">
-                    {picked.guests ? plural(party.rooms, 'Room', 'Rooms') : 'Add guests, rooms follow'}
+                  <div className="text-[11px] text-[#4B5563] truncate leading-tight">
+                    {picked.guests ? plural(party.rooms, 'Room', 'Rooms') : 'Select guests & rooms'}
                   </div>
                 </div>
               </div>
@@ -634,7 +635,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                     { key: 'adults', label: 'Adults', sub: 'Age 12 and above', value: party.adults, min: party.children > 0 || party.infants > 0 ? 1 : 0, max: MAX_ADULTS },
                     { key: 'children', label: 'Children', sub: 'Age 6 to 12', value: party.children, min: 0, max: MAX_CHILDREN },
                     { key: 'infants', label: 'Infants', sub: 'Below 6 years', value: party.infants, min: 0, max: MAX_INFANTS },
-                    { key: 'rooms', label: 'Rooms', sub: 'Added automatically, adjustable', value: party.rooms, min: party.adults >= 1 ? roomsFor(party.adults, party.children) : 0, max: party.adults },
+                    { key: 'rooms', label: 'Rooms', sub: 'Accommodation rooms', value: party.rooms, min: 0, max: MAX_ROOMS },
                   ].map((row) => {
                     const apply = (delta: number) => {
                       const v = row.value + delta;
@@ -680,8 +681,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                 <p className="mt-4 flex items-start gap-2 text-[10px] text-[#6B7280] leading-snug">
                   <BedDouble className="w-3.5 h-3.5 text-[#0E7C86] shrink-0" />
                   <span>
-                    Rooms update as you add guests: up to 2 adults per room, 4 guests when children are travelling.
-                    Infants stay free.
+                    Select the number of rooms needed for your accommodation. Infants stay free.
                   </span>
                 </p>
 
@@ -709,16 +709,16 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
         <div className="mt-4 pt-4 border-t border-[#16222E]/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Quick Destination Pills */}
           <div className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-1">
-            <span className="text-xs text-[#6B7280] shrink-0 hidden md:inline">Popular:</span>
+            <span className="text-xs text-[#16222E] font-bold shrink-0 hidden md:inline">Popular:</span>
             {DESTINATION_OPTIONS.slice(0, 4).map((d) => (
               <button
                 key={d.id}
                 type="button"
                 onClick={() => pickDest(d.id)}
-                className={`text-xs px-2.5 py-1 rounded-full border transition-colors shrink-0 cursor-pointer ${
+                className={`text-xs px-3 py-1 rounded-full border transition-all shrink-0 cursor-pointer ${
                   picked.dest && selectedDestId === d.id
-                    ? 'bg-[#0B4A82]/10 border-[#0E7C86] text-[#0E7C86]'
-                    : 'bg-white/50 border-white/70 text-[#475569] hover:bg-white/80 hover:text-[#16222E]'
+                    ? 'bg-[#0B4A82]/10 border-[#0B4A82] text-[#0B4A82] font-bold shadow-2xs'
+                    : 'bg-white/80 border-[#16222E]/15 text-[#16222E] font-semibold hover:bg-white hover:border-[#0B4A82] shadow-2xs'
                 }`}
               >
                 {d.name}
@@ -730,7 +730,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
           <button
             type="button"
             onClick={handleLaunchPlanning}
-            className="group relative inline-flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3.5 rounded-full bg-gradient-to-r from-[#1D7BA6] via-[#0E7C86] to-[#0B4A82] text-white font-semibold text-sm sm:text-base shadow-[0_10px_25px_-5px_rgba(14,124,134,0.6)] hover:brightness-110 active:scale-[0.98] transition-all duration-200 cursor-pointer shrink-0"
+            className="group relative inline-flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3.5 rounded-full bg-gradient-to-r from-[#0B4A82] via-[#0E7C86] to-[#1D7BA6] text-white font-bold text-sm sm:text-base shadow-[0_12px_28px_-6px_rgba(11,74,130,0.55)] hover:brightness-110 active:scale-[0.98] transition-all duration-200 cursor-pointer shrink-0"
           >
             <Sparkles className="w-4 h-4 text-[#F6F8FA]" />
             <span>Craft My Itinerary</span>

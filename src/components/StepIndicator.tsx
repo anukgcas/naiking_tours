@@ -9,7 +9,7 @@ interface StepIndicatorProps {
 }
 
 export const StepIndicator: React.FC<StepIndicatorProps> = ({ current }) => (
-  <ol className="flex items-center gap-2 sm:gap-3 text-md font-medium" aria-label="Trip planning progress">
+  <ol className="flex items-center gap-2 sm:gap-3 text-sm font-medium" aria-label="Trip planning progress">
     {STEPS.map((label, i) => {
       const done = i < current;
       const active = i === current;

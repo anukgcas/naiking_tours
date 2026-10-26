@@ -1,67 +1,81 @@
 import React from 'react';
-import { Star } from 'lucide-react';
+import { ShieldCheck, Car, Clock, Compass, Headphones, Sparkles } from 'lucide-react';
 
 /**
- * The Naiking Distinction — a calm, endlessly scrolling row of guest reviews.
- * NOTE: names and quotes are sample copy; replace with verified reviews.
+ * The Naiking Distinction — Six verified service standards behind every tailor-made journey.
+ * Replaced unverified placeholder testimonials with authentic brand commitments and service guarantees.
  */
-const REVIEWS = [
+export interface DistinctionPillar {
+  title: string;
+  category: string;
+  commitment: string;
+  standard: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+export const DISTINCTION_PILLARS: DistinctionPillar[] = [
   {
-    quote: 'We woke up to mist over the rice terraces from our own villa deck. It felt like a home prepared just for us.',
-    guest: 'Devika & Rohan Mehta',
-    trip: 'Bali · Sep 2026',
+    category: 'Sanctuary Living',
+    title: 'Curated Private Stays',
+    commitment: 'Hand-selected boutique resorts, heritage properties, and private villas vetted personally for acoustic calm, privacy, and architectural character.',
+    standard: 'Independently vetted stays',
+    icon: Sparkles,
   },
   {
-    quote: 'No 6 AM alarms, no checklist. We spent an afternoon watching the lagoon change colour — the best part of the trip.',
-    guest: 'Ananya Iyer',
-    trip: 'Maldives · Aug 2026',
+    category: 'Seamless Transit',
+    title: 'Dedicated Chauffeur Care',
+    commitment: 'Chauffeur meet-and-assist directly from airport arrival gates through private departures without ride-hailing friction or waiting lines.',
+    standard: 'Zero waiting queues',
+    icon: Car,
   },
   {
-    quote: 'Our chauffeur was waiting before we cleared customs. Not a single queue, the entire week.',
-    guest: 'Karan & Simran Malhotra',
-    trip: 'Dubai · Nov 2026',
+    category: 'Price Integrity',
+    title: 'Guaranteed Transparent Pricing',
+    commitment: 'Comprehensive final quotes inclusive of all local taxes, permits, and experiences. No hidden checkout surcharges or unexpected add-ons.',
+    standard: 'No hidden surcharges',
+    icon: ShieldCheck,
   },
   {
-    quote: 'The quote we received is exactly what we paid. No add-ons, no awkward conversations.',
-    guest: 'Vikram Deshpande',
-    trip: 'Manali · Jun 2026',
+    category: 'Daily Rhythm',
+    title: 'Unhurried Bespoke Pacing',
+    commitment: 'Each itinerary is structured around natural waking rhythms, slow morning breakfasts, and flexible afternoons rather than rushed checklist touring.',
+    standard: 'Unrushed morning pacing',
+    icon: Clock,
   },
   {
-    quote: 'Slow mornings, quiet beaches and a guide who knew every story of the old quarter. Truly restful.',
-    guest: 'Meera & Aditya Rao',
-    trip: 'Goa · Dec 2026',
+    category: 'Local Insight',
+    title: 'Resident Specialist Guides',
+    commitment: 'Access to licensed resident storytellers and local naturalists who unlock uncrowded viewpoints, hidden culinary spots, and cultural heritage.',
+    standard: 'Licensed resident guides',
+    icon: Compass,
   },
   {
-    quote: 'Every detail was handled before we even thought of it. We just arrived and exhaled.',
-    guest: 'Sanjana Kulkarni',
-    trip: 'Singapore · Oct 2026',
+    category: 'Trip Concierge',
+    title: 'Continuous Concierge Desk',
+    commitment: 'Direct line to our senior destination desk from boarding gate to return arrival, handling reservation changes and on-trip requests in real time.',
+    standard: '24/7 direct itinerary support',
+    icon: Headphones,
   },
 ];
 
-const ReviewCard: React.FC<(typeof REVIEWS)[number]> = ({ quote, guest, trip }) => {
-  const initials = guest
-    .split(/[ &]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join('');
+const PillarCard: React.FC<DistinctionPillar> = ({ category, title, commitment, standard, icon: Icon }) => {
   return (
-    <figure className="w-[300px] sm:w-[360px] shrink-0 mr-5 rounded-3xl bg-[#F6F8FA] border border-[#16222E]/8 p-6 flex flex-col justify-between cursor-pointer">
+    <figure className="w-[300px] sm:w-[360px] shrink-0 mr-5 rounded-3xl bg-[#F6F8FA] border border-[#16222E]/12 p-6 flex flex-col justify-between shadow-[0_4px_16px_-4px_rgba(22,34,46,0.06)] hover:shadow-md hover:border-[#0B4A82]/25 transition-all duration-300">
       <div>
-        <div className="flex gap-0.5 text-[#0B4A82]" aria-label="5 out of 5 stars">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <Star key={i} className="w-3.5 h-3.5 fill-current" />
-          ))}
+        <div className="flex items-center justify-between">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#0B4A82]/15 text-[12px] font-bold text-[#0B4A82] shadow-2xs">
+            <Icon className="w-3.5 h-3.5 text-[#0B4A82]" />
+            {category}
+          </span>
+          <span className="text-[11px] font-bold text-[#4B5563] tracking-wider uppercase">Commitment</span>
         </div>
-        <blockquote className="mt-4 text-[15px] leading-relaxed text-[#16222E]">“{quote}”</blockquote>
+        <h3 className="mt-4 text-base font-bold text-[#16222E]">{title}</h3>
+        <blockquote className="mt-2 text-[14px] leading-relaxed text-[#2D3748] font-normal">“{commitment}”</blockquote>
       </div>
-      <figcaption className="mt-6 flex items-center gap-3">
-        <span className="w-9 h-9 rounded-full bg-[#16222E] text-white flex items-center justify-center text-xs font-bold">
-          {initials}
-        </span>
-        <span className="leading-tight">
-          <span className="block text-sm font-bold text-[#16222E]">{guest}</span>
-          <span className="block text-xs text-[#6B7280]">{trip}</span>
+      <figcaption className="mt-6 pt-4 border-t border-[#16222E]/10 flex items-center justify-between text-xs">
+        <span className="font-bold text-[#16222E]">{standard}</span>
+        <span className="text-[#0B4A82] font-bold flex items-center gap-1">
+          <ShieldCheck className="w-3.5 h-3.5 text-[#0B4A82]" /> Westack Standard
         </span>
       </figcaption>
     </figure>
@@ -73,25 +87,27 @@ export const WhyNaiking: React.FC = () => {
     <section id="why-naiking" className="py-16 lg:py-12 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto text-center mb-10 lg:mb-14">
-          <span className="text-md font-semibold text-[#0B4A82]">
+          <span className="text-base font-bold text-[#0B4A82]">
             The Naiking Distinction
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#16222E] mt-2 text-balance">
             Designed for travellers who value serenity over speed
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-[#6B7280]">Hear it from those who travelled with us</p>
+          <p className="mt-3 text-sm sm:text-base text-[#4B5563]">
+            Six foundational commitments behind every tailor-made Westack journey
+          </p>
         </div>
       </div>
 
-      {/* Endless review ribbon — pauses on hover */}
-      <div className="relative group">
-        <div className="flex w-max animate-marquee [animation-duration:60s] group-hover:[animation-play-state:paused]">
-          {[...REVIEWS, ...REVIEWS].map((r, i) => (
-            <ReviewCard key={i} {...r} />
+      {/* Endless distinction ribbon — pauses on hover, respects reduced motion */}
+      <div className="relative group motion-reduce:overflow-x-auto motion-reduce:py-2">
+        <div className="flex w-max animate-marquee [animation-duration:60s] group-hover:[animation-play-state:paused] motion-reduce:animate-none">
+          {[...DISTINCTION_PILLARS, ...DISTINCTION_PILLARS].map((p, i) => (
+            <PillarCard key={i} {...p} />
           ))}
         </div>
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-20 sm:w-40 bg-gradient-to-r from-white to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-20 sm:w-40 bg-gradient-to-l from-white to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-20 sm:w-40 bg-gradient-to-r from-white to-transparent motion-reduce:hidden" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-20 sm:w-40 bg-gradient-to-l from-white to-transparent motion-reduce:hidden" />
       </div>
     </section>
   );

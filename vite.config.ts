@@ -2,7 +2,7 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig, loadEnv, type Plugin} from 'vite';
-import {createAiSuggestHandler} from './server/aiSuggest';
+import {createAiSuggestHandler} from './server/aiSuggest.ts';
 
 // Serves /api/ai-suggest from the Vite dev and preview servers so the Gemini key never reaches the browser.
 const aiSuggestPlugin = (apiKey: string | undefined): Plugin => {
@@ -24,7 +24,7 @@ export default defineConfig(({mode}) => {
     plugins: [react(), tailwindcss(), aiSuggestPlugin(env.GEMINI_API_KEY)],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(import.meta.dirname, '.'),
       },
     },
     server: {
