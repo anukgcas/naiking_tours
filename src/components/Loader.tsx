@@ -7,14 +7,28 @@ interface LoaderProps {
 }
 
 const EASE = [0.76, 0, 0.24, 1] as const;
-const SHOW_MS = 750; // brief, elegant brand intro
-const EXIT_MS = 400; // smooth curtain lift
+// The logo animation (wipe-in, plane flight, light sweep) runs for about 3.5s, so the splash stays up until it ends.
+const SHOW_MS = 3800;
+const EXIT_MS = 500; // curtain lift
+const REDUCED_SHOW_MS = 1200; // static logo for people who ask for less motion
+const LOGO_FILES = [
+  '/images/westack_logo.png',
+  '/images/westack_logo_noplane.png',
+  '/images/westack_plane.png',
+];
 
 export const Loader: React.FC<LoaderProps> = ({ onComplete }) => {
   const [leaving, setLeaving] = useState(false);
   const [progress, setProgress] = useState(0);
   const [logoSize, setLogoSize] = useState(60);
+  // The animation and the timers only start once the logo images are in, so nothing plays against empty frames
+  const [ready, setReady] = useState(false);
   const completedRef = useRef(false);
+
+  const prefersReducedMotion =
+    typeof window !== 'undefined' &&
+    !!window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const finish = useCallback(() => {
     if (completedRef.current) return;
@@ -30,65 +44,50 @@ export const Loader: React.FC<LoaderProps> = ({ onComplete }) => {
     return () => window.removeEventListener('resize', fit);
   }, []);
 
+  // Preload the logo layers (give up waiting after 2.5s so a slow network never traps the splash)
+  useEffect(() => {
+    let cancelled = false;
+    const loads = LOGO_FILES.map(
+      (src) =>
+        new Promise<void>((resolve) => {
+          const img = new Image();
+          img.onload = img.onerror = () => resolve();
+          img.src = src;
+        }),
+    );
+    const timeout = new Promise<void>((resolve) => window.setTimeout(resolve, 2500));
+    Promise.race([Promise.all(loads), timeout]).then(() => {
+      if (!cancelled) setReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Main loader progression & exit
   useEffect(() => {
-    const prefersReducedMotion =
-      typeof window !== 'undefined' &&
-      window.matchMedia &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!ready) return;
 
-    if (prefersReducedMotion) {
-      finish();
-      return;
-    }
-
+    const showMs = prefersReducedMotion ? REDUCED_SHOW_MS : SHOW_MS;
     let rafId = 0;
-    let leaveTimeout = 0;
-    let doneTimeout = 0;
-
     const start = performance.now();
 
     const tick = (now: number) => {
-      const elapsed = now - start;
-      const t = Math.min(1, elapsed / SHOW_MS);
-      // Smooth ease-out progress curve
-      setProgress(Math.round((1 - Math.pow(1 - t, 3)) * 100));
-
-      if (t < 1) {
-        rafId = requestAnimationFrame(tick);
-      }
+      const t = Math.min(1, (now - start) / showMs);
+      setProgress(Math.round((1 - Math.pow(1 - t, 2)) * 100));
+      if (t < 1) rafId = requestAnimationFrame(tick);
     };
-
     rafId = requestAnimationFrame(tick);
 
-    leaveTimeout = window.setTimeout(() => {
-      setLeaving(true);
-    }, SHOW_MS);
-
-    doneTimeout = window.setTimeout(() => {
-      finish();
-    }, SHOW_MS + EXIT_MS);
-
-    // Fast-dismiss on key or click so users are never blocked
-    const handleDismiss = (e: KeyboardEvent | MouseEvent) => {
-      if ('key' in e && e.key !== 'Escape' && e.key !== 'Enter' && e.key !== ' ') return;
-      window.clearTimeout(leaveTimeout);
-      window.clearTimeout(doneTimeout);
-      setLeaving(true);
-      doneTimeout = window.setTimeout(finish, 180);
-    };
-
-    window.addEventListener('keydown', handleDismiss);
-    window.addEventListener('click', handleDismiss);
+    const leaveTimeout = window.setTimeout(() => setLeaving(true), showMs);
+    const doneTimeout = window.setTimeout(finish, showMs + EXIT_MS);
 
     return () => {
       cancelAnimationFrame(rafId);
       window.clearTimeout(leaveTimeout);
       window.clearTimeout(doneTimeout);
-      window.removeEventListener('keydown', handleDismiss);
-      window.removeEventListener('click', handleDismiss);
     };
-  }, [finish]);
+  }, [ready, prefersReducedMotion, finish]);
 
   return (
     <div
@@ -115,16 +114,14 @@ export const Loader: React.FC<LoaderProps> = ({ onComplete }) => {
         animate={{ opacity: leaving ? 0 : 1, y: leaving ? -24 : 0 }}
         transition={{ duration: 0.35, ease: 'easeIn' }}
       >
-        <NLogo fontSize={logoSize} animated delay={0.1} />
+        {ready && <NLogo fontSize={logoSize} animated={!prefersReducedMotion} delay={0.1} />}
+        {!ready && <div style={{ height: logoSize * 1.6 }} aria-hidden="true" />}
 
         <div className="mt-12 w-56 sm:w-64">
           <div className="h-[3px] rounded-full bg-[#1E2022]/8 overflow-hidden">
             <div
-              className="h-full rounded-full transition-[width] duration-75"
-              style={{
-                width: `${progress}%`,
-                background: '#1E2022',
-              }}
+              className="h-full rounded-full bg-gradient-to-r from-[#C2571A] to-[#F7931E] transition-[width] duration-75"
+              style={{ width: `${progress}%` }}
             />
           </div>
           <div className="mt-3 flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.28em] text-[#6B7280]">
