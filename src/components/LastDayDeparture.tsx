@@ -83,7 +83,7 @@ export const LastDayDeparture: React.FC<LastDayDepartureProps> = ({ draft, plan,
 
         {departure.mode === 'airport' && (
           <p className="mt-2 text-[14px] text-[#4B4F55] inline-flex items-center gap-1.5">
-            <Plane className="w-3.5 h-3.5 text-[#E5501A]" /> {arrivalPointLabel(dest.id)}
+            <Plane className="w-3.5 h-3.5 text-[#16878C]" /> {arrivalPointLabel(dest.id)}
           </p>
         )}
 
@@ -174,7 +174,7 @@ export const LastDayDeparture: React.FC<LastDayDepartureProps> = ({ draft, plan,
                 }`}
               >
                 <div className="flex items-start gap-2">
-                  <BedDouble className="w-4 h-4 mt-0.5 text-[#E5501A] shrink-0" />
+                  <BedDouble className="w-4 h-4 mt-0.5 text-[#16878C] shrink-0" />
                   <div className="min-w-0 flex-1">
                     <div className="text-[15px] font-semibold text-[#1E2022] leading-snug">{h.name}</div>
                     <div className="mt-0.5 inline-flex items-center gap-1 text-[12px] text-[#4B4F55]">

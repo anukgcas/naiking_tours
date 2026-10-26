@@ -526,7 +526,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                       </div>
                       <p className="mt-0.5 text-xs text-[#6B7280] leading-snug">{info?.note}</p>
                       <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] font-semibold">
-                        {best && <span className="px-1.5 py-0.5 rounded-full bg-[#E5501A]/10 text-[#E5501A]">Best for your group</span>}
+                        {best && <span className="px-1.5 py-0.5 rounded-full bg-[#1F9EA3]/10 text-[#16878C]">Best for your group</span>}
                         <span className="text-[#4B4F55]">{extra > 0 ? `+${formatINR(extra)}` : 'Base rate'}</span>
                       </div>
                     </button>

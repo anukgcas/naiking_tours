@@ -34,7 +34,7 @@ const DESTINATION_REELS: DestinationReel[] = [
     id: 'bali',
     name: 'Bali',
     country: 'Indonesia',
-    image: '/images/hero_bali_luxury_1790674276055.jpg',
+    image: '/images/hero_bali_day.jpg',
     tags: 'Culture • Beaches • Adventure',
     highlight: 'Kamandalu Rainforest Infinity Sanctuary',
   },
@@ -170,7 +170,7 @@ const WanderingPlane: React.FC = () => {
       {puffs.map((p) => (
         <motion.span
           key={p.id}
-          className="absolute w-3 h-3 -ml-1.5 -mt-1.5 rounded-full bg-slate-300/70 blur-[3px]"
+          className="absolute w-3 h-3 -ml-1.5 -mt-1.5 rounded-full bg-white/80 blur-[3px]"
           style={{ left: p.x, top: p.y }}
           initial={{ opacity: 0.6, scale: 0.5 }}
           animate={{ opacity: 0, scale: 3.2, y: -6 }}
@@ -179,13 +179,15 @@ const WanderingPlane: React.FC = () => {
       ))}
       <motion.svg
         viewBox="-16 -14 32 28"
-        className="absolute left-0 top-0 w-11 h-10 -ml-[22px] -mt-5"
+        className="absolute left-0 top-0 w-14 h-12 -ml-[28px] -mt-6 drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)]"
         style={{ x, y, rotate: rot }}
       >
         <path
           d="M12 0 L4 -2 L-2 -12 L-5 -12 L-2 -2 L-9 -3 L-11 -6 L-13 -6 L-11 0 L-13 6 L-11 6 L-9 3 L-2 2 L-5 12 L-2 12 L4 2 Z"
-          fill="#C2571A"
-          fillOpacity="0.85"
+          fill="#FFFFFF"
+          stroke="#F26B2A"
+          strokeWidth="1.4"
+          strokeLinejoin="round"
         />
       </motion.svg>
     </div>
@@ -227,7 +229,7 @@ export const Hero: React.FC<HeroProps> = ({
   };
 
   return (
-    <section id="hero" className="relative bg-[#1E2022]" style={{ fontFamily: "'Jost', sans-serif" }}>
+    <section id="hero" className="relative bg-[#FAF8F5]" style={{ fontFamily: "'Jost', sans-serif" }}>
       <div className="relative pt-[76px] lg:pt-[96px] overflow-hidden">
         {/* Unified scenic background photo */}
         <div className="absolute inset-0">
@@ -237,22 +239,16 @@ export const Hero: React.FC<HeroProps> = ({
               src={currentReel.image}
               alt={`${currentReel.name}, ${currentReel.country}`}
               referrerPolicy="no-referrer"
-              className="absolute inset-0 w-full h-full object-cover animate-kenburns contrast-[1.18] saturate-[1.26] brightness-[1.12] sepia-[0.08]"
+              className="absolute inset-0 w-full h-full object-cover animate-kenburns"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 1.2, ease: 'easeInOut' }}
             />
           </AnimatePresence>
-          {/* Warm ambient sunlight glow */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/[0.07] via-orange-400/[0.04] to-yellow-500/[0.06] mix-blend-screen pointer-events-none" />
-          {/* Refined readability gradients (balanced so images stay bright & warm while keeping header/text crisp) */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0B1520]/75 via-[#0B1520]/25 via-45% to-transparent pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1E2022] via-[#1E2022]/55 via-30% to-transparent pointer-events-none" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-transparent to-[#0B1520]/35 pointer-events-none" />
         </div>
 
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden motion-reduce:hidden">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-10 overflow-hidden motion-reduce:hidden">
           <WanderingPlane />
         </div>
 
@@ -260,26 +256,36 @@ export const Hero: React.FC<HeroProps> = ({
           {/* Title + Branding Statement */}
           <div className="w-full max-w-[800px] mx-auto text-center mb-6 sm:mb-8">
             <motion.p
-              className="mb-2 text-[15px] sm:text-base font-bold tracking-[0.25em] text-[#FFC94D] uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)]"
-              style={{ fontFamily: "'Marcellus', serif" }}
+              className="mb-3 inline-flex items-center gap-3 text-[12px] sm:text-[14px] font-semibold tracking-[0.2em] text-[#16878C] uppercase drop-shadow-[0_1px_8px_rgba(255,255,255,0.9)]"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: EASE }}
             >
-              BESPOKE LUXURY HOLIDAYS
+              <span aria-hidden="true" className="h-px w-6 sm:w-9 bg-[#16878C]/70" />
+              Your next chapter starts here
+              <span aria-hidden="true" className="h-px w-6 sm:w-9 bg-[#16878C]/70" />
             </motion.p>
 
             <motion.h1
-              className="text-[2.2rem] sm:text-5xl lg:text-[3.3rem] font-medium tracking-tight leading-[1.1] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.85)]"
-              style={{ fontFamily: "'Marcellus', serif" }}
+              className="text-[2.5rem] sm:text-6xl lg:text-[3.9rem] font-bold tracking-tight leading-[1.06] text-[#14213D] drop-shadow-[0_2px_18px_rgba(255,255,255,0.75)]"
+              style={{ fontFamily: "'Playfair Display', serif" }}
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1, ease: EASE }}
             >
-              A Journey Designed
+              A journey designed
               <br />
-              Around You
+              around you
             </motion.h1>
+
+            <motion.p
+              className="mt-4 mx-auto max-w-xl text-[15px] sm:text-base font-medium leading-relaxed text-[#2F3B52] drop-shadow-[0_1px_10px_rgba(255,255,255,0.85)]"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
+            >
+              Custom itineraries, handpicked experiences and unforgettable moments — all tailored to your travel style.
+            </motion.p>
           </div>
 
           {/* Primary Trip-Planning Entry Point (5-Field MakeMyTrip-Inspired Console) */}
@@ -309,9 +315,9 @@ export const Hero: React.FC<HeroProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.45, ease: 'easeOut' }}
-                className="text-white p-5 sm:p-6 rounded-3xl bg-[#14110F]/70 backdrop-blur-xl border border-white/30 shadow-[0_20px_45px_-15px_rgba(0,0,0,0.75)] ring-1 ring-white/10 lg:w-[300px] shrink-0"
+                className="text-white p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-white/20 via-[#1E2022]/30 to-[#1E2022]/45 backdrop-blur-2xl backdrop-saturate-150 border border-white/35 shadow-[0_20px_45px_-15px_rgba(0,0,0,0.75)] ring-1 ring-inset ring-white/25 lg:w-[300px] shrink-0"
               >
-                <span className="text-xs font-bold text-[#FFC94D] uppercase tracking-wider block">
+                <span className="text-xs font-bold text-[#6FCFD3] uppercase tracking-wider block">
                   {currentReel.country}
                 </span>
                 <span className="mt-1 text-2xl sm:text-3xl font-extrabold block leading-tight text-white drop-shadow-sm">
@@ -325,7 +331,7 @@ export const Hero: React.FC<HeroProps> = ({
                   onClick={() => onExploreDestination(currentReel.name)}
                   className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-white/40 bg-white/15 hover:bg-white/25 text-xs font-bold text-white cursor-pointer transition-colors shadow-2xs"
                 >
-                  <MapPin className="w-3.5 h-3.5 text-[#FFC94D]" />
+                  <MapPin className="w-3.5 h-3.5 text-[#6FCFD3]" />
                   <span>Explore {currentReel.name} →</span>
                 </button>
               </motion.div>
@@ -334,13 +340,13 @@ export const Hero: React.FC<HeroProps> = ({
             {/* Popular Destinations Strip */}
             <div className="min-w-0 lg:max-w-[640px] text-white">
               <div className="flex items-center justify-between gap-3 mb-3">
-                <span className="text-sm font-bold tracking-wide text-white drop-shadow-sm">
+                <span className="text-sm font-bold tracking-wide text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                   Popular Destinations
                 </span>
                 <button
                   type="button"
                   onClick={handleScrollToDestinations}
-                  className="group inline-flex items-center gap-1 text-xs font-semibold text-[#FFC94D] hover:text-white hover:underline cursor-pointer transition-colors drop-shadow-sm"
+                  className="group inline-flex items-center gap-1 text-xs font-bold text-[#8EE3E7] hover:text-white hover:underline cursor-pointer transition-colors drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
                 >
                   <span>View All 6 Destinations</span>
                   <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
@@ -389,7 +395,7 @@ export const Hero: React.FC<HeroProps> = ({
                         )}
                       </span>
                       {active && (
-                        <span className="block pt-2 text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.6)]">
+                        <span className="block pt-2 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                           <span className="block text-sm font-semibold leading-tight">{reel.name}</span>
                           <span className="block mt-0.5 text-xs text-white/95 truncate">{reel.tags}</span>
                         </span>

@@ -27,7 +27,7 @@ const Aurora: React.FC<{ reduced: boolean | null }> = ({ reduced }) => (
       transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
     />
     <motion.div
-      className="absolute top-40 -right-24 w-[28rem] h-[28rem] rounded-full bg-[#E5501A]/10 blur-3xl"
+      className="absolute top-40 -right-24 w-[28rem] h-[28rem] rounded-full bg-[#1F9EA3]/10 blur-3xl"
       animate={reduced ? undefined : { x: [0, -70, 0], y: [0, 60, 0] }}
       transition={{ duration: 17, repeat: Infinity, ease: 'easeInOut' }}
     />

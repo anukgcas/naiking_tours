@@ -103,7 +103,7 @@ export const Day1Arrival: React.FC<Day1ArrivalProps> = ({ draft, plan, onPlanCha
 
         {arrival.mode === 'airport' && (
           <p className="mt-2 text-[14px] text-[#4B4F55] inline-flex items-center gap-1.5">
-            <Plane className="w-3.5 h-3.5 text-[#E5501A]" /> {arrivalPointLabel(dest.id)}
+            <Plane className="w-3.5 h-3.5 text-[#16878C]" /> {arrivalPointLabel(dest.id)}
           </p>
         )}
 
@@ -194,7 +194,7 @@ export const Day1Arrival: React.FC<Day1ArrivalProps> = ({ draft, plan, onPlanCha
                 }`}
               >
                 <div className="flex items-start gap-2">
-                  <BedDouble className="w-4 h-4 mt-0.5 text-[#E5501A] shrink-0" />
+                  <BedDouble className="w-4 h-4 mt-0.5 text-[#16878C] shrink-0" />
                   <div className="min-w-0 flex-1">
                     <div className="text-[15px] font-semibold text-[#1E2022] leading-snug">{h.name}</div>
                     <div className="text-[13px] text-[#6B7280] leading-snug">{h.blurb}</div>
@@ -202,7 +202,7 @@ export const Day1Arrival: React.FC<Day1ArrivalProps> = ({ draft, plan, onPlanCha
                       <span className="inline-flex items-center gap-1 text-[#4B4F55]">
                         <MapPin className="w-3 h-3" /> {h.area}
                       </span>
-                      <span className="px-1.5 py-0.5 rounded-full bg-[#E5501A]/10 text-[#E5501A] font-bold">
+                      <span className="px-1.5 py-0.5 rounded-full bg-[#1F9EA3]/10 text-[#16878C] font-bold">
                         {TIER_LABEL[h.tier]}
                       </span>
                       <span className="text-[#6B7280]">from {formatINR(dest.stayPerNight[h.tier])} / night</span>

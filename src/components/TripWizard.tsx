@@ -157,7 +157,7 @@ const Aurora: React.FC<{ reduced: boolean | null }> = ({ reduced }) => (
       transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
     />
     <motion.div
-      className="absolute top-40 -right-24 w-[28rem] h-[28rem] rounded-full bg-[#E5501A]/10 blur-3xl"
+      className="absolute top-40 -right-24 w-[28rem] h-[28rem] rounded-full bg-[#1F9EA3]/10 blur-3xl"
       animate={reduced ? undefined : { x: [0, -70, 0], y: [0, 60, 0] }}
       transition={{ duration: 17, repeat: Infinity, ease: 'easeInOut' }}
     />
@@ -963,13 +963,13 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
                         {previewDest && (
                           <>
-                            <div className="absolute top-3 right-3 px-2.5 py-2 rounded-md bg-white/95 text-[#1E2022] text-center shadow-md border-2 border-dashed border-[#E5501A]/40">
-                              <MapPin className="w-4 h-4 mx-auto text-[#E5501A]" />
+                            <div className="absolute top-3 right-3 px-2.5 py-2 rounded-md bg-white/95 text-[#1E2022] text-center shadow-md border-2 border-dashed border-[#1F9EA3]/40">
+                              <MapPin className="w-4 h-4 mx-auto text-[#16878C]" />
                               <span className="block text-[12px] font-bold uppercase">{previewDest.country}</span>
                             </div>
                             {showcasing && (
                               <span className="absolute top-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/35 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider text-white">
-                                <Sparkles className="w-3 h-3 text-[#FFC94D]" /> Popular pick
+                                <Sparkles className="w-3 h-3 text-[#6FCFD3]" /> Popular pick
                               </span>
                             )}
                             <div className="absolute bottom-4 left-4 right-4 text-white">
@@ -1016,7 +1016,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                           )}
                           <motion.span
                             className={`relative w-10 h-10 rounded-full flex items-center justify-center [&>svg]:w-5 [&>svg]:h-5 transition-[background-color,color,transform] duration-200 ease-out ${
-                              selected ? 'bg-[#F7931E]/20 text-[#E5501A]' : 'bg-[#1E2022]/6 text-[#1E2022] group-hover:bg-[#F7931E]/12 group-hover:text-[#C2571A] group-hover:-translate-y-px'
+                              selected ? 'bg-[#F7931E]/20 text-[#16878C]' : 'bg-[#1E2022]/6 text-[#1E2022] group-hover:bg-[#F7931E]/12 group-hover:text-[#C2571A] group-hover:-translate-y-px'
                             }`}
                             animate={selected && !reduced ? { scale: [1, 1.08, 1] } : { scale: 1 }}
                             transition={{ duration: 0.22, ease: 'easeOut' }}
@@ -1319,7 +1319,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                               whileTap={reduced ? undefined : { scale: 0.98 }}
                               className={`group relative overflow-hidden rounded-[1.75rem] text-left cursor-pointer bg-white border transition-shadow duration-300 ${
                                 selected
-                                  ? 'border-[#E5501A] ring-2 ring-[#E5501A]/40 shadow-[0_22px_45px_-20px_rgba(229,80,26,0.55)]'
+                                  ? 'border-[#1F9EA3] ring-2 ring-[#1F9EA3]/40 shadow-[0_22px_45px_-20px_rgba(229,80,26,0.55)]'
                                   : 'border-[#1E2022]/10 shadow-[0_14px_32px_-22px_rgba(30,32,34,0.45)] hover:shadow-[0_22px_45px_-22px_rgba(30,32,34,0.55)]'
                               }`}
                             >
@@ -1651,7 +1651,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                         <div className="relative flex-1 h-8 flex items-center" aria-hidden>
                           <span className="absolute inset-x-0 top-1/2 border-t-2 border-dashed border-white/25" />
                           <motion.span
-                            className="absolute text-[#FFC94D]"
+                            className="absolute text-[#6FCFD3]"
                             animate={reduced ? { left: '45%' } : { left: ['0%', '85%'] }}
                             transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut', repeatType: 'reverse' }}
                           >
@@ -1666,7 +1666,7 @@ export const TripWizard: React.FC<TripWizardProps> = ({ initialDraft, initialSte
                       </div>
                       <div className="mt-6 pt-5 border-t-2 border-dashed border-white/15 flex items-center justify-between gap-4">
                         <p className="flex items-center gap-2 text-[13px] font-medium text-white/75">
-                          <MapPin className="w-4 h-4 text-[#FFC94D]" />
+                          <MapPin className="w-4 h-4 text-[#6FCFD3]" />
                           {dest ? `${dest.name}, ${dest.country}` : 'AI picks your destination'}
                         </p>
                         <p className="text-xs font-medium text-white/55">

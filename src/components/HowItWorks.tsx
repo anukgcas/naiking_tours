@@ -1,3 +1,4 @@
+import { TourPattern } from './TourPattern';
 import React from 'react';
 import { ArrowDown, ArrowRight, CalendarCheck, LayoutGrid, MapPin, Sparkles } from 'lucide-react';
 
@@ -25,9 +26,10 @@ const STEPS = [
 ];
 
 export const HowItWorks: React.FC = () => (
-  <section className="py-12 lg:py-16">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#1E2022]">Your trip built your way</h2>
+  <section className="relative overflow-hidden py-12 lg:py-16 bg-gradient-to-b from-white via-[#FFF7EF] to-white">
+    <TourPattern variant="routes" />
+    <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 className="text-2xl sm:text-3xl lg:text-[2.4rem] font-bold tracking-tight text-[#14213D]" style={{ fontFamily: "'Playfair Display', serif" }}>Your trip built your way</h2>
       <p className="mt-2 text-sm sm:text-base text-[#4B5563] font-normal">No fixed packages • Four steps from idea to bespoke itinerary</p>
       <ol className="mt-8 flex flex-col lg:flex-row lg:items-stretch">
         {STEPS.map((s, i) => (
@@ -44,7 +46,7 @@ export const HowItWorks: React.FC = () => (
             )}
             <li
               tabIndex={0}
-              className="group cursor-pointer lg:flex-1 lg:min-w-0 p-5 sm:p-6 rounded-2xl bg-white border border-[#1E2022]/10 will-change-transform transition-[transform,background-color,border-color,box-shadow] duration-300 ease-out hover:-translate-y-0.5 hover:bg-[#FFFCF9] hover:border-[#C2571A]/20 shadow-2xs hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+              className="group cursor-pointer lg:flex-1 lg:min-w-0 p-5 sm:p-6 rounded-3xl bg-white border border-[#F1ECE6] shadow-[0_10px_30px_-18px_rgba(30,32,34,0.25)] will-change-transform transition-[transform,background-color,border-color,box-shadow] duration-300 ease-out hover:-translate-y-0.5 hover:bg-[#FFFCF9] hover:border-[#C2571A]/20 shadow-2xs hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2571A] focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
             >
               <div className="flex items-center justify-between">
                 <span className="w-10 h-10 rounded-xl bg-[#C2571A]/10 text-[#C2571A] flex items-center justify-center transition-transform duration-300 ease-out group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100">
@@ -52,7 +54,7 @@ export const HowItWorks: React.FC = () => (
                 </span>
                 <span className="text-[17px] font-bold text-[#C2571A]">0{i + 1}</span>
               </div>
-              <h3 className="mt-4 text-[18px] font-bold text-[#1E2022]">{s.title}</h3>
+              <h3 className="mt-4 text-[19px] font-bold text-[#14213D]" style={{ fontFamily: "'Playfair Display', serif" }}>{s.title}</h3>
               <p className="mt-2 text-[15px] sm:text-[16px] text-[#374151] leading-relaxed">{s.body}</p>
             </li>
           </React.Fragment>

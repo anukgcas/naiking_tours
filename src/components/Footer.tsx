@@ -82,7 +82,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={onOpenPlanner}
-                  className="inline-block hover:text-[#FFC94D] hover:translate-x-0.5 motion-reduce:hover:translate-x-0 transition duration-200 ease-out cursor-pointer font-medium"
+                  className="inline-block hover:text-[#6FCFD3] hover:translate-x-0.5 motion-reduce:hover:translate-x-0 transition duration-200 ease-out cursor-pointer font-medium"
                 >
                   Plan a Trip
                 </button>
@@ -144,7 +144,7 @@ export const Footer: React.FC<FooterProps> = ({
               </button>
             </form>
             {subscribed && (
-              <p className="text-[15px] text-[#FFC94D] font-medium">
+              <p className="text-[15px] text-[#6FCFD3] font-medium">
                 ✓ Thank you. You are subscribed to the seasonal dispatch.
               </p>
             )}
@@ -161,7 +161,7 @@ export const Footer: React.FC<FooterProps> = ({
             <span className="hover:text-white transition-colors duration-200 ease-out cursor-pointer">
               Terms of Booking
             </span>
-            <span className="text-white hover:text-[#FFC94D] transition-colors duration-200 ease-out cursor-pointer font-medium">
+            <span className="text-white hover:text-[#6FCFD3] transition-colors duration-200 ease-out cursor-pointer font-medium">
               Concierge Contact
             </span>
           </div>

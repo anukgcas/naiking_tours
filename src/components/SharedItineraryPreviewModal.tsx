@@ -124,7 +124,7 @@ export const SharedItineraryPreviewModal: React.FC<SharedItineraryPreviewModalPr
         {/* Banner Alert: Non-destructive Preview Notice */}
         <div className="bg-[#C2571A] text-white px-4 py-2 text-xs flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-[#FFC94D] shrink-0" />
+            <Sparkles className="w-4 h-4 text-[#6FCFD3] shrink-0" />
             <span className="font-medium">
               Shared Itinerary Preview — This trip was shared with you. Your personal active trip is untouched.
             </span>

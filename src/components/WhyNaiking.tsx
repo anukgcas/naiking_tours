@@ -1,3 +1,4 @@
+import { TourPattern } from './TourPattern';
 import React from 'react';
 import { ShieldCheck, Car, Clock, Compass, Headphones, Sparkles } from 'lucide-react';
 
@@ -84,13 +85,14 @@ const PillarCard: React.FC<DistinctionPillar> = ({ category, title, commitment, 
 
 export const WhyNaiking: React.FC = () => {
   return (
-    <section id="why-naiking" className="py-16 lg:py-12 bg-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="why-naiking" className="relative py-16 lg:py-12 bg-gradient-to-b from-white via-[#FFF7EF] to-white overflow-hidden">
+      <TourPattern variant="compass" />
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto text-center mb-10 lg:mb-14">
           <span className="text-base font-bold text-[#C2571A]">
             The Naiking Distinction
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#1E2022] mt-2 text-balance">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#14213D] mt-2 text-balance" style={{ fontFamily: "'Playfair Display', serif" }}>
             Designed for travellers who value serenity over speed
           </h2>
           <p className="mt-3 text-sm sm:text-base text-[#4B5563]">

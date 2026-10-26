@@ -166,7 +166,7 @@ const CalendarGrid: React.FC<CalendarProps> = ({
                   : disabled
                   ? 'text-[#1E2022]/25 cursor-not-allowed'
                   : inRange
-                  ? 'bg-[#E5501A]/15 text-[#1E2022]'
+                  ? 'bg-[#1F9EA3]/15 text-[#1E2022]'
                   : 'text-[#1E2022] hover:bg-[#1E2022]/8'
               }`}
             >
@@ -408,7 +408,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
         {/* Top Header Label */}
         <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-[#1E2022]/10">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#E5501A] animate-pulse" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#1F9EA3] animate-pulse" />
             <span className="text-xs sm:text-sm font-bold tracking-wider text-[#C2571A] uppercase">
               Holiday Packages & Customiser
             </span>
@@ -429,7 +429,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
             >
               {fieldLabel('Destination', 'dest')}
               <div className="flex items-center gap-2 mt-1 truncate">
-                <MapPin className="w-4 h-4 text-[#E5501A] shrink-0" />
+                <MapPin className="w-4 h-4 text-[#16878C] shrink-0" />
                 <div className="min-w-0 truncate">
                   <div className="text-sm font-semibold truncate leading-tight">
                     {picked.dest ? selectedDest.name : hint('Where to?')}
@@ -443,7 +443,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
 
             {activePopup === 'dest' && (
               <div className={`${POPOVER} left-0 w-full sm:w-[320px] !p-3`}>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[#E5501A] px-2 py-1">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[#16878C] px-2 py-1">
                   Select Destination
                 </p>
                 <div className="space-y-1 mt-1 max-h-[260px] overflow-y-auto">
@@ -473,7 +473,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                             {dest.country} • {dest.tag}
                           </div>
                         </div>
-                        {on && <Check className="w-4 h-4 text-[#E5501A] shrink-0" />}
+                        {on && <Check className="w-4 h-4 text-[#16878C] shrink-0" />}
                       </button>
                     );
                   })}
@@ -496,7 +496,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
             >
               {fieldLabel('Trip Start Date', 'start')}
               <div className="flex items-center gap-2 mt-1 truncate">
-                <Calendar className="w-4 h-4 text-[#E5501A] shrink-0" />
+                <Calendar className="w-4 h-4 text-[#16878C] shrink-0" />
                 <div className="min-w-0 truncate">
                   <div className="text-sm font-semibold truncate leading-tight">
                     {picked.start ? formatDate(departureDate) : hint('Select date')}
@@ -564,7 +564,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
             >
               {fieldLabel('Trip End Date', 'end')}
               <div className="flex items-center gap-2 mt-1 truncate">
-                <CalendarCheck className="w-4 h-4 text-[#E5501A] shrink-0" />
+                <CalendarCheck className="w-4 h-4 text-[#16878C] shrink-0" />
                 <div className="min-w-0 truncate">
                   <div className="text-sm font-semibold truncate leading-tight">
                     {picked.end ? formatDate(endDate) : hint('Select date')}
@@ -579,7 +579,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
             {activePopup === 'end' && (
               <div className={`${POPOVER} left-0 sm:left-auto sm:right-0 w-full sm:w-[330px]`}>
                 {!picked.start && (
-                  <p className="mb-2 text-[11px] text-[#E5501A] font-medium">
+                  <p className="mb-2 text-[11px] text-[#16878C] font-medium">
                     Tip: choose your start date first, then your return.
                   </p>
                 )}
@@ -614,7 +614,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
             >
               {fieldLabel('Guests & Rooms', 'guests')}
               <div className="flex items-center gap-2 mt-1 truncate">
-                <Users className="w-4 h-4 text-[#E5501A] shrink-0" />
+                <Users className="w-4 h-4 text-[#16878C] shrink-0" />
                 <div className="min-w-0 truncate">
                   <div className="text-sm font-semibold truncate leading-tight">
                     {picked.guests ? guestSummary : hint("Who's travelling?")}
@@ -628,7 +628,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
 
             {activePopup === 'guests' && (
               <div className={`${POPOVER} right-0 w-full sm:w-[340px]`}>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[#E5501A] mb-3">Guests</p>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[#16878C] mb-3">Guests</p>
 
                 <div className="space-y-3.5">
                   {[
@@ -679,7 +679,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                 </div>
 
                 <p className="mt-4 flex items-start gap-2 text-[10px] text-[#6B7280] leading-snug">
-                  <BedDouble className="w-3.5 h-3.5 text-[#E5501A] shrink-0" />
+                  <BedDouble className="w-3.5 h-3.5 text-[#16878C] shrink-0" />
                   <span>
                     Select the number of rooms needed for your accommodation. Infants stay free.
                   </span>

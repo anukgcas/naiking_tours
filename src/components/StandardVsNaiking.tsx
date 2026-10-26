@@ -1,3 +1,4 @@
+import { TourPattern } from './TourPattern';
 import React, { useState } from 'react';
 import { ArrowRight, Minus } from 'lucide-react';
 
@@ -33,15 +34,16 @@ export const StandardVsNaiking: React.FC = () => {
   const [active, setActive] = useState<number | null>(0);
 
   return (
-    <section id="naiking-standard" className="scroll-mt-20 pt-16 pb-[54px] sm:pt-24 sm:pb-[86px] lg:pt-28 lg:pb-[102px]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="naiking-standard" className="scroll-mt-20 pt-16 pb-[54px] sm:pt-24 sm:pb-[86px] lg:pt-28 lg:pb-[102px] relative overflow-hidden bg-gradient-to-b from-white via-[#F2FAFA] to-white">
+      <TourPattern variant="topo" />
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-[2fr_3fr] gap-10 lg:gap-20 items-start">
           {/* Left: editorial introduction */}
           <div className="lg:sticky lg:top-32">
             <span className="text-base font-bold text-[#C2571A]">
               The Naiking Standard
             </span>
-            <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-[1.1] text-[#1E2022] text-balance">
+            <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-[1.1] text-[#14213D] text-balance" style={{ fontFamily: "'Playfair Display', serif" }}>
               Why discerning travellers choose quiet luxury
             </h2>
             <p className="mt-5 max-w-md text-sm sm:text-base leading-relaxed text-[#374151]">
