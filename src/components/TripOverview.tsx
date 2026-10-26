@@ -10,6 +10,8 @@ import {
   Clock,
   MapPin,
   Moon,
+  Bookmark,
+  BookmarkCheck,
   Sparkles,
   Ship,
   Sun,
@@ -42,6 +44,7 @@ import {
   tripDays,
 } from '../data/planner';
 import { StepIndicator } from './StepIndicator';
+import { AnimatedBookmark, SaveTripButton } from './SaveTripButton';
 import { TourPattern } from './TourPattern';
 
 const LazyPrintableItinerary = React.lazy(() =>
@@ -66,8 +69,13 @@ interface TripOverviewProps {
   onPlanChange: (plan: PlanState) => void;
   onConfirm: (contact: ContactDetails) => TripBooking;
   onViewTrips: () => void;
+  /** Opens the Saved section. */
+  onViewSaved?: () => void;
   onPlanAnother: () => void;
   onShowToast?: (msg: string) => void;
+  /** Saves the package to My Trips as a draft the traveller can resume later. */
+  onSaveTrip?: () => void;
+  isTripSaved?: boolean;
 }
 
 const SLOT_ICON: Record<DaySlot, React.ReactNode> = {
@@ -308,8 +316,11 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
   onPlanChange,
   onConfirm,
   onViewTrips,
+  onViewSaved,
   onPlanAnother,
   onShowToast,
+  onSaveTrip,
+  isTripSaved = false,
 }) => {
   const dest = getDestination(draft.destinationId)!;
   const days = tripDays(draft);
@@ -413,6 +424,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                 <Printer className="w-3.5 h-3.5 text-[#14213D]" />
                 <span>Print / Save as PDF</span>
               </button>
+              <SaveTripButton isSaved={isTripSaved} onClick={onSaveTrip} className="py-2" />
               <button
                 type="button"
                 onClick={() => setIsShareModalOpen(true)}
@@ -722,6 +734,47 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
                 <p className="text-[11px] text-center text-[#6B7280]">Add at least one experience to continue.</p>
               )}
             </form>
+
+            {/* Save for later: finish the package now, book when ready */}
+            <div className="mt-3 p-5 rounded-3xl bg-white/70 backdrop-blur-xl border border-white shadow-[0_14px_36px_-28px_rgba(30,32,34,0.35)]">
+              <div className="flex items-start gap-3">
+                <span className="w-9 h-9 rounded-xl bg-[#14213D]/[0.06] text-[#14213D] flex items-center justify-center shrink-0">
+                  <AnimatedBookmark saved={isTripSaved} className="w-[18px] h-[18px]" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-[#14213D]">
+                    {isTripSaved ? 'Saved to your Saved section' : 'Not ready to book?'}
+                  </p>
+                  <p className="mt-0.5 text-xs text-[#6B7280] leading-snug">
+                    {isTripSaved
+                      ? 'This package is saved and stays up to date as you edit it. Reopen it from Saved any time and book when you are ready.'
+                      : 'Save this package with all your days, pickup, hotel and vehicle. It appears under Saved, and nothing is sent to us.'}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3.5 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={onSaveTrip}
+                  className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer ${
+                    isTripSaved
+                      ? 'bg-white border border-[#14213D]/20 text-[#14213D] hover:border-[#14213D]'
+                      : 'bg-[#14213D] hover:bg-[#1B2C52] text-white'
+                  }`}
+                >
+                  {isTripSaved ? 'Remove from saved' : 'Save this package'}
+                </button>
+                {isTripSaved && (
+                  <button
+                    type="button"
+                    onClick={onViewSaved ?? onViewTrips}
+                    className="text-sm font-semibold text-[#14213D] hover:underline cursor-pointer"
+                  >
+                    View in Saved
+                  </button>
+                )}
+              </div>
+            </div>
           </aside>
         </div>
       </div>

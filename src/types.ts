@@ -152,7 +152,7 @@ export interface TripBooking {
     children: number;
   };
   totalPrice: number;
-  status: 'Confirmed' | 'Preparing' | 'Completed';
+  status: 'Confirmed' | 'Preparing' | 'Completed' | 'Saved';
   bookingDate: string;
   image: string;
   tripStyle?: TripStyle;

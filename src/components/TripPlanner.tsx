@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import {
   ArrowLeft,
   Bookmark,
+  BookmarkCheck,
   ArrowRight,
   Car,
   ChevronDown,
@@ -51,6 +52,7 @@ import {
 import { Day1Arrival } from './Day1Arrival';
 import { LastDayDeparture } from './LastDayDeparture';
 import { StepIndicator } from './StepIndicator';
+import { SaveTripButton } from './SaveTripButton';
 import { TourPattern } from './TourPattern';
 import { CURATED_PACKAGES } from './CuratedPackages';
 import { LazyErrorBoundary } from './LazyErrorBoundary';
@@ -75,6 +77,9 @@ interface TripPlannerProps {
   onEditDetails: () => void;
   onContinue: () => void;
   onShowToast?: (msg: string) => void;
+  /** Saves the package to My Trips as a draft the traveller can resume later. */
+  onSaveTrip?: () => void;
+  isTripSaved?: boolean;
 }
 
 type Column = number | 'ideas';
@@ -101,6 +106,8 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
   onEditDetails,
   onContinue,
   onShowToast,
+  onSaveTrip,
+  isTripSaved = false,
 }) => {
   const dest = getDestination(draft.destinationId) || PLANNER_DESTINATIONS[0];
   const curatedPkg = draft.packageId
@@ -706,6 +713,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                 <Printer className="w-3.5 h-3.5 text-[#C2571A]" />
                 <span>Print / Save as PDF</span>
               </button>
+                            <SaveTripButton isSaved={isTripSaved} onClick={onSaveTrip} />
               <button
                 type="button"
                 onClick={() => setIsShareModalOpen(true)}
@@ -992,10 +1000,10 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                       </div>
                     )}
                     {isGroupStart && (
-                      <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-3 bg-[#F6F5F3] border-b border-[#14213D]/[0.06]">
+                      <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-3 bg-gradient-to-r from-[#FFF3E6] to-[#FBF7F1] border-b border-[#C2571A]/10">
                         <h3 className="text-base font-semibold text-[#1E2022]">
                           {group.title}{' '}
-                          <span className="text-[#6B7280]">
+                          <span className="text-[#C2571A]">
                             / {group.nights} night{group.nights === 1 ? '' : 's'}
                           </span>
                         </h3>
@@ -1019,7 +1027,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
                         >
                           <span
                             className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold ${
-                              isActive ? 'bg-[#14213D] text-white' : 'bg-[#1E2022]/6 text-[#1E2022]'
+                              isActive ? 'bg-gradient-to-br from-[#C2571A] to-[#F7931E] text-white shadow-[0_8px_16px_-10px_rgba(194,87,26,0.7)]' : 'bg-[#F1ECE6] text-[#14213D]'
                             }`}
                           >
                             {String(di + 1).padStart(2, '0')}
@@ -1209,7 +1217,9 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
               <span className="text-[14px] font-medium text-[#6B7280]">/ {totalPlanned} Experiences Planned</span>
             </p>
           </div>
-          <button
+          <div className="flex items-center gap-2 shrink-0">
+            <SaveTripButton isSaved={isTripSaved} onClick={onSaveTrip} short compactOnMobile tabIndex={showBar ? 0 : -1} className="px-4 py-2.5 text-[15px]" />
+            <button
             type="button"
             onClick={onContinue}
             disabled={totalPlanned === 0}
@@ -1218,6 +1228,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
           >
             Review my package <ArrowRight className="w-4 h-4 transition-transform duration-200 ease-out group-hover:translate-x-[3px] motion-reduce:group-hover:translate-x-0" />
           </button>
+          </div>
         </div>
       </div>
     </section>

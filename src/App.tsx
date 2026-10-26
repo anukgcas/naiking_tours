@@ -130,6 +130,10 @@ function AppContent() {
     selectPackage,
     loadSavedTrip,
     confirmTrip,
+    saveTripForLater,
+    currentTripSaved,
+    savedTripId,
+    removeSavedTrip,
     adoptSharedTrip,
   } = useTrip();
 
@@ -344,6 +348,25 @@ function AppContent() {
     return booking;
   };
 
+  const savedTrips = bookedTrips.filter((t) => t.status === 'Saved');
+
+  /** One button, two states: saves the package, and a second click takes it off the Saved list again. */
+  const handleSaveTrip = () => {
+    if (currentTripSaved) {
+      const existing = bookedTrips.find((t) => t.id === savedTripId);
+      if (existing && existing.status === 'Saved') {
+        removeSavedTrip(existing.id);
+        showToast('Removed from Saved.');
+      } else {
+        showToast('This trip is already in My Trips as a booking request.');
+      }
+      return;
+    }
+    const saved = saveTripForLater();
+    if (!saved) return;
+    showToast(`${saved.packageName} saved. Find it under Saved any time to resume it.`);
+  };
+
   const handlePlanAnother = () => {
     startNewTrip();
     goTo('home');
@@ -406,7 +429,7 @@ function AppContent() {
           onOpenMyTrips={() => setIsMyTripsOpen(true)}
           onOpenSavedPackages={() => setIsSavedPackagesOpen(true)}
           bookedTripsCount={bookedTrips.length}
-          savedPackagesCount={savedCount}
+          savedPackagesCount={savedCount + savedTrips.length}
           onExploreDestinations={scrollToDestinations}
           onBrowsePackages={scrollToPackages}
         />
@@ -457,6 +480,8 @@ function AppContent() {
                 onStayTierChange={(stayTier) => updateDraft({ stayTier })}
                 onEditDetails={handleEditDetails}
                 onContinue={() => goTo('overview')}
+                onSaveTrip={handleSaveTrip}
+                isTripSaved={currentTripSaved}
                 onShowToast={showToast}
               />
             </React.Suspense>
@@ -482,7 +507,10 @@ function AppContent() {
                 onPlanChange={setPlan}
                 onConfirm={handleConfirmTrip}
                 onViewTrips={() => setIsMyTripsOpen(true)}
+                onViewSaved={() => setIsSavedPackagesOpen(true)}
                 onPlanAnother={handlePlanAnother}
+                onSaveTrip={handleSaveTrip}
+                isTripSaved={currentTripSaved}
                 onShowToast={showToast}
               />
             </React.Suspense>
@@ -534,7 +562,7 @@ function AppContent() {
             onOpenMyTrips={() => setIsMyTripsOpen(true)}
             onOpenSavedPackages={() => setIsSavedPackagesOpen(true)}
             bookedTripsCount={bookedTrips.length}
-            savedPackagesCount={savedCount}
+            savedPackagesCount={savedCount + savedTrips.length}
           />
         </>
       )}
@@ -545,6 +573,10 @@ function AppContent() {
             isOpen={isMyTripsOpen}
             onClose={() => setIsMyTripsOpen(false)}
             trips={bookedTrips}
+            onRemoveTrip={(tripId) => {
+              removeSavedTrip(tripId);
+              showToast('Trip removed from your list.');
+            }}
             onPlanTrip={() => {
               setIsMyTripsOpen(false);
               startNewTrip();
@@ -561,6 +593,12 @@ function AppContent() {
             isOpen={isSavedPackagesOpen}
             onClose={() => setIsSavedPackagesOpen(false)}
             savedPackages={savedPackages}
+            savedTrips={savedTrips}
+            onResumeTrip={handleSelectSavedTrip}
+            onRemoveTrip={(tripId) => {
+              removeSavedTrip(tripId);
+              showToast('Saved package removed.');
+            }}
             onRemovePackage={(pkgId) => {
               removePackage(pkgId);
               showToast('Package removed from saved wishlist.');

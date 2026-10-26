@@ -1,5 +1,5 @@
 import React from 'react';
-import { BedDouble, Check, Clock, MapPin, Plane, Ship, UserRound, Car } from 'lucide-react';
+import { BedDouble, Car, Check, CheckCircle2, Clock, MapPin, Plane, Ship, UserRound } from 'lucide-react';
 import { ArrivalMode, DepartureDetails, PlanState, TripDraft } from '../types';
 import {
   arrivalPointLabel,
@@ -9,6 +9,7 @@ import {
   vehicleOptions,
 } from '../data/planner';
 import { clock12, inputClass, labelClass } from './Day1Arrival';
+import { ChoiceCard, LogisticsCard, LogisticsRecap, LogisticsSection, Segmented } from './LogisticsUi';
 
 interface LastDayDepartureProps {
   draft: TripDraft;
@@ -37,53 +38,23 @@ export const LastDayDeparture: React.FC<LastDayDepartureProps> = ({ draft, plan,
   const hotel = hotels.find((h) => h.id === departure.pickupHotelId);
   const pickupName = hotel ? hotel.name : departure.otherPickup.trim() || 'your hotel';
   const dropLabel =
-    departure.mode === 'airport'
-      ? arrivalPointLabel(dest.id)
-      : departure.address.trim() || 'your address';
+    departure.mode === 'airport' ? arrivalPointLabel(dest.id) : departure.address.trim() || 'your address';
 
   return (
-    <div className="mt-4 rounded-2xl border border-[#14213D]/10 bg-white p-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="w-8 h-8 rounded-xl bg-[#14213D] text-white flex items-center justify-center">
-          {byWater ? <Ship className="w-4 h-4" /> : <Car className="w-4 h-4" />}
-        </span>
-        <div className="min-w-0">
-          <h4 className="text-[16px] font-semibold text-[#1E2022]">Departure, pickup & drop</h4>
-          <p className="text-[13px] text-[#6B7280]">
-            Choose when we collect you and where you are dropped on your last day.
-          </p>
-        </div>
-      </div>
-
-      {/* Drop location */}
-      <div className="mt-4">
-        <span className={labelClass}>Drop location</span>
-        <div role="radiogroup" aria-label="Drop location" className="flex flex-wrap gap-2">
-          {MODES.map((m) => {
-            const on = departure.mode === m.id;
-            return (
-              <button
-                key={m.id}
-                type="button"
-                role="radio"
-                aria-checked={on}
-                onClick={() => update({ mode: m.id })}
-                className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full border text-[14px] font-semibold transition-colors cursor-pointer ${
-                  on
-                    ? 'bg-[#14213D] border-[#14213D] text-white'
-                    : 'bg-white border-[#1E2022]/15 text-[#4B4F55] hover:border-[#14213D]/50 hover:text-[#1E2022]'
-                }`}
-              >
-                {m.icon}
-                {m.label}
-              </button>
-            );
-          })}
-        </div>
+    <LogisticsCard
+      accent="amber"
+      className="mt-5"
+      icon={byWater ? <Ship className="w-5 h-5" /> : <Car className="w-5 h-5" />}
+      tag="Last day · Departure"
+      title="Departure, pickup & drop"
+      subtitle="Choose when we collect you and where you are dropped on your last day."
+    >
+      <LogisticsSection accent="amber" n={1} title="Drop location">
+        <Segmented value={departure.mode} onChange={(mode) => update({ mode })} options={MODES} label="Drop location" />
 
         {departure.mode === 'airport' && (
-          <p className="mt-2 text-[14px] text-[#4B4F55] inline-flex items-center gap-1.5">
-            <Plane className="w-3.5 h-3.5 text-[#16878C]" /> {arrivalPointLabel(dest.id)}
+          <p className="mt-3 text-[14px] text-[#4B4F55] inline-flex items-center gap-1.5">
+            <Plane className="w-3.5 h-3.5 text-[#E5501A]" /> {arrivalPointLabel(dest.id)}
           </p>
         )}
 
@@ -110,7 +81,7 @@ export const LastDayDeparture: React.FC<LastDayDepartureProps> = ({ draft, plan,
                 Pickup time
               </label>
               <div className="relative">
-                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280] pointer-events-none" />
+                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#E5501A] pointer-events-none" />
                 <input
                   id="departure-time"
                   type="time"
@@ -152,61 +123,42 @@ export const LastDayDeparture: React.FC<LastDayDepartureProps> = ({ draft, plan,
             </div>
           </div>
         )}
-      </div>
+      </LogisticsSection>
 
-      {/* Pickup place */}
-      <div className="mt-5">
-        <span className={labelClass}>Pick up from</span>
+      <LogisticsSection accent="amber" n={2} title="Pick up from">
         <div role="radiogroup" aria-label="Pick up from" className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {hotels.map((h) => {
             const on = departure.pickupHotelId === h.id;
             return (
-              <button
-                key={h.id}
-                type="button"
-                role="radio"
-                aria-checked={on}
-                onClick={() => update({ pickupHotelId: h.id })}
-                className={`text-left rounded-xl border p-3 transition-all cursor-pointer ${
-                  on
-                    ? 'bg-white border-[#14213D] shadow-[0_0_0_3px_rgba(20,33,61,0.12)]'
-                    : 'bg-white/70 border-[#1E2022]/12 hover:border-[#14213D]/50 hover:bg-white'
-                }`}
-              >
-                <div className="flex items-start gap-2">
-                  <BedDouble className="w-4 h-4 mt-0.5 text-[#16878C] shrink-0" />
+              <ChoiceCard key={h.id} on={on} accent="amber" onClick={() => update({ pickupHotelId: h.id })}>
+                <div className="flex items-start gap-2.5">
+                  <span className="mt-0.5 w-7 h-7 rounded-lg bg-[#E5501A]/10 text-[#C2571A] flex items-center justify-center shrink-0">
+                    <BedDouble className="w-4 h-4" />
+                  </span>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[15px] font-semibold text-[#1E2022] leading-snug">{h.name}</div>
+                    <div className="text-[15px] font-semibold text-[#14213D] leading-snug">{h.name}</div>
                     <div className="mt-0.5 inline-flex items-center gap-1 text-[12px] text-[#4B4F55]">
                       <MapPin className="w-3 h-3" /> {h.area}
                     </div>
                   </div>
-                  {on && <Check className="w-4 h-4 text-[#14213D] shrink-0" />}
+                  {on && <Check className="w-4 h-4 text-[#E5501A] shrink-0" strokeWidth={3} />}
                 </div>
-              </button>
+              </ChoiceCard>
             );
           })}
 
-          <button
-            type="button"
-            role="radio"
-            aria-checked={departure.pickupHotelId === 'other'}
-            onClick={() => update({ pickupHotelId: 'other' })}
-            className={`text-left rounded-xl border p-3 transition-all cursor-pointer ${
-              departure.pickupHotelId === 'other'
-                ? 'bg-white border-[#14213D] shadow-[0_0_0_3px_rgba(20,33,61,0.12)]'
-                : 'bg-white/70 border-[#1E2022]/12 hover:border-[#14213D]/50 hover:bg-white'
-            }`}
-          >
-            <div className="flex items-start gap-2">
-              <BedDouble className="w-4 h-4 mt-0.5 text-[#6B7280] shrink-0" />
+          <ChoiceCard on={departure.pickupHotelId === 'other'} accent="amber" onClick={() => update({ pickupHotelId: 'other' })}>
+            <div className="flex items-start gap-2.5">
+              <span className="mt-0.5 w-7 h-7 rounded-lg bg-[#14213D]/[0.06] text-[#6B7280] flex items-center justify-center shrink-0">
+                <BedDouble className="w-4 h-4" />
+              </span>
               <div className="min-w-0 flex-1">
-                <div className="text-[15px] font-semibold text-[#1E2022] leading-snug">Somewhere else</div>
+                <div className="text-[15px] font-semibold text-[#14213D] leading-snug">Somewhere else</div>
                 <div className="text-[13px] text-[#6B7280] leading-snug">Your own hotel or another meeting point.</div>
               </div>
-              {departure.pickupHotelId === 'other' && <Check className="w-4 h-4 text-[#14213D] shrink-0" />}
+              {departure.pickupHotelId === 'other' && <Check className="w-4 h-4 text-[#E5501A] shrink-0" strokeWidth={3} />}
             </div>
-          </button>
+          </ChoiceCard>
         </div>
 
         {departure.pickupHotelId === 'other' && (
@@ -224,10 +176,9 @@ export const LastDayDeparture: React.FC<LastDayDepartureProps> = ({ draft, plan,
             />
           </div>
         )}
-      </div>
+      </LogisticsSection>
 
-      {/* Plain-language recap */}
-      <p className="mt-4 rounded-xl bg-white border border-[#1E2022]/10 px-3 py-2.5 text-[14px] text-[#1E2022] leading-snug">
+      <LogisticsRecap accent="amber" icon={<CheckCircle2 className="w-[18px] h-[18px]" />}>
         {departure.mode === 'self' ? (
           <>
             You make your own way from <strong>{pickupName}</strong>; no transfer is booked for the last day.
@@ -238,7 +189,7 @@ export const LastDayDeparture: React.FC<LastDayDepartureProps> = ({ draft, plan,
             at <strong>{dropLabel}</strong>.
           </>
         )}
-      </p>
-    </div>
+      </LogisticsRecap>
+    </LogisticsCard>
   );
 };

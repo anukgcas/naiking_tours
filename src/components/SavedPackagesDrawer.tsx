@@ -1,5 +1,6 @@
 import React from 'react';
-import { X, Bookmark, ArrowRight, Trash2, Clock, Sparkles, MessageSquare } from 'lucide-react';
+import { X, Bookmark, ArrowRight, Trash2, Clock, Sparkles, MessageSquare, Calendar, Users } from 'lucide-react';
+import { TripBooking } from '../types';
 import { CuratedPackage } from './CuratedPackages';
 import { formatINR } from '../data/planner';
 import { useFocusTrap } from '../hooks/useFocusTrap';
@@ -8,6 +9,10 @@ interface SavedPackagesDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   savedPackages: CuratedPackage[];
+  /** Packages the traveller customised and saved from the planner. */
+  savedTrips?: TripBooking[];
+  onResumeTrip?: (trip: TripBooking) => void;
+  onRemoveTrip?: (tripId: string) => void;
   onRemovePackage: (packageId: string) => void;
   onSelectPackage: (pkg: CuratedPackage) => void;
   onEnquirePackage: (pkg: CuratedPackage) => void;
@@ -18,6 +23,9 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
   isOpen,
   onClose,
   savedPackages,
+  savedTrips = [],
+  onResumeTrip,
+  onRemoveTrip,
   onRemovePackage,
   onSelectPackage,
   onEnquirePackage,
@@ -54,7 +62,7 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
               Saved Packages
             </h3>
             <p className="mt-1 text-[14px] text-[#6B7280] font-medium">
-              Your bookmarked signature journeys and retreat ideas
+              Your customised packages and bookmarked journeys
             </p>
           </div>
           <button
@@ -68,6 +76,71 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
 
         {/* Content list */}
         <div className="flex-1 overflow-y-auto px-5 sm:px-7 pt-4 pb-6 space-y-4">
+          {savedTrips.length > 0 && (
+            <>
+              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">Your customised packages</p>
+              {savedTrips.map((trip) => (
+                <div
+                  key={trip.id}
+                  className="group bg-white rounded-2xl p-4 sm:p-5 border border-[#14213D]/10 shadow-xs hover:border-[#14213D]/20 transition-all duration-200"
+                >
+                  <div className="flex gap-4">
+                    <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-slate-100 shrink-0">
+                      <img src={trip.image} alt={trip.destination} className="w-full h-full object-cover" />
+                      <span className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-[#14213D]/80 text-white text-[9px] font-semibold">
+                        Your plan
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="text-[11px] font-semibold text-[#14213D]/70">{trip.destination}</span>
+                        <button
+                          type="button"
+                          onClick={() => onRemoveTrip?.(trip.id)}
+                          className="min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2 -my-3 rounded-lg text-[#9CA3AF] hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
+                          title="Remove from saved"
+                          aria-label={`Remove ${trip.packageName} from saved`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <h4 className="text-base font-semibold leading-snug text-[#1E2022] line-clamp-2">{trip.packageName}</h4>
+                      <div className="mt-1.5 text-sm font-bold text-[#1E2022]">
+                        {formatINR(trip.totalPrice)} <span className="text-[10px] font-medium text-[#6B7280]">total</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between gap-3 text-xs text-[#555A60]">
+                    <span className="inline-flex items-center gap-1.5 min-w-0">
+                      <Calendar className="w-3.5 h-3.5 text-[#9CA3AF] shrink-0" />
+                      <span className="truncate">{trip.startDate} – {trip.endDate}</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 shrink-0">
+                      <Users className="w-3.5 h-3.5 text-[#9CA3AF]" />
+                      {trip.travellers.adults}A{trip.travellers.children > 0 ? ` · ${trip.travellers.children}C` : ''}
+                    </span>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-[#1E2022]/6 flex items-center justify-between gap-2">
+                    <span className="text-[11px] text-[#6B7280]">Saved draft, not sent yet</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        onResumeTrip?.(trip);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#14213D] hover:bg-[#1B2C52] text-white text-xs font-semibold transition-colors cursor-pointer"
+                    >
+                      <span>Resume planning</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {savedPackages.length > 0 && (
+                <p className="pt-2 text-[11px] font-bold uppercase tracking-[0.14em] text-[#6B7280]">Bookmarked journeys</p>
+              )}
+            </>
+          )}
           {savedPackages.length > 0 ? (
             savedPackages.map((pkg) => (
               <div
@@ -166,16 +239,16 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
                 </div>
               </div>
             ))
-          ) : (
+          ) : savedTrips.length === 0 ? (
             <div className="text-center py-12 px-4 bg-white rounded-2xl border border-[#1E2022]/8">
               <div className="w-12 h-12 rounded-full bg-[#C2571A]/10 text-[#C2571A] flex items-center justify-center mx-auto mb-3">
                 <Bookmark className="w-6 h-6" />
               </div>
               <h4 className="text-base font-semibold text-[#1E2022]">
-                No saved packages yet
+                Nothing saved yet
               </h4>
               <p className="text-xs text-[#6B7280] mt-1.5 mb-5 max-w-xs mx-auto leading-relaxed">
-                Click the bookmark icon on any curated package to save it here. Review or customize it whenever you're ready.
+                Click the bookmark on any curated package, or use Save package in the planner, to keep it here. Review or customize it whenever you're ready.
               </p>
               <button
                 type="button"
@@ -189,7 +262,7 @@ export const SavedPackagesDrawer: React.FC<SavedPackagesDrawerProps> = ({
                 <span>Explore Curated Packages</span>
               </button>
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Concierge Support Footnote */}

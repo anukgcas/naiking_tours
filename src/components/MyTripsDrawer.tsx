@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Calendar, Users, ChevronDown, Compass, ArrowRight } from 'lucide-react';
+import { X, Calendar, Users, ChevronDown, Compass, ArrowRight, Trash2 } from 'lucide-react';
 import { TripBooking } from '../types';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 
@@ -9,6 +9,8 @@ interface MyTripsDrawerProps {
   trips: TripBooking[];
   onPlanTrip: () => void;
   onSelectTrip?: (trip: TripBooking) => void;
+  /** Removes a planned trip (saved draft or request still being prepared) from the list. */
+  onRemoveTrip?: (tripId: string) => void;
 }
 
 export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
@@ -17,9 +19,11 @@ export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
   trips,
   onPlanTrip,
   onSelectTrip,
+  onRemoveTrip,
 }) => {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null);
 
   const containerRef = useFocusTrap<HTMLDivElement>({
     isOpen,
@@ -134,10 +138,12 @@ export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
                             ? 'bg-emerald-50 text-emerald-700'
                             : trip.status === 'Preparing'
                             ? 'bg-amber-50 text-amber-700'
+                            : trip.status === 'Saved'
+                            ? 'bg-[#14213D]/[0.07] text-[#14213D]'
                             : 'bg-gray-100 text-gray-600'
                         }`}
                       >
-                        {trip.status}
+                        {trip.status === 'Saved' ? 'Saved draft' : trip.status}
                       </span>
                     </div>
                   </div>
@@ -202,22 +208,59 @@ export const MyTripsDrawer: React.FC<MyTripsDrawerProps> = ({
                 )}
 
                 {/* Action row to load trip into planner */}
-                <div className="pt-2 flex items-center justify-between gap-2 border-t border-[#1E2022]/6">
-                  <span className="text-[11px] text-[#6B7280]">
-                    Booking: <span className="font-semibold text-[#1E2022]">{trip.status}</span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onClose();
-                      onSelectTrip?.(trip);
-                    }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1E2022] hover:bg-[#C2571A] text-white text-xs font-semibold transition-colors cursor-pointer"
-                  >
-                    <span>Open in Planner</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+                {confirmRemoveId === trip.id ? (
+                  <div className="pt-3 flex items-center justify-between gap-2 border-t border-[#1E2022]/6" role="alert">
+                    <span className="text-xs font-medium text-[#1E2022]">Remove this trip from your list?</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setConfirmRemoveId(null)}
+                        className="px-3 py-1.5 rounded-full border border-[#1E2022]/15 text-xs font-semibold text-[#1E2022] hover:bg-[#FAF8F5] cursor-pointer"
+                      >
+                        Keep
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onRemoveTrip?.(trip.id);
+                          setConfirmRemoveId(null);
+                        }}
+                        className="px-3 py-1.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold cursor-pointer"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="pt-3 flex items-center justify-between gap-2 border-t border-[#1E2022]/6">
+                    {onRemoveTrip && (trip.status === 'Saved' || trip.status === 'Preparing') ? (
+                      <button
+                        type="button"
+                        onClick={() => setConfirmRemoveId(trip.id)}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 -ml-2.5 rounded-full text-xs font-semibold text-[#6B7280] hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                        aria-label={`Remove ${trip.packageName} from my trips`}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Remove</span>
+                      </button>
+                    ) : (
+                      <span className="text-[11px] text-[#6B7280]">
+                        Booking: <span className="font-semibold text-[#1E2022]">{trip.status}</span>
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        onSelectTrip?.(trip);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1E2022] hover:bg-[#C2571A] text-white text-xs font-semibold transition-colors cursor-pointer"
+                    >
+                      <span>{trip.status === 'Saved' ? 'Resume planning' : 'Open in Planner'}</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
               </div>
             ))
           ) : (

@@ -11,6 +11,7 @@ import {
   addDaysISO,
   aiPickCities,
   autoFillPlan,
+  computeCosts,
   emptyPlan,
   getDestination,
   nightsBetween,
@@ -93,6 +94,12 @@ export interface TripContextValue {
   selectPackage: (pkg: CuratedPackage) => void;
   loadSavedTrip: (trip: TripBooking) => void;
   confirmTrip: (contact: ContactDetails) => TripBooking;
+  /** Stores the current package in My Trips as a saved draft (updates it if already saved). */
+  saveTripForLater: () => TripBooking | null;
+  /** True when the current package has been saved to My Trips as a draft. */
+  currentTripSaved: boolean;
+  /** Removes a saved draft or a trip request that is still being prepared from the lists. */
+  removeSavedTrip: (tripId: string) => void;
   adoptSharedTrip: (sharedDraft: TripDraft, sharedPlan: PlanState) => void;
 }
 
@@ -675,8 +682,13 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
       : emptyPlan(effectiveState.draft);
     const finalPlan = effectiveState.draft.aiPlan ? autoFillPlan(effectiveState.draft, basePlan) : basePlan;
 
+    // a brand-new craft is a new trip: it must not inherit the id of a trip that was saved or booked earlier
+    const freshId = opts?.keepPlan ? null : `draft-${Date.now()}`;
     setActiveTrip({
       ...effectiveState,
+      ...(freshId
+        ? { id: freshId, isSavedTrip: false, savedTripId: null, draft: { ...effectiveState.draft, id: freshId } }
+        : {}),
       plan: finalPlan,
     });
 
@@ -931,7 +943,10 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
       plan: activeTrip.plan ? { ...activeTrip.plan } : undefined,
     };
 
-    setBookedTrips((prev) => [newBooking, ...prev]);
+    setBookedTrips((prev) => [
+      newBooking,
+      ...prev.filter((t) => !(t.id === activeTrip.savedTripId && t.status === 'Saved')),
+    ]);
 
     // Keep active trip state in sync with this newly created saved trip
     setActiveTrip((prev) => ({
@@ -942,6 +957,75 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return newBooking;
   }, [activeTrip]);
+
+  const saveTripForLater = useCallback((): TripBooking | null => {
+    if (!activeTrip.plan) return null;
+    const dest = getDestination(activeTrip.destinationId) || PLANNER_DESTINATIONS[0];
+    const existing = activeTrip.savedTripId ? bookedTrips.find((t) => t.id === activeTrip.savedTripId) : undefined;
+    // a trip already sent to the concierge stays as it is
+    if (existing && existing.status !== 'Saved') return existing;
+
+    const id = existing?.id ?? `SV-${Math.floor(1000 + Math.random() * 9000)}`;
+    const curatedPkg = activeTrip.packageId
+      ? CURATED_PACKAGES.find((p) => p.id === activeTrip.packageId)
+      : null;
+    const packageName = curatedPkg
+      ? `${curatedPkg.name} (Customized)`
+      : `Custom ${activeTrip.durationNights + 1}-Day ${dest.name} Journey`;
+    const costs = computeCosts(activeTrip.draft, activeTrip.plan);
+
+    const saved: TripBooking = {
+      id,
+      packageId: activeTrip.packageId || undefined,
+      destination: dest.name,
+      packageName,
+      startDate: activeTrip.draft.checkIn,
+      endDate: activeTrip.draft.checkOut,
+      travellers: { adults: activeTrip.adults, children: activeTrip.children },
+      totalPrice: costs.total,
+      status: 'Saved',
+      bookingDate: 'Today',
+      image: curatedPkg?.image || dest.image,
+      draft: { ...activeTrip.draft, id, packageId: activeTrip.packageId || undefined },
+      plan: { ...activeTrip.plan },
+    };
+
+    setBookedTrips((prev) => (existing ? prev.map((t) => (t.id === id ? saved : t)) : [saved, ...prev]));
+    setActiveTrip((prev) => ({ ...prev, isSavedTrip: true, savedTripId: id }));
+    return saved;
+  }, [activeTrip, bookedTrips]);
+
+  const removeSavedTrip = useCallback((tripId: string) => {
+    setBookedTrips((prev) => prev.filter((t) => !(t.id === tripId && (t.status === 'Saved' || t.status === 'Preparing'))));
+    setActiveTrip((prev) => (prev.savedTripId === tripId ? { ...prev, isSavedTrip: false, savedTripId: null } : prev));
+  }, []);
+
+  // A saved package stays up to date as the traveller keeps editing the plan.
+  useEffect(() => {
+    const id = activeTrip.savedTripId;
+    if (!id || !activeTrip.plan) return;
+    setBookedTrips((prev) => {
+      const current = prev.find((t) => t.id === id);
+      if (!current || current.status !== 'Saved') return prev;
+      const costs = computeCosts(activeTrip.draft, activeTrip.plan as PlanState);
+      const updated: TripBooking = {
+        ...current,
+        startDate: activeTrip.draft.checkIn,
+        endDate: activeTrip.draft.checkOut,
+        travellers: { adults: activeTrip.adults, children: activeTrip.children },
+        totalPrice: costs.total,
+        draft: { ...activeTrip.draft, id, packageId: activeTrip.packageId || undefined },
+        plan: { ...(activeTrip.plan as PlanState) },
+      };
+      return prev.map((t) => (t.id === id ? updated : t));
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTrip.plan, activeTrip.draft, activeTrip.adults, activeTrip.children, activeTrip.savedTripId]);
+
+  const currentTripSaved = useMemo(
+    () => bookedTrips.some((t) => t.id === activeTrip.savedTripId),
+    [bookedTrips, activeTrip.savedTripId],
+  );
 
   const adoptSharedTrip = useCallback((sharedDraft: TripDraft, sharedPlan: PlanState) => {
     const validDest = PLANNER_DESTINATIONS.some((d) => d.id === sharedDraft.destinationId)
@@ -1022,6 +1106,9 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
     selectPackage,
     loadSavedTrip,
     confirmTrip,
+    saveTripForLater,
+    currentTripSaved,
+    removeSavedTrip,
     adoptSharedTrip,
   }), [
     activeTrip,
@@ -1045,6 +1132,9 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
     selectPackage,
     loadSavedTrip,
     confirmTrip,
+    saveTripForLater,
+    currentTripSaved,
+    removeSavedTrip,
     adoptSharedTrip,
   ]);
 
