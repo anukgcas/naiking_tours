@@ -20,7 +20,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({ current }) => {
 
   return (
     <motion.ol
-      className="inline-flex items-center gap-0.5 p-1.5 rounded-full bg-white/75 backdrop-blur-xl border border-white/80 shadow-[0_10px_30px_-22px_rgba(30,32,34,0.4)]"
+      className="inline-flex max-w-full items-center gap-0.5 p-1.5 rounded-full bg-white/75 backdrop-blur-xl border border-white/80 shadow-[0_10px_30px_-22px_rgba(30,32,34,0.4)]"
       aria-label="Trip planning progress"
       initial={reduced ? false : { opacity: 0, y: -10, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}

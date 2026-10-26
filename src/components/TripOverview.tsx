@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   ArrowLeft,
+  ArrowRight,
   Bed,
   Calendar,
   Car,
@@ -677,7 +678,7 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} noValidate className="p-6 rounded-3xl bg-white/85 backdrop-blur-xl border border-white shadow-[0_18px_44px_-28px_rgba(30,32,34,0.4)] space-y-3">
+            <form id="ov-booking" onSubmit={handleSubmit} noValidate className="p-6 rounded-3xl bg-white/85 backdrop-blur-xl border border-white shadow-[0_18px_44px_-28px_rgba(30,32,34,0.4)] space-y-3">
               <h2 className="text-xl font-bold text-[#14213D]" style={{ fontFamily: "'Playfair Display', serif" }}>Proceed to book</h2>
               <p className="text-xs text-[#6B7280]">No payment now. A concierge confirms availability first.</p>
 
@@ -776,6 +777,22 @@ export const TripOverview: React.FC<TripOverviewProps> = ({
               </div>
             </div>
           </aside>
+        </div>
+      </div>
+      {/* Mobile: the total and the booking shortcut stay in reach while scrolling the long itinerary */}
+      <div className="lg:hidden sticky bottom-[5.25rem] z-30 mt-6 px-3">
+        <div className="flex items-center justify-between gap-3 p-2 pl-4 rounded-full bg-white border border-[#1E2022]/12 shadow-2xl">
+          <div className="min-w-0 leading-tight">
+            <p className="text-[19px] font-bold text-[#1E2022] truncate tabular-nums">{formatINR(costs.total)}</p>
+            <p className="text-[12px] font-medium text-[#6B7280] truncate">Total for {guests} guest{guests > 1 ? 's' : ''}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => document.getElementById('ov-booking')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+            className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-gradient-to-r from-[#C2571A] via-[#E5501A] to-[#F7931E] text-white text-[15px] font-semibold shadow-[0_12px_26px_-12px_rgba(194,87,26,0.65)] cursor-pointer"
+          >
+            Book now <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </section>

@@ -1111,7 +1111,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
             <div className="rounded-2xl border border-[#1E2022]/10 bg-white p-4">
               <h2 className="text-base font-semibold text-[#6B7280]">Trip summary</h2>
               <div className="mt-3 space-y-2.5 text-[15px]">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-3">
                   <span className="text-[#6B7280]">Dates</span>
                   <span className="font-semibold text-[#1E2022] text-right">
                     {formatDate(draft.checkIn)} – {formatDate(draft.checkOut)}
@@ -1204,29 +1204,30 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
       </div>
 
       {/* Sticky continue bar */}
-      <div className="sticky bottom-[5.25rem] md:bottom-6 z-30 mt-8 max-w-3xl mx-auto px-4">
+      <div className="sticky bottom-[5.25rem] md:bottom-6 z-30 mt-8 max-w-3xl mx-auto px-3 sm:px-4">
         <div
           aria-hidden={!showBar}
-          className={`flex items-center justify-between gap-4 p-3 pl-5 rounded-full bg-white border border-[#1E2022]/12 shadow-2xl transition-all duration-700 ease-out ${
+          className={`flex items-center justify-between gap-2 sm:gap-4 p-2 pl-4 sm:p-3 sm:pl-5 rounded-full bg-white border border-[#1E2022]/12 shadow-2xl transition-all duration-700 ease-out ${
             showBar ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0 pointer-events-none'
           }`}
         >
-          <div className="min-w-0">
-            <p className="text-[22px] font-bold leading-tight text-[#1E2022] truncate">
-              {formatINR(costs.total)}{' '}
-              <span className="text-[14px] font-medium text-[#6B7280]">/ {totalPlanned} Experiences Planned</span>
+          <div className="min-w-0 leading-tight">
+            <p className="text-[19px] sm:text-[22px] font-bold text-[#1E2022] truncate tabular-nums">{formatINR(costs.total)}</p>
+            <p className="text-[12px] sm:text-[14px] font-medium text-[#6B7280] truncate">
+              {totalPlanned} experience{totalPlanned === 1 ? '' : 's'} planned
             </p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <SaveTripButton isSaved={isTripSaved} onClick={onSaveTrip} short compactOnMobile tabIndex={showBar ? 0 : -1} className="px-4 py-2.5 text-[15px]" />
+            <SaveTripButton isSaved={isTripSaved} onClick={onSaveTrip} short compactOnMobile tabIndex={showBar ? 0 : -1} className="px-3 sm:px-4 py-2.5 text-[15px]" />
             <button
             type="button"
             onClick={onContinue}
             disabled={totalPlanned === 0}
             tabIndex={showBar ? 0 : -1}
-            className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#C2571A] via-[#E5501A] to-[#F7931E] hover:brightness-110 hover:-translate-y-0.5 shadow-[0_12px_26px_-12px_rgba(194,87,26,0.65)] text-white text-base font-semibold disabled:opacity-40 disabled:hover:translate-y-0 motion-reduce:hover:translate-y-0 transition duration-200 ease-out cursor-pointer shrink-0"
+            className="group inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-2.5 rounded-full text-[15px] sm:text-base bg-gradient-to-r from-[#C2571A] via-[#E5501A] to-[#F7931E] hover:brightness-110 hover:-translate-y-0.5 shadow-[0_12px_26px_-12px_rgba(194,87,26,0.65)] text-white text-base font-semibold disabled:opacity-40 disabled:hover:translate-y-0 motion-reduce:hover:translate-y-0 transition duration-200 ease-out cursor-pointer shrink-0"
           >
-            Review my package <ArrowRight className="w-4 h-4 transition-transform duration-200 ease-out group-hover:translate-x-[3px] motion-reduce:group-hover:translate-x-0" />
+            <span className="sm:hidden">Review</span>
+            <span className="hidden sm:inline">Review my package</span> <ArrowRight className="w-4 h-4 transition-transform duration-200 ease-out group-hover:translate-x-[3px] motion-reduce:group-hover:translate-x-0" />
           </button>
           </div>
         </div>
