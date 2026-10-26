@@ -53,6 +53,10 @@ const MAX_CHILDREN = 8;
 const MAX_INFANTS = 4;
 const MAX_ROOMS = 10;
 
+/** Rooms follow the party: 2 adults per room, and no more than 4 guests (infants excluded) per room. */
+const roomsFor = (adults: number, children: number) =>
+  adults >= 1 ? Math.max(1, Math.ceil(adults / 2), Math.ceil((adults + children) / 4)) : 0;
+
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
 // Shared glass styling
@@ -229,6 +233,9 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
     rooms: prefill ? rooms : 0,
   });
 
+  // Rooms follow the party automatically until the visitor adjusts them by hand.
+  const [roomsManual, setRoomsManual] = useState(false);
+
   const [validationError, setValidationError] = useState<string | null>(null);
   const [activePopup, setActivePopup] = useState<Popup>(null);
 
@@ -296,23 +303,26 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
     const a = Math.min(MAX_ADULTS, Math.max(0, nextAdults));
     const c = Math.min(MAX_CHILDREN, Math.max(0, nextChildren));
     const i = Math.min(MAX_INFANTS, Math.max(0, nextInfants));
-    setParty((p) => ({ ...p, adults: a, children: c, infants: i }));
-    if (a >= 1 || party.rooms > 0) {
+    const needed = roomsFor(a, c);
+    // a hand-picked room count is kept while it still fits the party (at least what is needed, one adult per room at most)
+    const nextRooms =
+      a >= 1 && roomsManual ? Math.min(Math.max(party.rooms, needed), Math.min(a, MAX_ROOMS)) : Math.min(needed, MAX_ROOMS);
+    setParty({ adults: a, children: c, infants: i, rooms: nextRooms });
+    if (a >= 1) {
       markPicked('guests');
+      setGuests(nextRooms, a, c);
     } else {
       unpick('guests');
     }
-    setGuests(party.rooms, a, c);
   };
 
   const changeRooms = (nextRooms: number) => {
-    const r = Math.min(MAX_ROOMS, Math.max(0, nextRooms));
+    if (party.adults < 1) return;
+    const needed = roomsFor(party.adults, party.children);
+    const r = Math.min(Math.min(party.adults, MAX_ROOMS), Math.max(needed, nextRooms));
+    setRoomsManual(r !== needed);
     setParty((p) => ({ ...p, rooms: r }));
-    if (r > 0 || party.adults >= 1) {
-      markPicked('guests');
-    } else {
-      unpick('guests');
-    }
+    markPicked('guests');
     setGuests(r, party.adults, party.children);
   };
 
@@ -635,7 +645,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                     { key: 'adults', label: 'Adults', sub: 'Age 12 and above', value: party.adults, min: party.children > 0 || party.infants > 0 ? 1 : 0, max: MAX_ADULTS },
                     { key: 'children', label: 'Children', sub: 'Age 6 to 12', value: party.children, min: 0, max: MAX_CHILDREN },
                     { key: 'infants', label: 'Infants', sub: 'Below 6 years', value: party.infants, min: 0, max: MAX_INFANTS },
-                    { key: 'rooms', label: 'Rooms', sub: 'Accommodation rooms', value: party.rooms, min: 0, max: MAX_ROOMS },
+                    { key: 'rooms', label: 'Rooms', sub: 'Updates with your guests', value: party.rooms, min: roomsFor(party.adults, party.children), max: Math.min(party.adults, MAX_ROOMS) },
                   ].map((row) => {
                     const apply = (delta: number) => {
                       const v = row.value + delta;
