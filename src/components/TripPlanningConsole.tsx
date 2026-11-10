@@ -13,6 +13,7 @@ import {
   Minus,
   Sparkles,
   BedDouble,
+  Search,
 } from 'lucide-react';
 import { TravellerType, TripDraft } from '../types';
 import {
@@ -238,6 +239,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
 
   const [validationError, setValidationError] = useState<string | null>(null);
   const [activePopup, setActivePopup] = useState<Popup>(null);
+  const [destSearch, setDestSearch] = useState('');
 
   const endDate = addDaysISO(departureDate, durationNights);
 
@@ -252,10 +254,11 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
     const handleClickOutside = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setActivePopup(null);
+        setDestSearch('');
       }
     };
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setActivePopup(null);
+      if (e.key === 'Escape') { setActivePopup(null); setDestSearch(''); }
     };
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleKeyDown);
@@ -410,7 +413,11 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
 
   const hint = (text: string) => <span className="text-[#374151] font-medium">{text}</span>;
 
-  const toggle = (popup: Exclude<Popup, null>) => setActivePopup(activePopup === popup ? null : popup);
+  const toggle = (popup: Exclude<Popup, null>) => {
+    const next = activePopup === popup ? null : popup;
+    setActivePopup(next);
+    if (popup === 'dest' && next === null) setDestSearch('');
+  };
 
   return (
     <div ref={containerRef} className="relative w-full max-w-6xl mx-auto z-30" aria-label="Holiday planning console">
@@ -456,8 +463,25 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                 <p className="text-[11px] font-bold uppercase tracking-wider text-[#16878C] px-2 py-1">
                   Select Destination
                 </p>
+                {/* Search input */}
+                <div className="relative mt-2 mb-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#6B7280] pointer-events-none" />
+                  <input
+                    type="text"
+                    value={destSearch}
+                    onChange={(e) => setDestSearch(e.target.value)}
+                    placeholder="Search destinations…"
+                    className="w-full pl-8 pr-3 py-2 text-sm rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] focus:outline-none focus:border-[#16878C] focus:ring-1 focus:ring-[#16878C]/30 placeholder:text-[#9CA3AF] text-[#1E2022]"
+                    autoFocus
+                  />
+                </div>
                 <div className="space-y-1 mt-1 max-h-[260px] overflow-y-auto">
-                  {DESTINATION_OPTIONS.map((dest) => {
+                  {DESTINATION_OPTIONS.filter((d) =>
+                    destSearch.trim() === '' ||
+                    d.name.toLowerCase().includes(destSearch.toLowerCase()) ||
+                    d.country.toLowerCase().includes(destSearch.toLowerCase()) ||
+                    d.tag.toLowerCase().includes(destSearch.toLowerCase())
+                  ).map((dest) => {
                     const on = picked.dest && selectedDestId === dest.id;
                     return (
                       <button
@@ -487,6 +511,14 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                       </button>
                     );
                   })}
+                  {DESTINATION_OPTIONS.filter((d) =>
+                    destSearch.trim() === '' ||
+                    d.name.toLowerCase().includes(destSearch.toLowerCase()) ||
+                    d.country.toLowerCase().includes(destSearch.toLowerCase()) ||
+                    d.tag.toLowerCase().includes(destSearch.toLowerCase())
+                  ).length === 0 && (
+                    <p className="text-sm text-[#9CA3AF] text-center py-4">No destinations match "{destSearch}"</p>
+                  )}
                 </div>
               </div>
             )}
