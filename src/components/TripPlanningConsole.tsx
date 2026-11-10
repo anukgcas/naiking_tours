@@ -61,7 +61,7 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 
 // Shared glass styling
 const FIELD_IDLE =
-  'bg-white/75 backdrop-blur-md border-[#1E2022]/15 shadow-2xs hover:bg-white/95 hover:border-[#C2571A]/40';
+  'bg-white/45 backdrop-blur-lg border-white/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] hover:bg-white/70 hover:border-white';
 const FIELD_OPEN = 'bg-white border-[#C2571A] shadow-[0_0_0_3px_rgba(194,87,26,0.18)]';
 const POPOVER =
   'absolute top-[92px] bg-white/95 backdrop-blur-2xl backdrop-saturate-150 border border-white/70 ring-1 ring-inset ring-white/40 rounded-2xl p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150';
@@ -414,7 +414,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
 
   return (
     <div ref={containerRef} className="relative w-full max-w-6xl mx-auto z-30" aria-label="Holiday planning console">
-      <div className="bg-gradient-to-br from-white/95 via-white/88 to-white/78 backdrop-blur-2xl backdrop-saturate-150 border border-white/90 ring-1 ring-[#1E2022]/10 rounded-3xl p-4 sm:p-6 shadow-[0_28px_60px_-16px_rgba(14,24,34,0.5),0_0_0_1px_rgba(255,255,255,0.85)_inset] text-[#1E2022]">
+      <div className="bg-gradient-to-br from-white/60 via-white/40 to-white/25 backdrop-blur-2xl backdrop-saturate-[1.6] border border-white/70 ring-1 ring-inset ring-white/50 rounded-3xl p-4 sm:p-6 shadow-[0_28px_60px_-20px_rgba(14,24,34,0.45),inset_0_1px_0_rgba(255,255,255,0.8)] text-[#1E2022]">
         {/* Top Header Label */}
         <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-[#1E2022]/10">
           <div className="flex items-center gap-2">
@@ -728,7 +728,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                 className={`text-xs px-3 py-1 rounded-full border transition-all shrink-0 cursor-pointer ${
                   picked.dest && selectedDestId === d.id
                     ? 'bg-[#C2571A]/10 border-[#C2571A] text-[#C2571A] font-bold shadow-2xs'
-                    : 'bg-white/80 border-[#1E2022]/15 text-[#1E2022] font-semibold hover:bg-white hover:border-[#C2571A] shadow-2xs'
+                    : 'bg-white/50 backdrop-blur-md border-white/70 text-[#1E2022] font-semibold hover:bg-white/80 hover:border-[#C2571A]/50'
                 }`}
               >
                 {d.name}
