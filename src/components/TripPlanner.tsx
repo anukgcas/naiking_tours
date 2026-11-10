@@ -232,8 +232,9 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
   // ---------- board actions ----------
 
   /** The plan after moving an activity, or null when the move is not allowed (already on that day). */
-  const movePlan = (id: string, from: Column, to: Column, beforeIndex?: number): PlanState | null => {
-    const next = plan.days.map((d) => [...d]);
+  const movePlan = (id: string, from: Column, to: Column, beforeIndex?: number, basePlan?: PlanState): PlanState | null => {
+    const src = basePlan ?? plan;
+    const next = src.days.map((d) => [...d]);
     if (to !== 'ideas' && from !== to && next[to].includes(id)) return null;
 
     let insertAt = beforeIndex;
@@ -247,13 +248,13 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
       target.splice(insertAt === undefined ? target.length : Math.min(insertAt, target.length), 0, id);
     }
     // custom times belong to a specific day, so they do not follow an activity to another day
-    let times = plan.times;
+    let times = src.times;
     if (times && from !== to) {
       times = { ...times };
       if (from !== 'ideas') delete times[`${from}:${id}`];
       if (to !== 'ideas') delete times[`${to}:${id}`];
     }
-    return { ...plan, days: next, times };
+    return { ...src, days: next, times };
   };
 
   const move = (id: string, from: Column, to: Column, beforeIndex?: number) => {
@@ -262,7 +263,10 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
   };
 
   const addToDay = (id: string, dayIndex: number) => {
-    const next = movePlan(id, 'ideas', dayIndex);
+    // Freeze existing activities' derived times before inserting the new one,
+    // so the new activity slots in without shifting what's already scheduled.
+    const lockedPlan = lockDayTimes(plan, dayIndex, planned[dayIndex] ?? []);
+    const next = movePlan(id, 'ideas', dayIndex, undefined, lockedPlan);
     if (next) {
       const mins = addTime ? toMinutes(addTime) : null;
       const hours = activityMap(plan).get(id)?.hours ?? 1;
@@ -289,13 +293,20 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
       setAiNote(noPicksMessage(dayIndex));
       return;
     }
-    const next = plan.days.map((d, i) => (i === dayIndex ? [...d, ...picks.map((p) => p.id)] : d));
-    onPlanChange(sortDaysBySlot({ ...plan, days: next }));
+    // Lock existing activities' derived times before sorting, so they don't shift.
+    const lockedPlan = lockDayTimes(plan, dayIndex, planned[dayIndex] ?? []);
+    const next = lockedPlan.days.map((d, i) => (i === dayIndex ? [...d, ...picks.map((p) => p.id)] : d));
+    onPlanChange(sortDaysBySlot({ ...lockedPlan, days: next }));
     setAiNote(`Added ${picks.length} balanced pick${picks.length > 1 ? 's' : ''} to Day ${dayIndex + 1}.`);
   };
 
   const handleAutoPlan = () => {
-    const next = autoFillPlan(draft, plan);
+    // Lock every day's derived times before autofill reorders activities.
+    let lockedPlan = plan;
+    for (let i = 0; i < plan.days.length; i++) {
+      lockedPlan = lockDayTimes(lockedPlan, i, planned[i] ?? []);
+    }
+    const next = autoFillPlan(draft, lockedPlan);
     const added = next.days.flat().length - plan.days.flat().length;
     onPlanChange(next);
     setAiNote(
@@ -342,8 +353,9 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
       // Live AI is optional: fall back to the built-in picks so the button always does something useful
       const picks = suggestForDay(draft, plan, aiDay, 3);
       if (picks.length) {
-        const next = plan.days.map((d, i) => (i === aiDay ? [...d, ...picks.map((p) => p.id)] : d));
-        onPlanChange(sortDaysBySlot({ ...plan, days: next }));
+        const lockedPlan = lockDayTimes(plan, aiDay, planned[aiDay] ?? []);
+        const next = lockedPlan.days.map((d, i) => (i === aiDay ? [...d, ...picks.map((p) => p.id)] : d));
+        onPlanChange(sortDaysBySlot({ ...lockedPlan, days: next }));
       }
       setAiNote(
         picks.length
@@ -447,6 +459,22 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({
       });
     });
     return rows;
+  };
+
+  /**
+   * Returns a copy of the plan with every non-custom activity on the given day
+   * frozen to its current derived clock time, so subsequent inserts or sorts
+   * cannot shift those times.
+   */
+  const lockDayTimes = (currentPlan: PlanState, dayIndex: number, items: Activity[]): PlanState => {
+    const rows = buildRows(items, dayIndex);
+    const newTimes: Record<string, { start: number; end: number }> = { ...currentPlan.times };
+    rows.forEach((row) => {
+      if (row.kind === 'activity' && !row.custom) {
+        newTimes[`${dayIndex}:${row.a.id}`] = { start: row.start, end: row.end };
+      }
+    });
+    return { ...currentPlan, times: newTimes };
   };
 
   const renderTimeline = (items: Activity[], dayIndex: number) => {
