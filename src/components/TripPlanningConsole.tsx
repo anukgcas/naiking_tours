@@ -54,9 +54,17 @@ const MAX_CHILDREN = 8;
 const MAX_INFANTS = 4;
 const MAX_ROOMS = 10;
 
-/** Rooms follow the party: 2 adults per room, and no more than 4 guests (infants excluded) per room. */
-const roomsFor = (adults: number, children: number) =>
-  adults >= 1 ? Math.max(1, Math.ceil(adults / 2), Math.ceil((adults + children) / 4)) : 0;
+/**
+ * Rooms follow the party based on sharing type.
+ * Double: 2 adults / room, max 4 guests / room.
+ * Triple: 3 adults / room, max 6 guests / room.
+ */
+const roomsFor = (adults: number, children: number, capacity: 2 | 3 = 2) => {
+  const guestCap = capacity * 2; // double→4, triple→6
+  return adults >= 1
+    ? Math.max(1, Math.ceil(adults / capacity), Math.ceil((adults + children) / guestCap))
+    : 0;
+};
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
@@ -236,6 +244,9 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
 
   // Rooms follow the party automatically until the visitor adjusts them by hand.
   const [roomsManual, setRoomsManual] = useState(false);
+  // Room sharing type: double (2 pax) or triple (3 pax)
+  const [sharingType, setSharingType] = useState<'double' | 'triple'>('double');
+  const roomCapacity: 2 | 3 = sharingType === 'triple' ? 3 : 2;
 
   const [validationError, setValidationError] = useState<string | null>(null);
   const [activePopup, setActivePopup] = useState<Popup>(null);
@@ -306,7 +317,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
     const a = Math.min(MAX_ADULTS, Math.max(0, nextAdults));
     const c = Math.min(MAX_CHILDREN, Math.max(0, nextChildren));
     const i = Math.min(MAX_INFANTS, Math.max(0, nextInfants));
-    const needed = roomsFor(a, c);
+    const needed = roomsFor(a, c, roomCapacity);
     // a hand-picked room count is kept while it still fits the party (at least what is needed, one adult per room at most)
     const nextRooms =
       a >= 1 && roomsManual ? Math.min(Math.max(party.rooms, needed), Math.min(a, MAX_ROOMS)) : Math.min(needed, MAX_ROOMS);
@@ -321,12 +332,25 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
 
   const changeRooms = (nextRooms: number) => {
     if (party.adults < 1) return;
-    const needed = roomsFor(party.adults, party.children);
+    const needed = roomsFor(party.adults, party.children, roomCapacity);
     const r = Math.min(Math.min(party.adults, MAX_ROOMS), Math.max(needed, nextRooms));
     setRoomsManual(r !== needed);
     setParty((p) => ({ ...p, rooms: r }));
     markPicked('guests');
     setGuests(r, party.adults, party.children);
+  };
+
+  const changeSharingType = (type: 'double' | 'triple') => {
+    setSharingType(type);
+    setRoomsManual(false); // recalculate rooms for new capacity
+    const cap: 2 | 3 = type === 'triple' ? 3 : 2;
+    const needed = roomsFor(party.adults, party.children, cap);
+    const r = Math.min(needed, MAX_ROOMS);
+    setParty((p) => ({ ...p, rooms: r }));
+    if (party.adults >= 1) {
+      markPicked('guests');
+      setGuests(r, party.adults, party.children);
+    }
   };
 
   const guestSummary =
@@ -662,7 +686,9 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                     {picked.guests ? guestSummary : hint("Who's travelling?")}
                   </div>
                   <div className="text-[11px] text-[#4B5563] truncate leading-tight">
-                    {picked.guests ? plural(party.rooms, 'Room', 'Rooms') : 'Select guests & rooms'}
+                    {picked.guests
+                      ? `${plural(party.rooms, 'Room', 'Rooms')} · ${sharingType === 'triple' ? 'Triple' : 'Double'} sharing`
+                      : 'Select guests & rooms'}
                   </div>
                 </div>
               </div>
@@ -677,7 +703,7 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                     { key: 'adults', label: 'Adults', sub: 'Age 12 and above', value: party.adults, min: party.children > 0 || party.infants > 0 ? 1 : 0, max: MAX_ADULTS },
                     { key: 'children', label: 'Children', sub: 'Age 6 to 12', value: party.children, min: 0, max: MAX_CHILDREN },
                     { key: 'infants', label: 'Infants', sub: 'Below 6 years', value: party.infants, min: 0, max: MAX_INFANTS },
-                    { key: 'rooms', label: 'Rooms', sub: 'Updates with your guests', value: party.rooms, min: roomsFor(party.adults, party.children), max: Math.min(party.adults, MAX_ROOMS) },
+                    { key: 'rooms', label: 'Rooms', sub: sharingType === 'triple' ? 'Triple sharing (3 per room)' : 'Double sharing (2 per room)', value: party.rooms, min: roomsFor(party.adults, party.children, roomCapacity), max: Math.min(party.adults, MAX_ROOMS) },
                   ].map((row) => {
                     const apply = (delta: number) => {
                       const v = row.value + delta;
@@ -720,10 +746,35 @@ export const TripPlanningConsole: React.FC<TripPlanningConsoleProps> = ({
                   })}
                 </div>
 
-                <p className="mt-4 flex items-start gap-2 text-[10px] text-[#6B7280] leading-snug">
+                {/* Room sharing type toggle */}
+                <div className="mt-4 pt-3 border-t border-[#1E2022]/10">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#16878C] mb-2">Room Sharing</p>
+                  <div className="flex gap-2">
+                    {(['double', 'triple'] as const).map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => changeSharingType(type)}
+                        className={`flex-1 flex flex-col items-center gap-0.5 py-2 px-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                          sharingType === type
+                            ? 'border-[#C2571A] bg-[#C2571A]/8 text-[#C2571A]'
+                            : 'border-[#1E2022]/12 bg-white/60 text-[#4B5563] hover:border-[#C2571A]/50 hover:text-[#C2571A]'
+                        }`}
+                      >
+                        <BedDouble className={`w-4 h-4 ${sharingType === type ? 'text-[#C2571A]' : 'text-[#9CA3AF]'}`} />
+                        <span className="capitalize">{type}</span>
+                        <span className={`text-[10px] font-normal ${sharingType === type ? 'text-[#C2571A]/80' : 'text-[#9CA3AF]'}`}>
+                          {type === 'double' ? '2 pax / room' : '3 pax / room'}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <p className="mt-3 flex items-start gap-2 text-[10px] text-[#6B7280] leading-snug">
                   <BedDouble className="w-3.5 h-3.5 text-[#16878C] shrink-0" />
                   <span>
-                    Select the number of rooms needed for your accommodation. Infants stay free.
+                    Rooms auto-calculate based on your group size and sharing type. Infants stay free.
                   </span>
                 </p>
 
